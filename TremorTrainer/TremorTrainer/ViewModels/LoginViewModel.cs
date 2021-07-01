@@ -8,17 +8,31 @@ namespace TremorTrainer.ViewModels
 {
     public class LoginViewModel : BaseViewModel
     {
-        public Command LoginCommand { get; }
+        public Command PrescribedCommand { get; }
+        public Command MaintenanceCommand { get; }
+
 
         public LoginViewModel()
         {
-            LoginCommand = new Command(OnLoginClicked);
+            PrescribedCommand = new Command(OnPrescribedButtonClicked);
+            MaintenanceCommand = new Command(OnMaintenanceButtonClicked);
         }
 
-        private async void OnLoginClicked(object obj)
+        private void OnMaintenanceButtonClicked(object obj)
         {
+            //Todo: Check for a token to determine what content to present to the user
+            Application.Current.MainPage = new AppShell();
+        }
+
+        private void OnPrescribedButtonClicked(object obj)
+        {
+            //Todo: Check for a token to determine what content to present to the user
+
             // Prefixing with `//` switches to a different navigation stack instead of pushing to the active one
-            await Shell.Current.GoToAsync($"//{nameof(AboutPage)}");
+            //await Shell.Current.GoToAsync($"//{nameof(AboutPage)}");
+
+            Application.Current.MainPage = new AppShell();
+
         }
     }
 }

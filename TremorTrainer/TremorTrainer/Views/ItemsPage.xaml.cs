@@ -28,5 +28,6 @@ namespace TremorTrainer.Views
             base.OnAppearing();
             _viewModel.OnAppearing();
         }
+
     }
 }

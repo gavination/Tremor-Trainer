@@ -59,6 +59,7 @@ namespace TremorTrainer.ViewModels
         {
             IsBusy = true;
             SelectedItem = null;
+
         }
 
         public Item SelectedItem
