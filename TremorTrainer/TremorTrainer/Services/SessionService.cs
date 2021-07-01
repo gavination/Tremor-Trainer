@@ -6,11 +6,11 @@ using TremorTrainer.Models;
 
 namespace TremorTrainer.Services
 {
-    public class MockDataStore : IDataStore<Item>
+    public class SessionService : ISessionService
     {
         readonly List<Item> items;
 
-        public MockDataStore()
+        public SessionService()
         {
             items = new List<Item>()
             {
@@ -23,9 +23,9 @@ namespace TremorTrainer.Services
             };
         }
 
-        public async Task<bool> AddItemAsync(Item item)
+        public async Task<bool> AddItemAsync(Item newItem)
         {
-            items.Add(item);
+            items.Add(newItem);
 
             return await Task.FromResult(true);
         }
@@ -56,5 +56,13 @@ namespace TremorTrainer.Services
         {
             return await Task.FromResult(items);
         }
+
+    }
+
+    public interface ISessionService
+    {
+        Task<bool> AddItemAsync(Item newItem);
+        Task<Item> GetItemAsync(string itemId);
+        Task<IEnumerable<Item>> GetItemsAsync(bool forceRefresh = false);
     }
 }

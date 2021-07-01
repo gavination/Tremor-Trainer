@@ -20,7 +20,7 @@ namespace TremorTrainer.Views
         {
             InitializeComponent();
 
-            BindingContext = _viewModel = new ItemsViewModel();
+            BindingContext = _viewModel = App.Locator.ItemsViewModel;
         }
 
         protected override void OnAppearing()

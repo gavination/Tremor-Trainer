@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
+using TremorTrainer.Services;
 using Xamarin.Forms;
 
 namespace TremorTrainer.ViewModels
@@ -12,7 +13,14 @@ namespace TremorTrainer.ViewModels
         private string itemId;
         private string text;
         private string description;
+
+        private readonly ISessionService _dataStore;
         public string Id { get; set; }
+
+        public ItemDetailViewModel(ISessionService dataStore)
+        {
+            _dataStore = dataStore;
+        }
 
         public string Text
         {
@@ -43,7 +51,7 @@ namespace TremorTrainer.ViewModels
         {
             try
             {
-                var item = await DataStore.GetItemAsync(itemId);
+                var item = await _dataStore.GetItemAsync(itemId);
                 Id = item.Id;
                 Text = item.Text;
                 Description = item.Description;

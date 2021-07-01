@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
+using TremorTrainer.Services;
 using TremorTrainer.Views;
 using Xamarin.Forms;
 
@@ -11,14 +12,17 @@ namespace TremorTrainer.ViewModels
     public class ItemsViewModel : BaseViewModel
     {
         private Item _selectedItem;
+        private readonly ISessionService _datastore;
 
         public ObservableCollection<Item> Items { get; }
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
         public Command<Item> ItemTapped { get; }
 
-        public ItemsViewModel()
+        public ItemsViewModel(ISessionService dataStore)
         {
+            _datastore = dataStore;
+
             Title = "Browse";
             Items = new ObservableCollection<Item>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
@@ -35,7 +39,7 @@ namespace TremorTrainer.ViewModels
             try
             {
                 Items.Clear();
-                var items = await DataStore.GetItemsAsync(true);
+                var items = await _datastore.GetItemsAsync(true);
                 foreach (var item in items)
                 {
                     Items.Add(item);

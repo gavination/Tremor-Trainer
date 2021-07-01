@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 using TremorTrainer.Models;
+using TremorTrainer.Services;
 using Xamarin.Forms;
 
 namespace TremorTrainer.ViewModels
@@ -12,8 +13,12 @@ namespace TremorTrainer.ViewModels
         private string text;
         private string description;
 
-        public NewItemViewModel()
+        private readonly ISessionService _dataStore;
+
+        public NewItemViewModel(ISessionService dataStore)
         {
+            _dataStore = dataStore;
+
             SaveCommand = new Command(OnSave, ValidateSave);
             CancelCommand = new Command(OnCancel);
             this.PropertyChanged +=
@@ -56,7 +61,7 @@ namespace TremorTrainer.ViewModels
                 Description = Description
             };
 
-            await DataStore.AddItemAsync(newItem);
+            await _dataStore.AddItemAsync(newItem);
 
             // This will pop the current page off the navigation stack
             await Shell.Current.GoToAsync("..");

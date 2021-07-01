@@ -15,7 +15,7 @@ namespace TremorTrainer.Views
         public NewItemPage()
         {
             InitializeComponent();
-            BindingContext = new NewItemViewModel();
+            BindingContext = App.Locator.NewItemViewModel;
         }
     }
 }
