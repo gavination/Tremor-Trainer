@@ -8,9 +8,18 @@ namespace TremorTrainer.ViewModels
 {
     public class AccelerometerViewModel : BaseViewModel
     {
-        private IAccelerometerService accelerationService;
+        private readonly IAccelerometerService accelerationService;
 
-        public string ReadingText;
+        private string _readingText = "Sample XYZ values";
+        public string ReadingText
+        {
+            get { return _readingText; }
+            set
+            {
+                _readingText = value;
+                OnPropertyChanged();
+            }
+        }
         public AccelerometerViewModel(IAccelerometerService accelService)
         {
             accelerationService = accelService;
