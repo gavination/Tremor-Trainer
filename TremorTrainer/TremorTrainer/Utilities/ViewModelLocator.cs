@@ -17,10 +17,12 @@ namespace TremorTrainer.Utilities
 
             _unityContainer = new UnityContainer();
             _unityContainer.RegisterType<ISessionService, SessionService>();
+            _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>();
         }
 
         public ItemsViewModel ItemsViewModel => _unityContainer.Resolve<ItemsViewModel>();
         public ItemDetailViewModel ItemDetailViewModel => _unityContainer.Resolve<ItemDetailViewModel>();
         public NewItemViewModel NewItemViewModel => _unityContainer.Resolve<NewItemViewModel>();
+        public AccelerometerViewModel AccelerometerViewModel => _unityContainer.Resolve<AccelerometerViewModel>();
     }
 }

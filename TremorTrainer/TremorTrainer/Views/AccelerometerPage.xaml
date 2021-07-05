@@ -1,14 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TremorTrainer.Views.AboutPage"
+             x:Class="TremorTrainer.Views.AccelerometerPage"
              xmlns:vm="clr-namespace:TremorTrainer.ViewModels"
              Title="{Binding Title}">
-    
-    <ContentPage.BindingContext>
-        <vm:AboutViewModel />
-    </ContentPage.BindingContext>
-    
+
     <ContentPage.Resources>
         <ResourceDictionary>
             <Color x:Key="Accent">#e5721d</Color>
@@ -31,9 +27,12 @@
             <StackLayout Orientation="Vertical" Padding="30,24,30,24" Spacing="10">
                 <Label Text="Click to Start Accelerometer" FontSize="Title" />
                 <Button Margin="0,50,0,0" Text="Start Sampling"
-                        Command="{Binding OpenWebCommand}"
+                        Command="{Binding StartAccelerometerCommand}"
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White" />
+                <Label Text="Current Readings" FontSize="Large"></Label>
+                <Label Text="{Binding ReadingText}" FontSize="Large"></Label>
+
             </StackLayout>
         </ScrollView>
     </Grid>

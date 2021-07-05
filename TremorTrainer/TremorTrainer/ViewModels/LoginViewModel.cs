@@ -28,9 +28,6 @@ namespace TremorTrainer.ViewModels
         {
             //Todo: Check for a token to determine what content to present to the user
 
-            // Prefixing with `//` switches to a different navigation stack instead of pushing to the active one
-            //await Shell.Current.GoToAsync($"//{nameof(AboutPage)}");
-
             Application.Current.MainPage = new AppShell();
 
         }

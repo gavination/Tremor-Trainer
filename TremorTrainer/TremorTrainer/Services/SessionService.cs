@@ -32,7 +32,7 @@ namespace TremorTrainer.Services
 
         public async Task<bool> UpdateItemAsync(Item item)
         {
-            var oldItem = items.Where((Item arg) => arg.Id == item.Id).FirstOrDefault();
+            var oldItem = items.FirstOrDefault((Item arg) => arg.Id == item.Id);
             items.Remove(oldItem);
             items.Add(item);
 
