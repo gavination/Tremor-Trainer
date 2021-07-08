@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" x:DataType="viewmodels:AccelerometerViewModel"
              x:Class="TremorTrainer.Views.AccelerometerPage"
-             xmlns:vm="clr-namespace:TremorTrainer.ViewModels"
              Title="{Binding Title}">
 
     <ContentPage.Resources>
@@ -31,7 +30,7 @@
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White" />
                 <Label Text="Current Readings" FontSize="Large"></Label>
-                <Label Text="{Binding ReadingText}" FontSize="Large"></Label>
+                <Label Text="{Binding ReadingText, Mode=TwoWay}" FontSize="Large"></Label>
 
             </StackLayout>
         </ScrollView>
