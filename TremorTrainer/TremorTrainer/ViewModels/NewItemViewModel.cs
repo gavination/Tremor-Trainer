@@ -54,7 +54,7 @@ namespace TremorTrainer.ViewModels
 
         private async void OnSave()
         {
-            Item newItem = new Item()
+            Session newItem = new Session()
             {
                 Id = Guid.NewGuid().ToString(),
                 Text = Text,

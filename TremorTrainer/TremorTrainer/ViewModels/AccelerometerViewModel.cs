@@ -11,7 +11,6 @@ namespace TremorTrainer.ViewModels
     {
         private string _readingText = "Sample XYZ values";
 
-
         public string ReadingText
         {
             get { return _readingText; }
@@ -22,7 +21,6 @@ namespace TremorTrainer.ViewModels
             StartAccelerometerCommand = new Command(() => ToggleAccelerometer());
 
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
-
         }
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {

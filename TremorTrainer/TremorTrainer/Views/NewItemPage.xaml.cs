@@ -10,7 +10,7 @@ namespace TremorTrainer.Views
 {
     public partial class NewItemPage : ContentPage
     {
-        public Item Item { get; set; }
+        public Session Item { get; set; }
 
         public NewItemPage()
         {

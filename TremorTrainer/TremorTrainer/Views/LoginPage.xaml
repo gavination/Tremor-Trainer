@@ -21,7 +21,7 @@
                Margin="50,100,50,0"
               />
             <Button VerticalOptions="Center" Text="Prescribed Session" Command="{Binding PrescribedCommand}"  Margin="50,20,50,0"/>
-            <Button VerticalOptions="Center" Text="Maintenance Session" Command="{Binding MaintenanceCommand}"  Margin="50,10,50,0" />
+            <Button VerticalOptions="Center" Text="As Needed Session" Command="{Binding MaintenanceCommand}"  Margin="50,10,50,0" />
 
         </StackLayout>
     </ContentPage.Content>

@@ -11,23 +11,23 @@ namespace TremorTrainer.ViewModels
 {
     public class ItemsViewModel : BaseViewModel
     {
-        private Item _selectedItem;
+        private Session _selectedItem;
         private readonly ISessionService _datastore;
 
-        public ObservableCollection<Item> Items { get; }
+        public ObservableCollection<Session> Items { get; }
         public Command LoadItemsCommand { get; }
         public Command AddItemCommand { get; }
-        public Command<Item> ItemTapped { get; }
+        public Command<Session> ItemTapped { get; }
 
         public ItemsViewModel(ISessionService dataStore)
         {
             _datastore = dataStore;
 
             Title = "Browse";
-            Items = new ObservableCollection<Item>();
+            Items = new ObservableCollection<Session>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
-            ItemTapped = new Command<Item>(OnItemSelected);
+            ItemTapped = new Command<Session>(OnItemSelected);
 
             AddItemCommand = new Command(OnAddItem);
         }
@@ -62,7 +62,7 @@ namespace TremorTrainer.ViewModels
 
         }
 
-        public Item SelectedItem
+        public Session SelectedItem
         {
             get => _selectedItem;
             set
@@ -77,7 +77,7 @@ namespace TremorTrainer.ViewModels
             await Shell.Current.GoToAsync(nameof(NewItemPage));
         }
 
-        async void OnItemSelected(Item item)
+        async void OnItemSelected(Session item)
         {
             if (item == null)
                 return;

@@ -8,31 +8,31 @@ namespace TremorTrainer.Services
 {
     public class SessionService : ISessionService
     {
-        readonly List<Item> items;
+        readonly List<Session> items;
 
         public SessionService()
         {
-            items = new List<Item>()
+            items = new List<Session>()
             {
-                new Item { Id = Guid.NewGuid().ToString(), Text = "First item", Description="This is an item description." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Second item", Description="This is an item description." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Third item", Description="This is an item description." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Fourth item", Description="This is an item description." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Fifth item", Description="This is an item description." },
-                new Item { Id = Guid.NewGuid().ToString(), Text = "Sixth item", Description="This is an item description." }
+                new Session { Id = Guid.NewGuid(), Text = "First item", Description="This is an item description." },
+                new Session { Id = Guid.NewGuid(), Text = "Second item", Description="This is an item description." },
+                new Session { Id = Guid.NewGuid(), Text = "Third item", Description="This is an item description." },
+                new Session { Id = Guid.NewGuid(), Text = "Fourth item", Description="This is an item description." },
+                new Session { Id = Guid.NewGuid(), Text = "Fifth item", Description="This is an item description." },
+                new Session { Id = Guid.NewGuid(), Text = "Sixth item", Description="This is an item description." }
             };
         }
 
-        public async Task<bool> AddItemAsync(Item newItem)
+        public async Task<bool> AddItemAsync(Session newItem)
         {
             items.Add(newItem);
 
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> UpdateItemAsync(Item item)
+        public async Task<bool> UpdateItemAsync(Session item)
         {
-            var oldItem = items.FirstOrDefault((Item arg) => arg.Id == item.Id);
+            var oldItem = items.FirstOrDefault((Session arg) => arg.Id == item.Id);
             items.Remove(oldItem);
             items.Add(item);
 
@@ -41,18 +41,18 @@ namespace TremorTrainer.Services
 
         public async Task<bool> DeleteItemAsync(string id)
         {
-            var oldItem = items.Where((Item arg) => arg.Id == id).FirstOrDefault();
+            var oldItem = items.Where((Session arg) => arg.Id == id).FirstOrDefault();
             items.Remove(oldItem);
 
             return await Task.FromResult(true);
         }
 
-        public async Task<Item> GetItemAsync(string id)
+        public async Task<Session> GetItemAsync(string id)
         {
             return await Task.FromResult(items.FirstOrDefault(s => s.Id == id));
         }
 
-        public async Task<IEnumerable<Item>> GetItemsAsync(bool forceRefresh = false)
+        public async Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false)
         {
             return await Task.FromResult(items);
         }
@@ -61,8 +61,8 @@ namespace TremorTrainer.Services
 
     public interface ISessionService
     {
-        Task<bool> AddItemAsync(Item newItem);
-        Task<Item> GetItemAsync(string itemId);
-        Task<IEnumerable<Item>> GetItemsAsync(bool forceRefresh = false);
+        Task<bool> AddItemAsync(Session newItem);
+        Task<Session> GetItemAsync(string itemId);
+        Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false);
     }
 }
