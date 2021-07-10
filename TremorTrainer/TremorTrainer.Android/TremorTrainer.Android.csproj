@@ -16,7 +16,6 @@
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
-    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
     <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidUseAapt2>true</AndroidUseAapt2>
@@ -91,7 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TremorTrainer\TremorTrainer.csproj">
-      <Project>{358A8C7B-BFE4-4271-80B4-29E01FDE0A00}</Project>
+      <Project>{F73498A5-2126-4F0E-8DD8-612FF064FAFE}</Project>
       <Name>TremorTrainer</Name>
     </ProjectReference>
   </ItemGroup>

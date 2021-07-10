@@ -39,7 +39,7 @@ namespace TremorTrainer.Services
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> DeleteItemAsync(string id)
+        public async Task<bool> DeleteItemAsync(Guid id)
         {
             var oldItem = items.Where((Session arg) => arg.Id == id).FirstOrDefault();
             items.Remove(oldItem);
@@ -47,7 +47,7 @@ namespace TremorTrainer.Services
             return await Task.FromResult(true);
         }
 
-        public async Task<Session> GetItemAsync(string id)
+        public async Task<Session> GetItemAsync(Guid id)
         {
             return await Task.FromResult(items.FirstOrDefault(s => s.Id == id));
         }
@@ -62,7 +62,7 @@ namespace TremorTrainer.Services
     public interface ISessionService
     {
         Task<bool> AddItemAsync(Session newItem);
-        Task<Session> GetItemAsync(string itemId);
+        Task<Session> GetItemAsync(Guid itemId);
         Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false);
     }
 }

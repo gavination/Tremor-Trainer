@@ -10,17 +10,18 @@ namespace TremorTrainer.ViewModels
     public class AccelerometerViewModel : BaseViewModel
     {
         private string _readingText = "Sample XYZ values";
+        private readonly IMessageService _messageService;
 
         public string ReadingText
         {
             get { return _readingText; }
         }
-        public AccelerometerViewModel()
+        public AccelerometerViewModel(IMessageService messageService)
         {
             Title = "Start Training";
             StartAccelerometerCommand = new Command(() => ToggleAccelerometer());
-
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+            _messageService = messageService;
         }
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
@@ -32,7 +33,7 @@ namespace TremorTrainer.ViewModels
             _readingText = readingFormat;
             OnPropertyChanged("ReadingText");
         }
-        public void ToggleAccelerometer()
+        public async void ToggleAccelerometer()
         {
             try
             {
@@ -44,13 +45,15 @@ namespace TremorTrainer.ViewModels
             catch (FeatureNotSupportedException ex)
             {
                 // Feature not supported on device
-                // todo: add a toast notification to display this edge case
-                throw;
+                await _messageService.ShowAsync(Constants.DEVICE_NOT_SUPPORTED_MESSAGE);
+
             }
             catch (Exception ex)
             {
-                // Other error has occurred.
-                throw;
+                // Other unknown error has occurred.
+                await _messageService.ShowAsync(Constants.UNKNOWN_ERROR_MESSAGE);
+                throw ex;
+
             }
         }
 

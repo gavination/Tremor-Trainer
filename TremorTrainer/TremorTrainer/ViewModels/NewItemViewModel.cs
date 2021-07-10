@@ -56,7 +56,7 @@ namespace TremorTrainer.ViewModels
         {
             Session newItem = new Session()
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid(),
                 Text = Text,
                 Description = Description
             };

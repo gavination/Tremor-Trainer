@@ -8,8 +8,15 @@ namespace TremorTrainer
 {
     public static class Constants
     {
+        //Application runtime constants
         public static readonly SensorSpeed SENSOR_SPEED = SensorSpeed.UI;
-        public const string DatabaseFilename = "TremorTrainer.db3";
+        public const string DATABASE_FILENAME = "TremorTrainer.db3";
+
+        // Debug and exception messages
+        public const string CONTACT_EMAIL = "gavin@bionicpanda.net";
+        public const string APP_NAME = "Tremor Trainer";
+        public const string DEVICE_NOT_SUPPORTED_MESSAGE = "Unfortunately, this device does not have an Accelerometer and we cannot measure your tremor levels";
+        public static string UNKNOWN_ERROR_MESSAGE = $"An Unknown error has occurred. Please contact the Developer at {CONTACT_EMAIL}";
 
         public const SQLite.SQLiteOpenFlags Flags =
             // open the database in read/write mode
@@ -26,7 +33,7 @@ namespace TremorTrainer
             get
             {
                 string basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                return Path.Combine(basePath, DatabaseFilename);
+                return Path.Combine(basePath, DATABASE_FILENAME);
             }
         }
     }
