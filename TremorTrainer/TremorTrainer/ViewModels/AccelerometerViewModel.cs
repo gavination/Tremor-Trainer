@@ -34,7 +34,7 @@ namespace TremorTrainer.ViewModels
         {
             var newSession = new Session
             {
-                Id = new Guid(),
+                Id = Guid.NewGuid(),
                 Description = "This is a test session",
                 Text = "Sample session result text goes here"
             };
@@ -42,7 +42,7 @@ namespace TremorTrainer.ViewModels
             await _sessionService.AddItemAsync(newSession);
         }
 
-        void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
+        private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
             var data = e.Reading;
             var readingFormat = $"Reading: X: { data.Acceleration.X}, Y: { data.Acceleration.Y}, Z: { data.Acceleration.Z}";

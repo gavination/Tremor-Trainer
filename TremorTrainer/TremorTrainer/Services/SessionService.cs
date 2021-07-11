@@ -42,25 +42,6 @@ namespace TremorTrainer.Services
             }
         }
 
-        public async Task<bool> AddItemsAsync()
-        {
-            foreach (var result in from session in items
-                                   let result = _sessionRepository.AddSession(session)
-                                   select result)
-            {
-                if (result.Result > 0)
-                {
-                    return await Task.FromResult(true);
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-
-            return true;
-        }
-
         public async Task<bool> UpdateItemAsync(Session item)
         {
             var oldItem = items.FirstOrDefault((Session arg) => arg.Id == item.Id);

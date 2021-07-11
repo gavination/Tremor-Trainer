@@ -29,7 +29,6 @@ namespace TremorTrainer.Repositories
             return Database.Table<Session>().ToListAsync();
         }
 
-
         public async Task<Session> GetSessionByIdAsync(Guid id)
         {
             return await Database.Table<Session>().Where(i => i.Id == id).FirstOrDefaultAsync();
@@ -59,5 +58,6 @@ namespace TremorTrainer.Repositories
     public interface ISessionRepository
     {
         Task<int> AddSession(Session newItem);
+        Task<List<Session>> GetSessionsAsync();
     }
 }
