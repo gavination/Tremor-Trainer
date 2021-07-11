@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
+using TremorTrainer.Models;
 using TremorTrainer.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
@@ -11,18 +13,35 @@ namespace TremorTrainer.ViewModels
     {
         private string _readingText = "Sample XYZ values";
         private readonly IMessageService _messageService;
+        private readonly ISessionService _sessionService;
 
         public string ReadingText
         {
             get { return _readingText; }
         }
-        public AccelerometerViewModel(IMessageService messageService)
+        public AccelerometerViewModel(IMessageService messageService, ISessionService sessionService)
         {
             Title = "Start Training";
             StartAccelerometerCommand = new Command(() => ToggleAccelerometer());
+            SaveSessionCommand = new Command(async () => await SaveSessionAsync());
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+
             _messageService = messageService;
+            _sessionService = sessionService;
         }
+
+        private async Task SaveSessionAsync()
+        {
+            var newSession = new Session
+            {
+                Id = new Guid(),
+                Description = "This is a test session",
+                Text = "Sample session result text goes here"
+            };
+
+            await _sessionService.AddItemAsync(newSession);
+        }
+
         void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
             var data = e.Reading;
@@ -33,6 +52,7 @@ namespace TremorTrainer.ViewModels
             _readingText = readingFormat;
             OnPropertyChanged("ReadingText");
         }
+
         public async void ToggleAccelerometer()
         {
             try
@@ -45,7 +65,7 @@ namespace TremorTrainer.ViewModels
             catch (FeatureNotSupportedException ex)
             {
                 // Feature not supported on device
-                await _messageService.ShowAsync(Constants.DEVICE_NOT_SUPPORTED_MESSAGE);
+                await _messageService.ShowAsync($"{Constants.DEVICE_NOT_SUPPORTED_MESSAGE} Details: {ex.Message}");
 
             }
             catch (Exception ex)
@@ -59,5 +79,6 @@ namespace TremorTrainer.ViewModels
 
 
         public ICommand StartAccelerometerCommand { get; }
+        public ICommand SaveSessionCommand { get; }
     }
 }

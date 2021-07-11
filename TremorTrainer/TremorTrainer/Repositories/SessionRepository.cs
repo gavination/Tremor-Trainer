@@ -1,10 +1,8 @@
 ﻿using SQLite;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
-using TremorTrainer.Utilities;
 
 namespace TremorTrainer.Repositories
 {
@@ -12,16 +10,18 @@ namespace TremorTrainer.Repositories
     {
         static SQLiteAsyncConnection Database;
 
-        public static readonly AsyncLazy<SessionRepository> Instance = new AsyncLazy<SessionRepository>(async () =>
-        {
-            var instance = new SessionRepository();
-            CreateTableResult result = await Database.CreateTableAsync<Session>();
-            return instance;
-        });
+        //public static readonly AsyncLazy<SessionRepository> Instance = new AsyncLazy<SessionRepository>(async () =>
+        //{
+        //    var instance = new SessionRepository();
+        //    CreateTableResult result = await Database.CreateTableAsync<Session>();
+        //    return instance;
+        //});
 
         public SessionRepository()
         {
+            // Creates the DB if it's not there already.
             Database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+            _ = Database.CreateTableAsync<Session>().Result;
         }
 
         public Task<List<Session>> GetSessionsAsync()
@@ -35,7 +35,7 @@ namespace TremorTrainer.Repositories
             return await Database.Table<Session>().Where(i => i.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<int> SaveSessionAsync(Session session)
+        public async Task<int> AddSession(Session session)
         {
             //check to see if the session already exists
             Session fetchedSession = await GetSessionByIdAsync(session.Id);
@@ -54,11 +54,10 @@ namespace TremorTrainer.Repositories
         {
             return Database.DeleteAsync(session);
         }
-
     }
 
     public interface ISessionRepository
     {
-
+        Task<int> AddSession(Session newItem);
     }
 }

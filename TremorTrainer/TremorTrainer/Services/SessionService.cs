@@ -3,14 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
+using TremorTrainer.Repositories;
 
 namespace TremorTrainer.Services
 {
     public class SessionService : ISessionService
     {
         readonly List<Session> items;
+        private ISessionRepository _sessionRepository;
 
-        public SessionService()
+        public SessionService(ISessionRepository sessionRepository)
         {
             items = new List<Session>()
             {
@@ -21,13 +23,42 @@ namespace TremorTrainer.Services
                 new Session { Id = Guid.NewGuid(), Text = "Fifth item", Description="This is an item description." },
                 new Session { Id = Guid.NewGuid(), Text = "Sixth item", Description="This is an item description." }
             };
+
+            _sessionRepository = sessionRepository;
         }
 
         public async Task<bool> AddItemAsync(Session newItem)
         {
             items.Add(newItem);
+            var result = await _sessionRepository.AddSession(newItem);
 
-            return await Task.FromResult(true);
+            if (result > 0)
+            {
+                return await Task.FromResult(true);
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+
+        public async Task<bool> AddItemsAsync()
+        {
+            foreach (var result in from session in items
+                                   let result = _sessionRepository.AddSession(session)
+                                   select result)
+            {
+                if (result.Result > 0)
+                {
+                    return await Task.FromResult(true);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+
+            return true;
         }
 
         public async Task<bool> UpdateItemAsync(Session item)
