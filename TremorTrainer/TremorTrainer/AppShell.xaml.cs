@@ -8,11 +8,35 @@ namespace TremorTrainer
 {
     public partial class AppShell : Xamarin.Forms.Shell
     {
-        public AppShell()
+
+        public AppShell(int sessionLength)
         {
             InitializeComponent();
-            Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
-            Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+            try
+            {
+                if (!App.Current.Properties.ContainsKey("SessionLength"))
+                {
+                    App.Current.Properties.Add("SessionLength", sessionLength);
+
+                    Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
+                    Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+                }
+                else
+                {
+                    Console.WriteLine($"The Session Length argument already exists. Overwriting it with the new value");
+                    App.Current.Properties["SessionLength"] = sessionLength;
+
+                    Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
+                    Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+                }
+            }
+            catch (Exception e)
+            {
+                var message = $"Error: Something went wrong. Details {e.Message}";
+                Console.WriteLine(message);
+                App.Current.MainPage.DisplayAlert(Constants.APP_NAME, message, "Ok");
+                throw;
+            }
         }
 
         private async void OnMenuItemClicked(object sender, EventArgs e)

@@ -11,6 +11,8 @@ namespace TremorTrainer
         //Application runtime constants
         public static readonly SensorSpeed SENSOR_SPEED = SensorSpeed.UI;
         public const string DATABASE_FILENAME = "TremorTrainer.db3";
+        public const int PRESCRIBED_SESSION_TIME_LIMIT = 30000;
+        public const int AS_NEEDED_SESSION_TIME_LIMIT = 15000;
 
         // Debug and exception messages
         public const string CONTACT_EMAIL = "gavin@bionicpanda.net";
