@@ -31,11 +31,6 @@
                         TextColor="White" />
                 <Label FontSize="Large"></Label>
                 <Label Text="{Binding TimerText, Mode=TwoWay}" FontSize="Large"></Label>
-                <Button Margin=" 0,50,0,0" Text="Save Session Results"
-                        Command="{Binding SaveSessionCommand}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White" />
-
             </StackLayout>
         </ScrollView>
     </Grid>

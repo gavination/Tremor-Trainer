@@ -18,6 +18,7 @@ namespace TremorTrainer.ViewModels
         private readonly ISessionService _sessionService;
         private int _sessionLength;
         private readonly Timer _sessiontimer;
+        private bool _isSessionRunning = false;
 
         public string ReadingText => _readingText;
         public string TimerText => _timerText;
@@ -34,7 +35,6 @@ namespace TremorTrainer.ViewModels
 
             // Register Button Press Commands and subscribe to necessary events
             StartSessionCommand = new Command(async () => await ToggleAccelerometer());
-            SaveSessionCommand = new Command(async () => await SaveSessionAsync());
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
 
             // Fulfill external services 
@@ -44,14 +44,23 @@ namespace TremorTrainer.ViewModels
 
         private async Task SaveSessionAsync()
         {
-            var newSession = new Session
+            //note: test session until new features roll in. 
+
+            Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
                 Description = "This is a test session",
                 Text = "Sample session result text goes here"
             };
 
-            await _sessionService.AddItemAsync(newSession);
+            bool result = await _sessionService.AddItemAsync(newSession);
+
+            if (!result)
+            {
+                //todo: consider throwing an exception here, perhaps. 
+                string errorMessage = "Unable to save the results of your session.";
+                await _messageService.ShowAsync(errorMessage);
+            }
         }
 
         private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
@@ -76,7 +85,7 @@ namespace TremorTrainer.ViewModels
                 else
                 {
                     Accelerometer.Start(Constants.SENSOR_SPEED);
-                    StartTimer();
+                    StartTimerAsync();
                 }
 
             }
@@ -95,11 +104,20 @@ namespace TremorTrainer.ViewModels
             }
         }
 
-        private void StartTimer()
+        private async Task StartTimerAsync()
         {
-            //trigger a timer event every for every interval that passes 
-            _sessiontimer.Elapsed += OnTimedEvent;
-            _sessiontimer.Enabled = true;
+            if (_sessionLength > 0 && !_isSessionRunning)
+            {
+                //trigger a timer event every for every interval that passes 
+                _sessiontimer.Elapsed += OnTimedEvent;
+                _sessiontimer.Enabled = true;
+                _isSessionRunning = true;
+            }
+            else
+            {
+                await _messageService.ShowAsync("Session is already active.");
+            }
+
         }
 
         private void OnTimedEvent(object sender, ElapsedEventArgs e)
@@ -108,7 +126,7 @@ namespace TremorTrainer.ViewModels
 
             //update the ui with a propertychanged event here
             TimeSpan span = TimeSpan.FromMilliseconds(_sessionLength);
-            
+
             //TODO: modify this to incorporate leading zeros in the Label.
             _timerText = $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
             OnPropertyChanged("TimerText");
@@ -116,9 +134,13 @@ namespace TremorTrainer.ViewModels
 
             if (_sessionLength == 0)
             {
-                //stop the timer
+                OnPropertyChanged("TimerText");
+
+                //stop the timer, saves the result. resets the _sessionRunning flag
+                _isSessionRunning = false;
                 _sessiontimer.Stop();
-                ToggleAccelerometer();
+                ToggleAccelerometer().Wait();
+                SaveSessionAsync().Wait();
             }
         }
 
