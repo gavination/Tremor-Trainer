@@ -13,7 +13,6 @@ namespace TremorTrainer.Utilities
         {
             // Register types in the constructor
             _unityContainer = new UnityContainer();
-            //_unityContainer.RegisterType<ISessionRepository, SessionRepository>();
             _unityContainer.RegisterType<ISessionService, SessionService>();
             _unityContainer.RegisterType<IMessageService, MessageService>();
             _unityContainer.RegisterSingleton<ISessionRepository, SessionRepository>();

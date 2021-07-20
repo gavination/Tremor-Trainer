@@ -24,18 +24,13 @@
         </StackLayout>
         <ScrollView Grid.Row="1">
             <StackLayout Orientation="Vertical" Padding="30,24,30,24" Spacing="10">
-                <Label Text="Click to Start Accelerometer" FontSize="Title" />
+                <Label Text="Tap to Start A Session" FontSize="Title" />
                 <Button Margin="0,50,0,0" Text="Start Sampling"
-                        Command="{Binding StartAccelerometerCommand}"
+                        Command="{Binding StartSessionCommand}"
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White" />
-                <Label Text="Current Readings" FontSize="Large"></Label>
-                <Label Text="{Binding ReadingText, Mode=TwoWay}" FontSize="Large"></Label>
-                <Button Margin=" 0,50,0,0" Text="Save Session Results"
-                        Command="{Binding SaveSessionCommand}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White" />
-
+                <Label FontSize="Large"></Label>
+                <Label Text="{Binding TimerText, Mode=TwoWay}" FontSize="Large"></Label>
             </StackLayout>
         </ScrollView>
     </Grid>
