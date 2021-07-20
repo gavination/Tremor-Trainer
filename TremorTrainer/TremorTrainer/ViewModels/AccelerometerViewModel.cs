@@ -153,11 +153,21 @@ namespace TremorTrainer.ViewModels
 
         }
 
-        private void StopTimer()
+        private async Task StopTimer()
         {
-            _sessiontimer.Stop();
-            _sessiontimer.Enabled = false;
-            _sessiontimer.Dispose();
+            try
+            {
+                _sessiontimer.Stop();
+                _sessiontimer.Enabled = false;
+                _sessiontimer.Dispose();
+            }
+            catch (Exception e)
+            {
+                var message = $"{Constants.UNKNOWN_ERROR_MESSAGE}. Details: {e.Message}";
+                Console.WriteLine(message);
+                await _messageService.ShowAsync(Constants.UNKNOWN_ERROR_MESSAGE);
+            }
+
         }
 
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
@@ -177,7 +187,7 @@ namespace TremorTrainer.ViewModels
                 OnPropertyChanged("TimerText");
 
                 //stop the timer, saves the result. resets the _sessionRunning flag
-                StopTimer();
+                await StopTimer();
                 await StopAccelerometer();
 
                 _isSessionRunning = false;
