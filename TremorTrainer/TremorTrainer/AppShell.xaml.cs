@@ -34,7 +34,7 @@ namespace TremorTrainer
             {
                 var message = $"Error: Something went wrong. Details {e.Message}";
                 Console.WriteLine(message);
-                App.Current.MainPage.DisplayAlert(Constants.APP_NAME, message, "Ok");
+                App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
                 throw;
             }
         }

@@ -6,7 +6,7 @@ namespace TremorTrainer.Services
     {
         public async Task ShowAsync(string message)
         {
-            await App.Current.MainPage.DisplayAlert(Constants.APP_NAME, message, "Ok");
+            await App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
         }
     }
 

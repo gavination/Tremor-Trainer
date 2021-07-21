@@ -18,7 +18,7 @@ namespace TremorTrainer.ViewModels
         private readonly ISessionService _sessionService;
         private int _sessionLength;
         private Timer _sessiontimer;
-        private readonly int _interval = Constants.COUNTDOWN_INTERVAL;
+        private readonly int _interval = Constants.CountdownInterval;
         private bool _isSessionRunning = false;
 
         public string ReadingText => _readingText;
@@ -85,20 +85,20 @@ namespace TremorTrainer.ViewModels
                 }
                 else
                 {
-                    Accelerometer.Start(Constants.SENSOR_SPEED);
+                    Accelerometer.Start(Constants.SensorSpeed);
                     await StartTimerAsync();
                 }
             }
             catch (FeatureNotSupportedException ex)
             {
                 // Feature not supported on device
-                await _messageService.ShowAsync($"{Constants.DEVICE_NOT_SUPPORTED_MESSAGE} Details: {ex.Message}");
+                await _messageService.ShowAsync($"{Constants.DeviceNotSupportedMessage} Details: {ex.Message}");
 
             }
             catch (Exception ex)
             {
                 // Other unknown error has occurred.
-                await _messageService.ShowAsync(Constants.UNKNOWN_ERROR_MESSAGE);
+                await _messageService.ShowAsync(Constants.UnknownErrorMessage);
                 throw;
 
             }
@@ -120,7 +120,7 @@ namespace TremorTrainer.ViewModels
             catch (Exception e)
             {
                 // unknown error has occurred.
-                await _messageService.ShowAsync(Constants.UNKNOWN_ERROR_MESSAGE);
+                await _messageService.ShowAsync(Constants.UnknownErrorMessage);
                 throw;
             }
         }
@@ -163,9 +163,9 @@ namespace TremorTrainer.ViewModels
             }
             catch (Exception e)
             {
-                var message = $"{Constants.UNKNOWN_ERROR_MESSAGE}. Details: {e.Message}";
+                var message = $"{Constants.UnknownErrorMessage}. Details: {e.Message}";
                 Console.WriteLine(message);
-                await _messageService.ShowAsync(Constants.UNKNOWN_ERROR_MESSAGE);
+                await _messageService.ShowAsync(Constants.UnknownErrorMessage);
             }
 
         }
