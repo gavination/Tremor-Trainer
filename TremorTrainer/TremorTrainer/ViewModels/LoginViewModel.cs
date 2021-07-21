@@ -18,14 +18,14 @@ namespace TremorTrainer.ViewModels
             MaintenanceCommand = new Command(OnMaintenanceButtonClicked);
         }
 
-        private void OnMaintenanceButtonClicked(object obj)
+        private static void OnMaintenanceButtonClicked(object obj)
         {
             //Todo: Check for a token to determine what content to present to the user
             Application.Current.MainPage = new AppShell(Constants.AsNeededSessionTimeLimit);
 
         }
 
-        private void OnPrescribedButtonClicked(object obj)
+        private static void OnPrescribedButtonClicked(object obj)
         {
             //Todo: Check for a token to determine what content to present to the user
             Application.Current.MainPage = new AppShell(Constants.PrescribedSessionTimeLimit);

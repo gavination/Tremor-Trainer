@@ -36,10 +36,7 @@ namespace TremorTrainer.ViewModels
 
         public Guid ItemId
         {
-            get
-            {
-                return _itemId;
-            }
+            get => _itemId;
             set
             {
                 _itemId = value;
