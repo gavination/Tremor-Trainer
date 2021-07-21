@@ -10,9 +10,9 @@ namespace TremorTrainer.ViewModels
     [QueryProperty(nameof(ItemId), nameof(ItemId))]
     public class ItemDetailViewModel : BaseViewModel
     {
-        private Guid itemId;
-        private string text;
-        private string description;
+        private Guid _itemId;
+        private string _text;
+        private string _description;
 
         private readonly ISessionService _dataStore;
         public Guid Id { get; set; }
@@ -24,25 +24,25 @@ namespace TremorTrainer.ViewModels
 
         public string Text
         {
-            get => text;
-            set => SetProperty(ref text, value);
+            get => _text;
+            set => SetProperty(ref _text, value);
         }
 
         public string Description
         {
-            get => description;
-            set => SetProperty(ref description, value);
+            get => _description;
+            set => SetProperty(ref _description, value);
         }
 
         public Guid ItemId
         {
             get
             {
-                return itemId;
+                return _itemId;
             }
             set
             {
-                itemId = value;
+                _itemId = value;
                 LoadItemId(value);
             }
         }
