@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TremorTrainer.Views;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 
 namespace TremorTrainer.ViewModels
 {
