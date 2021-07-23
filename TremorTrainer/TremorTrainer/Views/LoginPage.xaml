@@ -7,6 +7,29 @@
              x:Class="TremorTrainer.Views.LoginPage"
              Shell.NavBarIsVisible="False">
     <ContentPage.Content>
+    <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White">
+        <Image  Source="hero_img.jpg" Aspect="AspectFill" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>
+            <StackLayout Padding="10,20,10,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
+                <Label Text="Welcome to Tremor Trainer"
+                   FontSize="30"
+                   TextColor="WhiteSmoke"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="0,50,0,0"
+                />
+                <Label Text="Let's Get Started"
+                   FontSize="25"
+                   TextColor="WhiteSmoke"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="50,150,50,0"
+                />
+                <Button VerticalOptions="Center" Text="Prescribed Session" Command="{Binding PrescribedCommand}" TextColor="WhiteSmoke" Margin="50,20,50,0"/>
+                <Button VerticalOptions="Center" Text="As Needed Session" Command="{Binding MaintenanceCommand}" TextColor="WhiteSmoke" Margin="50,10,50,0" />
+
+            </StackLayout>
+    </Grid>
+    <!--<ContentPage.Content>
         <StackLayout Padding="10,20,10,0" VerticalOptions="Start">
             <Label Text="Welcome to Tremor Trainer"
                FontSize="30"
@@ -23,6 +46,6 @@
             <Button VerticalOptions="Center" Text="Prescribed Session" Command="{Binding PrescribedCommand}"  Margin="50,20,50,0"/>
             <Button VerticalOptions="Center" Text="As Needed Session" Command="{Binding MaintenanceCommand}"  Margin="50,10,50,0" />
 
-        </StackLayout>
+        </StackLayout>-->
     </ContentPage.Content>
 </ContentPage>
