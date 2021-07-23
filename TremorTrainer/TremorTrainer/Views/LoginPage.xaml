@@ -5,29 +5,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              x:Class="TremorTrainer.Views.LoginPage"
-             Shell.NavBarIsVisible="False"
-             BackgroundImageSource="hero_img.jpg">
-
-    <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White">
-        <Image  Source="hero_img.jpg" Aspect="AspectFill" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+             Shell.NavBarIsVisible="False">
+    <ContentPage.Content>
         <StackLayout Padding="10,20,10,0" VerticalOptions="Start">
             <Label Text="Welcome to Tremor Trainer"
                FontSize="30"
-               TextColor="White"
                FontAttributes="Bold"
                HorizontalOptions="Center"
                Margin="0,50,0,0"
               />
             <Label Text="Let's Get Started"
-               FontSize="25"
-               TextColor="White"
+               FontSize="20"
                FontAttributes="Bold"
                HorizontalOptions="Center"
-               Margin="50,150,50,0"
+               Margin="50,100,50,0"
               />
             <Button VerticalOptions="Center" Text="Prescribed Session" Command="{Binding PrescribedCommand}"  Margin="50,20,50,0"/>
             <Button VerticalOptions="Center" Text="As Needed Session" Command="{Binding MaintenanceCommand}"  Margin="50,10,50,0" />
 
         </StackLayout>
-    </Grid>
+    </ContentPage.Content>
 </ContentPage>

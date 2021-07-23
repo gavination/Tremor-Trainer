@@ -145,7 +145,4 @@
       <Name>TremorTrainer</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\hero_img.jpg" />
-  </ItemGroup>
 </Project>
