@@ -17,7 +17,7 @@ namespace TremorTrainer.ViewModels
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
         private readonly IMessageService _messageService;
-        private readonly ISessionService _sessionService;
+        private readonly ISessionService _sessionService;   
         private int _sessionLength;
         private Timer _sessiontimer;
         private readonly int _interval = Constants.CountdownInterval;
@@ -41,6 +41,8 @@ namespace TremorTrainer.ViewModels
             // Register Button Press Commands and subscribe to necessary events
             StartSessionCommand = new Command(async () => await StartAccelerometer());
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+
+            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
 
             // Fulfill external services 
             _messageService = messageService;
@@ -225,5 +227,6 @@ namespace TremorTrainer.ViewModels
 
         public ICommand StartSessionCommand { get; }
         public ICommand SaveSessionCommand { get; }
+        public ICommand ViewResultsCommand { get; }
     }
 }
