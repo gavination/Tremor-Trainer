@@ -72,7 +72,6 @@
                             Text="PRESCRIBED SESSION" 
                         />
 
-
                         <!--  Maintenance Session Button  -->
                         <buttons:SfButton
                             Grid.Row="6"
@@ -80,7 +79,7 @@
                             Style="{DynamicResource GradientButtonStyle}"
                             Command="{Binding PrescribedCommand}"
                             HorizontalOptions="Fill"
-                            Text="A NEEDED SESSION"
+                            Text="AS NEEDED SESSION"
                         />
                     </Grid>
                 </StackLayout>

@@ -101,6 +101,7 @@
     -->
     <TabBar>
         <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
+        <ShellContent Route="ItemsPage" ContentTemplate="{DataTemplate local:ItemsPage}"/>
     </TabBar>
 
     <!-- Optional Templates 
