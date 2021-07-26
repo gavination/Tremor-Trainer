@@ -3,15 +3,10 @@
     x:Class="TremorTrainer.Views.GetStartedPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:behaviour="clr-namespace:TremorTrainer.Behaviors"
-    xmlns:border="clr-namespace:Syncfusion.XForms.Border;assembly=Syncfusion.Core.XForms"
     xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
-    xmlns:control="clr-namespace:TremorTrainer.Controls"
     xmlns:converter="clr-namespace:TremorTrainer.Converters"
     xmlns:core="clr-namespace:Syncfusion.XForms.Core;assembly=Syncfusion.Core.XForms"
     xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms"
-    xmlns:local="clr-namespace:TremorTrainer.Views"
-    xmlns:viewModel="clr-namespace:TremorTrainer.ViewModels"
     BackgroundImageSource="{core:OnPlatformOrientationStringValue Default=hero_img.jpg,
                                                                   iOSPhoneLandscape=hero_img.jpg,
                                                                   iOSTabletLandscape=hero_img.jpg}"
@@ -21,14 +16,8 @@
         <ResourceDictionary>
             <converter:BooleanToColorConverter x:Key="ColorConverter" />
             <converter:InverseBoolConverter x:Key="InverseBoolConverter" />
-            <converter:NameValidationConverter x:Key="FirstValidationErrorConverter" />
         </ResourceDictionary>
     </ContentPage.Resources>
-
-    <!--  Binding context for login page  -->
-    <ContentPage.BindingContext>
-        <viewModel:LoginPageViewModel />
-    </ContentPage.BindingContext>
 
     <ContentPage.Content>
         <Grid>
@@ -80,30 +69,19 @@
                             Command="{Binding PrescribedCommand}"
                             HorizontalOptions="Fill"
                             Style="{StaticResource GradientButtonStyle}"
-                            Text="PRESCRIBED SESSION" />
+                            Text="PRESCRIBED SESSION" 
+                        />
 
 
                         <!--  Maintenance Session Button  -->
                         <buttons:SfButton
                             Grid.Row="6"
                             Margin="0,16,0,16"
-                            BackgroundColor="{DynamicResource GradientButtonStyle}"
+                            Style="{DynamicResource GradientButtonStyle}"
                             Command="{Binding PrescribedCommand}"
-                            CornerRadius="20"
-                            HeightRequest="40">
-                            <buttons:SfButton.Content>
-                                <StackLayout
-                                    HorizontalOptions="CenterAndExpand"
-                                    Orientation="Horizontal"
-                                    VerticalOptions="Center">
-                                    <Label
-                                        FontFamily="Montserrat-Medium"
-                                        FontSize="16"
-                                        Text="AS NEEDED SESSION"
-                                        TextColor="{DynamicResource Gray-White}" />
-                                </StackLayout>
-                            </buttons:SfButton.Content>
-                        </buttons:SfButton>
+                            HorizontalOptions="Fill"
+                            Text="A NEEDED SESSION"
+                        />
                     </Grid>
                 </StackLayout>
             </ScrollView>

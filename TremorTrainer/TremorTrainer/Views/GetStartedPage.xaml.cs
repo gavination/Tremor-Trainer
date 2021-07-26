@@ -1,5 +1,6 @@
 ﻿using Xamarin.Forms.Internals;
 using Xamarin.Forms.Xaml;
+using TremorTrainer.ViewModels;
 
 namespace TremorTrainer.Views
 {
@@ -16,6 +17,7 @@ namespace TremorTrainer.Views
         public GetStartedPage()
         {
             this.InitializeComponent();
+            BindingContext = new LoginViewModel();
         }
     }
 }

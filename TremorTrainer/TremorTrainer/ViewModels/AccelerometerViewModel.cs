@@ -1,5 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -20,6 +22,7 @@ namespace TremorTrainer.ViewModels
         private Timer _sessiontimer;
         private readonly int _interval = Constants.CountdownInterval;
         private bool _isSessionRunning = false;
+        private List<Vector3> _accelerometerReadings;
 
         public string ReadingText => _readingText;
         public string TimerText => _timerText;
@@ -33,6 +36,7 @@ namespace TremorTrainer.ViewModels
             TimeSpan timespan = TimeSpan.FromMilliseconds(_sessionLength);
             _timerText = $"Time Remaining: {(int)timespan.TotalMinutes}:{(int)timespan.TotalSeconds}";
             OnPropertyChanged("TimerText");
+            _accelerometerReadings = new List<Vector3>();
 
             // Register Button Press Commands and subscribe to necessary events
             StartSessionCommand = new Command(async () => await StartAccelerometer());
@@ -43,7 +47,7 @@ namespace TremorTrainer.ViewModels
             _sessionService = sessionService;
         }
 
-        private async Task SaveSessionAsync()
+        private async Task SaveSessionAsync(Vector3 reading)
         {
             //note: test session until new features roll in. 
 
@@ -51,14 +55,14 @@ namespace TremorTrainer.ViewModels
             {
                 Id = Guid.NewGuid(),
                 Description = "This is a test session",
-                Text = "Sample session result text goes here"
+                Text = $"Average Session Value - X: {reading.X}, Y: {reading.Y}, Z: {reading.Z}"
             };
 
             bool result = await _sessionService.AddItemAsync(newSession);
 
             if (!result)
             {
-                //todo: consider throwing an exception here, perhaps. 
+                //todo: consider throwing an exception here, perhaps.
                 string errorMessage = "Unable to save the results of your session.";
                 await _messageService.ShowAsync(errorMessage);
             }
@@ -67,6 +71,7 @@ namespace TremorTrainer.ViewModels
         private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
             AccelerometerData data = e.Reading;
+            _accelerometerReadings.Add(data.Acceleration);
             string readingFormat = $"Reading: X: { data.Acceleration.X}, Y: { data.Acceleration.Y}, Z: { data.Acceleration.Z}";
 
             Console.WriteLine(readingFormat);
@@ -85,6 +90,8 @@ namespace TremorTrainer.ViewModels
                 }
                 else
                 {
+                    // Clearing the list before starting a new Session
+                    _accelerometerReadings.Clear();
                     Accelerometer.Start(Constants.SensorSpeed);
                     await StartTimerAsync();
                 }
@@ -189,10 +196,31 @@ namespace TremorTrainer.ViewModels
                 //stop the timer, saves the result. resets the _sessionRunning flag
                 await StopTimer();
                 await StopAccelerometer();
+                var averageReading = GetAverageReading();
 
                 _isSessionRunning = false;
-                SaveSessionAsync().Wait();
+                SaveSessionAsync(averageReading).Wait();
             }
+        }
+
+        private Vector3 GetAverageReading()
+        {
+            if (_accelerometerReadings.Count > 0)
+            {
+                // get x, y, and z averages 
+                var xAverage = _accelerometerReadings.Select(x => x.X).Average();
+                var yAverage = _accelerometerReadings.Select(y => y.Y).Average();
+                var zAverage = _accelerometerReadings.Select(z => z.Z).Average();
+
+                return new Vector3(x: xAverage, y: yAverage, z: zAverage);
+
+            }
+            else
+            {
+                Console.WriteLine("No values to compute.");
+                throw new ArgumentException();
+            }
+
         }
 
         public ICommand StartSessionCommand { get; }

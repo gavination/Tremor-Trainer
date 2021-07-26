@@ -12,8 +12,8 @@
             <Setter.Value>
                 <graphics:SfLinearGradientBrush>
                     <graphics:SfLinearGradientBrush.GradientStops>
-                        <graphics:SfGradientStop Offset="0" Color="{DynamicResource PrimaryColor}" />
-                        <graphics:SfGradientStop Offset="1" Color="{DynamicResource PrimaryGradient}" />
+                        <graphics:SfGradientStop Offset="0" Color="#0c3eee" />
+                        <graphics:SfGradientStop Offset="1" Color="#242d4c" />
                     </graphics:SfLinearGradientBrush.GradientStops>
                 </graphics:SfLinearGradientBrush>
             </Setter.Value>
