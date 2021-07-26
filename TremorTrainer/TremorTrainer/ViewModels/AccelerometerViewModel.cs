@@ -29,7 +29,8 @@ namespace TremorTrainer.ViewModels
 
         public AccelerometerViewModel(IMessageService messageService, ISessionService sessionService)
         {
-            //ViewModel Page Setup
+            // ViewModel Page Setup
+            // Setup UI elements and register propertychanged events
             Title = "Start Training";
             _sessionLength = (int)App.Current.Properties["SessionLength"];
             _sessiontimer = new Timer(_interval);
@@ -108,6 +109,7 @@ namespace TremorTrainer.ViewModels
             {
                 // Other unknown error has occurred.
                 await _messageService.ShowAsync(Constants.UnknownErrorMessage);
+                Console.WriteLine($"An unknown error occurred: {ex.Message}");
                 throw;
 
             }
@@ -126,10 +128,11 @@ namespace TremorTrainer.ViewModels
                     await _messageService.ShowAsync("Session has already ended");
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 // unknown error has occurred.
                 await _messageService.ShowAsync(Constants.UnknownErrorMessage);
+                Console.WriteLine($"An unknown error occurred: {ex.Message}");
                 throw;
             }
         }

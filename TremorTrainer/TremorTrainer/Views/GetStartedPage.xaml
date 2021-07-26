@@ -77,7 +77,7 @@
                             Grid.Row="6"
                             Margin="0,16,0,16"
                             Style="{DynamicResource GradientButtonStyle}"
-                            Command="{Binding PrescribedCommand}"
+                            Command="{Binding MaintenanceCommand}"
                             HorizontalOptions="Fill"
                             Text="AS NEEDED SESSION"
                         />
