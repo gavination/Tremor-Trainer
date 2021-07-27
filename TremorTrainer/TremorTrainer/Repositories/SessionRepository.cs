@@ -3,12 +3,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
+using TremorTrainer.Utilities;
 
 namespace TremorTrainer.Repositories
 {
-    class SessionRepository : ISessionRepository
+    public class SessionRepository : ISessionRepository
     {
-        static SQLiteAsyncConnection _database;
+        private IConnection _database;
 
         //public static readonly AsyncLazy<SessionRepository> Instance = new AsyncLazy<SessionRepository>(async () =>
         //{
@@ -17,47 +18,46 @@ namespace TremorTrainer.Repositories
         //    return instance;
         //});
 
-        public SessionRepository()
+        public SessionRepository(IConnection dbConnection)
         {
-            // Creates the DB if it's not there already.
-            _database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            _ = _database.CreateTableAsync<Session>().Result;
+            _database = dbConnection;
+            _database.Connection.CreateTable<Session>();
         }
 
-        public Task<List<Session>> GetSessionsAsync()
+        public List<Session> GetSessions()
         {
-            return _database.Table<Session>().ToListAsync();
+            return _database.Connection.Table<Session>().ToList();
         }
 
-        public async Task<Session> GetSessionByIdAsync(Guid id)
+        public async Task<Session> GetSessionById(Guid id)
         {
-            return await _database.Table<Session>().Where(i => i.Id == id).FirstOrDefaultAsync();
+            return _database.Connection.Table<Session>().Where(i => i.Id == id).FirstOrDefault();
         }
 
         public async Task<int> AddSession(Session session)
         {
             //check to see if the session already exists
-            Session fetchedSession = await GetSessionByIdAsync(session.Id);
+            Session fetchedSession = await GetSessionById(session.Id);
 
             if (fetchedSession != null)
             {
-                return await _database.UpdateAsync(session);
+                return  _database.Connection.Update(session);
             }
             else
             {
-                return await _database.InsertAsync(session);
+                return  _database.Connection.Insert(session);
             }
         }
 
-        public Task<int> DeleteSessionAsync(Session session)
+        public int DeleteSessionAsync(Session session)
         {
-            return _database.DeleteAsync(session);
+            return _database.Connection.Delete(session);
         }
     }
 
     public interface ISessionRepository
     {
         Task<int> AddSession(Session newItem);
-        Task<List<Session>> GetSessionsAsync();
+       List<Session> GetSessions();
     }
 }
