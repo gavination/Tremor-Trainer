@@ -14,20 +14,18 @@ namespace TremorTrainer
             InitializeComponent();
             try
             {
+                Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
+                Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
+                Routing.RegisterRoute(nameof(ItemsPage), typeof(ItemsPage));
+
                 if (!App.Current.Properties.ContainsKey("SessionLength"))
                 {
                     App.Current.Properties.Add("SessionLength", sessionLength);
-
-                    Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
-                    Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
                 }
                 else
                 {
                     Console.WriteLine($"The Session Length argument already exists. Overwriting it with the new value");
                     App.Current.Properties["SessionLength"] = sessionLength;
-
-                    Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
-                    Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
                 }
             }
             catch (Exception e)
@@ -41,7 +39,7 @@ namespace TremorTrainer
 
         private async void OnMenuItemClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//LoginPage");
+            await Shell.Current.GoToAsync("//GetStartedPage");
         }
     }
 }

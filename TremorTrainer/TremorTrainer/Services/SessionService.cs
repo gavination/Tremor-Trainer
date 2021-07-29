@@ -14,17 +14,8 @@ namespace TremorTrainer.Services
 
         public SessionService(ISessionRepository sessionRepository)
         {
-            _items = new List<Session>()
-            {
-                new Session { Id = Guid.NewGuid(), Text = "First item", Description="This is an item description." },
-                new Session { Id = Guid.NewGuid(), Text = "Second item", Description="This is an item description." },
-                new Session { Id = Guid.NewGuid(), Text = "Third item", Description="This is an item description." },
-                new Session { Id = Guid.NewGuid(), Text = "Fourth item", Description="This is an item description." },
-                new Session { Id = Guid.NewGuid(), Text = "Fifth item", Description="This is an item description." },
-                new Session { Id = Guid.NewGuid(), Text = "Sixth item", Description="This is an item description." }
-            };
-
             _sessionRepository = sessionRepository;
+            _items = _sessionRepository.GetSessions();
         }
 
         public async Task<bool> AddItemAsync(Session newItem)

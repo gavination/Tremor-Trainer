@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" x:DataType="viewmodels:AccelerometerViewModel"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms" x:DataType="viewmodels:AccelerometerViewModel"
              x:Class="TremorTrainer.Views.AccelerometerPage"
              Title="{Binding Title}">
 
@@ -31,6 +31,9 @@
                         TextColor="White" />
                 <Label FontSize="Large"></Label>
                 <Label Text="{Binding TimerText, Mode=TwoWay}" FontSize="Large"></Label>
+                <Label Text="{Binding ReadingText, Mode=TwoWay}" FontSize="Large"></Label>
+                <Button Margin="0,50,0,0" Text="View Results" Command="{Binding ViewResultsCommand}"></Button>
+       
             </StackLayout>
         </ScrollView>
     </Grid>

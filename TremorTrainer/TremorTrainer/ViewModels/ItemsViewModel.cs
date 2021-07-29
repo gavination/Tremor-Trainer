@@ -55,10 +55,11 @@ namespace TremorTrainer.ViewModels
             }
         }
 
-        public void OnAppearing()
+        public async Task OnAppearingAsync()
         {
             IsBusy = true;
             SelectedItem = null;
+            await ExecuteLoadItemsCommand();
 
         }
 
