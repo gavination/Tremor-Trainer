@@ -13,20 +13,11 @@ namespace TremorTrainer.Utilities
 
         public ViewModelLocator()
         {
-            //AsyncLazy<SessionRepository> SessionDBInstance
-            //= new AsyncLazy<SessionRepository>(async () =>
-            //{
-            //    SQLiteAsyncConnection database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-            //    var sessionRepository = new SessionRepository(database);
-
-            //    CreateTableResult result = await database.CreateTableAsync<Session>();
-            //    return sessionRepository;
-            //});
 
             _unityContainer = new UnityContainer();
 
             // Register DB Instance 
-            _unityContainer.RegisterInstance<IConnection>(new DBConnection(Constants.DatabasePath, Constants.Flags));
+            _unityContainer.RegisterInstance<IConnection>(new DbConnection(Constants.DatabasePath, Constants.Flags));
 
             // Register types in the constructor
             _unityContainer.RegisterType<ISessionRepository, SessionRepository>();

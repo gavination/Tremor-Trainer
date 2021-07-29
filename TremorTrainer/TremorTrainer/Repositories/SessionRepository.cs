@@ -11,13 +11,6 @@ namespace TremorTrainer.Repositories
     {
         private IConnection _database;
 
-        //public static readonly AsyncLazy<SessionRepository> Instance = new AsyncLazy<SessionRepository>(async () =>
-        //{
-        //    var instance = new SessionRepository();
-        //    CreateTableResult result = await Database.CreateTableAsync<Session>();
-        //    return instance;
-        //});
-
         public SessionRepository(IConnection dbConnection)
         {
             _database = dbConnection;
@@ -31,7 +24,7 @@ namespace TremorTrainer.Repositories
 
         public async Task<Session> GetSessionById(Guid id)
         {
-            return _database.Connection.Table<Session>().Where(i => i.Id == id).FirstOrDefault();
+            return _database.Connection.Table<Session>().FirstOrDefault(i => i.Id == id);
         }
 
         public async Task<int> AddSession(Session session)

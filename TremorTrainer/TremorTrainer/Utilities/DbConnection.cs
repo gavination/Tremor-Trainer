@@ -7,11 +7,11 @@ using Unity;
 
 namespace TremorTrainer.Utilities
 {
-    public class DBConnection : IConnection
+    public class DbConnection : IConnection
     {
         public SQLiteConnection Connection { get; private set; }
 
-        public DBConnection(string dbPath, SQLiteOpenFlags flags)
+        public DbConnection(string dbPath, SQLiteOpenFlags flags)
         {
             Connection = new SQLiteConnection(dbPath, flags);
         }
