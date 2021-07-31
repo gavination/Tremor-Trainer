@@ -57,8 +57,7 @@ namespace TremorTrainer.ViewModels
             Session newItem = new Session()
             {
                 Id = Guid.NewGuid(),
-                Text = Text,
-                Description = Description
+                Details = Text
             };
 
             await _dataStore.AddItemAsync(newItem);

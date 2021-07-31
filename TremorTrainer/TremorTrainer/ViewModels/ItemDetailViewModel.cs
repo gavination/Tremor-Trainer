@@ -50,8 +50,7 @@ namespace TremorTrainer.ViewModels
             {
                 var item = await _dataStore.GetItemAsync(itemId);
                 Id = item.Id;
-                Text = item.Text;
-                Description = item.Description;
+                Text = item.Details;
             }
             catch (Exception)
             {
