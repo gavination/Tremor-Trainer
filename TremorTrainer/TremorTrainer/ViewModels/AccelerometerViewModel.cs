@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -17,36 +14,43 @@ namespace TremorTrainer.ViewModels
         private readonly IMessageService _messageService;
         private readonly ISessionService _sessionService;
         private readonly ITimerService _timerService;
+        private readonly IAccelerometerService _accelerometerService;
 
         //todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
-        private int _sessionLength;
-        private DateTime _startTime;
-        private readonly List<Vector3> _accelerometerReadings;
+        private int _currentSessionLength;
+        private int _sessionTimeLimit;
+        private DateTime _sessionStartTime;
+
 
         public string ReadingText => _readingText;
         public string TimerText => _timerText;
 
-        public AccelerometerViewModel(IMessageService messageService, ISessionService sessionService, ITimerService timerService)
-        {
+        public AccelerometerViewModel(
+            IMessageService messageService,
+            ISessionService sessionService,
+            ITimerService timerService,
+            IAccelerometerService accelerometerService)
 
+        {
             // Fulfill external services 
             _messageService = messageService;
             _sessionService = sessionService;
             _timerService = timerService;
+            _accelerometerService = accelerometerService;
 
             // ViewModel Page Setup
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
-            _sessionLength = (int)App.Current.Properties["SessionLength"];
+            _currentSessionLength = (int)App.Current.Properties["SessionLength"];
+            _sessionTimeLimit = _currentSessionLength;
 
-            _timerText = _timerService.FormatTimeSpan(TimeSpan.FromMilliseconds(_sessionLength));
+            _timerText = _timerService.FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
             OnPropertyChanged("TimerText");
-            _accelerometerReadings = new List<Vector3>();
 
             // Register Button Press Commands and subscribe to necessary events
-            StartSessionCommand = new Command(async () => await StartAccelerometer());
+            StartSessionCommand = new Command(async () => await ToggleSession());
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
 
             // Register timer elapsed event 
@@ -55,21 +59,71 @@ namespace TremorTrainer.ViewModels
             ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
         }
 
-        private async Task SaveSessionAsync(Vector3 reading, TimeSpan duration)
+        private async Task ToggleSession()
         {
-            //note: test session until new features roll in. 
+            // Determine if this is the start of a new Session
+            if (_sessionTimeLimit == _currentSessionLength && !_timerService.SessionRunning)
+            {
+                // Start the accelerometer and the timer
+                _timerService.SessionRunning = true;
+                _sessionStartTime = DateTime.Now;
 
+                await _accelerometerService.StartAccelerometer(_currentSessionLength);
+                await _timerService.StartTimerAsync(_currentSessionLength);
+                OnPropertyChanged("TimerText");
+
+            }
+            // Determine if restarting a session after a previous run
+            else if (_currentSessionLength <= 0 && !_timerService.SessionRunning)
+            {
+                // reset the session length and start a new Session
+                _timerService.SessionRunning = true;
+                _sessionStartTime = DateTime.Now;
+
+                _currentSessionLength = _sessionTimeLimit;
+                await _accelerometerService.StartAccelerometer(_currentSessionLength);
+                await _timerService.StartTimerAsync(_currentSessionLength);
+                OnPropertyChanged("TimerText");
+
+            }
+            // Determine if the session is still running
+            // Cancel the run and save the current status as a result
+            else if (_currentSessionLength >= 0 && _timerService.SessionRunning)
+            {
+                // Creates a timestamp if none exists yet
+                if (_sessionStartTime == null)
+                {
+                    _sessionStartTime = DateTime.Now;
+                }
+                // Stop the Running Session, save the results, and dispose of the timer
+                await WrapUpSessionAsync();
+
+                _timerService.SessionRunning = false;
+                ;
+            }
+        }
+
+        private async Task WrapUpSessionAsync()
+        {
+            //Accelerometer and timer wrap up
+            await _timerService.StopTimerAsync();
+            await _accelerometerService.StopAccelerometer();
+            var averageReading = _accelerometerService.GetAverageReading();
+            var sessionDuration = DateTime.Now - _sessionStartTime;
+            _timerService.SessionRunning = false;
+
+            //todo: test session until new features roll in. 
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
-                Details = $"Average Session Value - X: {reading.X}, Y: {reading.Y}, Z: {reading.Z}",
-                XAverageVariance = reading.X,
-                YAverageVariance = reading.Y,
-                ZAverageVariance = reading.Z,
+                Details = $"Average Session Value - X: {averageReading.X}, Y: {averageReading.Y}, Z: {averageReading.Z}",
+                XAverageVariance = averageReading.X,
+                YAverageVariance = averageReading.Y,
+                ZAverageVariance = averageReading.Z,
                 XBaseline = 0,
                 YBaseline = 0,
                 ZBaseline = 0,
-                Duration = duration,
+                Duration = sessionDuration,
                 Score = 0,
                 StartTime = DateTime.Now
             };
@@ -87,7 +141,7 @@ namespace TremorTrainer.ViewModels
         private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
             AccelerometerData data = e.Reading;
-            _accelerometerReadings.Add(data.Acceleration);
+            _accelerometerService.Readings.Add(data.Acceleration);
             string readingFormat = $"Reading: X: { data.Acceleration.X}, Y: { data.Acceleration.Y}, Z: { data.Acceleration.Z}";
 
             Console.WriteLine(readingFormat);
@@ -96,109 +150,28 @@ namespace TremorTrainer.ViewModels
             OnPropertyChanged("ReadingText");
         }
 
-        private async Task StartAccelerometer()
-        {
-            try
-            {
-                if (Accelerometer.IsMonitoring && _sessionLength > 0)
-                {
-                    await _messageService.ShowAsync("Session is already active.");
-                }
-                else
-                {
-                    // Clearing the list before starting a new Session
-                    _accelerometerReadings.Clear();
-                    Accelerometer.Start(Constants.SensorSpeed);
-                    
-                    // Start timer and get a Stamp of when Session began
-                    await _timerService.StartTimerAsync(_sessionLength);
-                    _startTime = DateTime.Now;
-                }
-            }
-            catch (FeatureNotSupportedException ex)
-            {
-                // Feature not supported on device
-                await _messageService.ShowAsync($"{Constants.DeviceNotSupportedMessage} Details: {ex.Message}");
-
-            }
-            catch (Exception ex)
-            {
-                // Other unknown error has occurred.
-                await _messageService.ShowAsync(Constants.UnknownErrorMessage);
-                Console.WriteLine($"An unknown error occurred: {ex.Message}");
-                throw;
-
-            }
-        }
-
-        private async Task StopAccelerometer()
-        {
-            try
-            {
-                if (Accelerometer.IsMonitoring)
-                {
-                    Accelerometer.Stop();
-                }
-                else
-                {
-                    await _messageService.ShowAsync("Session has already ended");
-                }
-            }
-            catch (Exception ex)
-            {
-                // unknown error has occurred.
-                await _messageService.ShowAsync(Constants.UnknownErrorMessage);
-                Console.WriteLine($"An unknown error occurred: {ex.Message}");
-                throw;
-            }
-        }
-
-
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            _sessionLength -= _timerService.Interval;
-            Console.WriteLine($"Timed event triggered. Session Length Remaining: {_sessionLength}");
+            _currentSessionLength -= _timerService.Interval;
+            Console.WriteLine($"Timed event triggered. Session Length Remaining: {_currentSessionLength}");
 
             //update the ui with a propertychanged event here
-            TimeSpan span = TimeSpan.FromMilliseconds(_sessionLength);
+            TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
 
             //TODO: modify this to incorporate leading zeros in the Label.
             _timerText = $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
             OnPropertyChanged("TimerText");
 
-            if (_sessionLength == 0)
+            if (_currentSessionLength == 0)
             {
                 OnPropertyChanged("TimerText");
 
                 //stop the timer, saves the result. resets the _sessionRunning flag
-                await _timerService.StopTimerAsync();
-                await StopAccelerometer();
-                var averageReading = GetAverageReading();
                 _timerService.SessionRunning = false;
-                var sessionDuration = DateTime.Now - _startTime;
-                SaveSessionAsync(averageReading, sessionDuration).Wait();
+                await WrapUpSessionAsync();
             }
         }
 
-        private Vector3 GetAverageReading()
-        {
-            if (_accelerometerReadings.Count > 0)
-            {
-                // get x, y, and z averages 
-                var xAverage = _accelerometerReadings.Select(x => x.X).Average();
-                var yAverage = _accelerometerReadings.Select(y => y.Y).Average();
-                var zAverage = _accelerometerReadings.Select(z => z.Z).Average();
-
-                return new Vector3(x: xAverage, y: yAverage, z: zAverage);
-
-            }
-            else
-            {
-                Console.WriteLine("No values to compute.");
-                throw new ArgumentException();
-            }
-
-        }
 
         public ICommand StartSessionCommand { get; }
         public ICommand SaveSessionCommand { get; }

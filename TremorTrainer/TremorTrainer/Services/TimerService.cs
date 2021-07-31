@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -17,9 +15,11 @@ namespace TremorTrainer.Services
         public TimeSpan Span => _span;
         public Timer Timer => _timer;
         public int Interval => _interval;
-        public bool SessionRunning { 
+        public bool SessionRunning
+        {
             get => _sessionRunning;
-            set => _sessionRunning = value; }
+            set => _sessionRunning = value;
+        }
 
         public TimerService(IMessageService messageService)
         {
@@ -37,13 +37,13 @@ namespace TremorTrainer.Services
 
         public async Task StartTimerAsync(int timerLength)
         {
-            if (timerLength > 0 && !_sessionRunning)
+            if (timerLength > 0)
             {
                 //trigger a timer event every for every interval that passes 
                 _timer.Enabled = true;
                 _sessionRunning = true;
             }
-            else if (!_sessionRunning && timerLength <= 0)
+            else if (timerLength <= 0)
             {
                 //reset the session length to start a new one
                 timerLength = (int)App.Current.Properties["SessionLength"];
@@ -66,7 +66,6 @@ namespace TremorTrainer.Services
             {
                 _timer.Stop();
                 _timer.Enabled = false;
-                _timer.Dispose();
             }
             catch (Exception e)
             {

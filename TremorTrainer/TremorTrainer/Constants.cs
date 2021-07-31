@@ -29,8 +29,8 @@ namespace TremorTrainer
             SQLite.SQLiteOpenFlags.Create |
             // enable multi-threaded database access
             SQLite.SQLiteOpenFlags.SharedCache;
-            // encrypting the file while the device is locked
-            //SQLite.SQLiteOpenFlags.ProtectionComplete;
+        // encrypting the file while the device is locked
+        //SQLite.SQLiteOpenFlags.ProtectionComplete;
 
         public static string DatabasePath
         {
