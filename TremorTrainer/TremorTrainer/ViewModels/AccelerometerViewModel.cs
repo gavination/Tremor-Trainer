@@ -14,17 +14,15 @@ namespace TremorTrainer.ViewModels
 {
     public class AccelerometerViewModel : BaseViewModel
     {
-        //todo: replace this once code solidifies
-        private string _readingText = "Placeholder XYZ values";
-        private string _timerText;
         private readonly IMessageService _messageService;
         private readonly ISessionService _sessionService;
         private readonly ITimerService _timerService;
+
+        //todo: replace this once code solidifies
+        private string _readingText = "Placeholder XYZ values";
+        private string _timerText;
         private int _sessionLength;
-        private Timer _sessiontimer;
         private DateTime _startTime;
-        private readonly int _interval = Constants.CountdownInterval;
-        private bool _isSessionRunning = false;
         private readonly List<Vector3> _accelerometerReadings;
 
         public string ReadingText => _readingText;
@@ -42,7 +40,6 @@ namespace TremorTrainer.ViewModels
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
             _sessionLength = (int)App.Current.Properties["SessionLength"];
-            _sessiontimer = new Timer(_interval);
 
             _timerText = _timerService.FormatTimeSpan(TimeSpan.FromMilliseconds(_sessionLength));
             OnPropertyChanged("TimerText");
@@ -159,7 +156,7 @@ namespace TremorTrainer.ViewModels
 
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            _sessionLength -= _interval;
+            _sessionLength -= _timerService.Interval;
             Console.WriteLine($"Timed event triggered. Session Length Remaining: {_sessionLength}");
 
             //update the ui with a propertychanged event here
@@ -177,8 +174,7 @@ namespace TremorTrainer.ViewModels
                 await _timerService.StopTimerAsync();
                 await StopAccelerometer();
                 var averageReading = GetAverageReading();
-
-                _isSessionRunning = false;
+                _timerService.SessionRunning = false;
                 var sessionDuration = DateTime.Now - _startTime;
                 SaveSessionAsync(averageReading, sessionDuration).Wait();
             }
