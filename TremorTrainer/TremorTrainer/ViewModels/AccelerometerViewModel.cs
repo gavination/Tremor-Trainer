@@ -14,6 +14,7 @@ namespace TremorTrainer.ViewModels
 {
     public class AccelerometerViewModel : BaseViewModel
     {
+        //todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
         private readonly IMessageService _messageService;
@@ -23,7 +24,7 @@ namespace TremorTrainer.ViewModels
         private DateTime _startTime;
         private readonly int _interval = Constants.CountdownInterval;
         private bool _isSessionRunning = false;
-        private List<Vector3> _accelerometerReadings;
+        private readonly List<Vector3> _accelerometerReadings;
 
         public string ReadingText => _readingText;
         public string TimerText => _timerText;

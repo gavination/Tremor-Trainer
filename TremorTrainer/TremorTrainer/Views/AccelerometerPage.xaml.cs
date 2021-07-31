@@ -8,7 +8,7 @@ namespace TremorTrainer.Views
 {
     public partial class AccelerometerPage : ContentPage
     {
-        AccelerometerViewModel _viewModel;
+        private readonly AccelerometerViewModel _viewModel;
         public AccelerometerPage()
         {
             InitializeComponent();

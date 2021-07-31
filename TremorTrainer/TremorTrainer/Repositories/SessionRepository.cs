@@ -9,7 +9,7 @@ namespace TremorTrainer.Repositories
 {
     public class SessionRepository : ISessionRepository
     {
-        private IConnection _database;
+        private readonly IConnection _database;
 
         public SessionRepository(IConnection dbConnection)
         {

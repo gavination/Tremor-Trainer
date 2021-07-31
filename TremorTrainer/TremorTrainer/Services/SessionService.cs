@@ -10,8 +10,8 @@ namespace TremorTrainer.Services
     public class SessionService : ISessionService
     {
         readonly List<Session> _items;
-        private ISessionRepository _sessionRepository;
-        private IMessageService _messageService;
+        private readonly ISessionRepository _sessionRepository;
+        private readonly IMessageService _messageService;
 
         public SessionService(ISessionRepository sessionRepository, IMessageService messageService)
         {
