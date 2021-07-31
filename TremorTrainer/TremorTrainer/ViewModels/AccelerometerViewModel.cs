@@ -14,15 +14,17 @@ namespace TremorTrainer.ViewModels
 {
     public class AccelerometerViewModel : BaseViewModel
     {
+        //todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
         private readonly IMessageService _messageService;
         private readonly ISessionService _sessionService;   
         private int _sessionLength;
         private Timer _sessiontimer;
+        private DateTime _startTime;
         private readonly int _interval = Constants.CountdownInterval;
         private bool _isSessionRunning = false;
-        private List<Vector3> _accelerometerReadings;
+        private readonly List<Vector3> _accelerometerReadings;
 
         public string ReadingText => _readingText;
         public string TimerText => _timerText;
@@ -50,15 +52,23 @@ namespace TremorTrainer.ViewModels
             _sessionService = sessionService;
         }
 
-        private async Task SaveSessionAsync(Vector3 reading)
+        private async Task SaveSessionAsync(Vector3 reading, TimeSpan duration)
         {
             //note: test session until new features roll in. 
 
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
-                Description = "This is a test session",
-                Text = $"Average Session Value - X: {reading.X}, Y: {reading.Y}, Z: {reading.Z}"
+                Details = $"Average Session Value - X: {reading.X}, Y: {reading.Y}, Z: {reading.Z}",
+                XAverageVariance = reading.X,
+                YAverageVariance = reading.Y,
+                ZAverageVariance = reading.Z,
+                XBaseline = 0,
+                YBaseline = 0,
+                ZBaseline = 0,
+                Duration = duration,
+                Score = 0,
+                StartTime = DateTime.Now
             };
 
             bool result = await _sessionService.AddItemAsync(newSession);
@@ -96,7 +106,10 @@ namespace TremorTrainer.ViewModels
                     // Clearing the list before starting a new Session
                     _accelerometerReadings.Clear();
                     Accelerometer.Start(Constants.SensorSpeed);
+                    
+                    // Start timer and get a Stamp of when Session began
                     await StartTimerAsync();
+                    _startTime = DateTime.Now;
                 }
             }
             catch (FeatureNotSupportedException ex)
@@ -204,7 +217,8 @@ namespace TremorTrainer.ViewModels
                 var averageReading = GetAverageReading();
 
                 _isSessionRunning = false;
-                SaveSessionAsync(averageReading).Wait();
+                var sessionDuration = DateTime.Now - _startTime;
+                SaveSessionAsync(averageReading, sessionDuration).Wait();
             }
         }
 

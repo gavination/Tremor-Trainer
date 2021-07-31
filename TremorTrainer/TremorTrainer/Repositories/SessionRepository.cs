@@ -9,7 +9,7 @@ namespace TremorTrainer.Repositories
 {
     public class SessionRepository : ISessionRepository
     {
-        private IConnection _database;
+        private readonly IConnection _database;
 
         public SessionRepository(IConnection dbConnection)
         {
@@ -22,15 +22,15 @@ namespace TremorTrainer.Repositories
             return _database.Connection.Table<Session>().ToList();
         }
 
-        public async Task<Session> GetSessionById(Guid id)
+        public Session GetSessionById(Guid id)
         {
             return _database.Connection.Table<Session>().FirstOrDefault(i => i.Id == id);
         }
 
-        public async Task<int> AddSession(Session session)
+        public int AddSession(Session session)
         {
             //check to see if the session already exists
-            Session fetchedSession = await GetSessionById(session.Id);
+            Session fetchedSession = GetSessionById(session.Id);
 
             if (fetchedSession != null)
             {
@@ -42,7 +42,7 @@ namespace TremorTrainer.Repositories
             }
         }
 
-        public int DeleteSessionAsync(Session session)
+        public int DeleteSession(Session session)
         {
             return _database.Connection.Delete(session);
         }
@@ -50,7 +50,7 @@ namespace TremorTrainer.Repositories
 
     public interface ISessionRepository
     {
-        Task<int> AddSession(Session newItem);
+        int AddSession(Session newItem);
        List<Session> GetSessions();
     }
 }

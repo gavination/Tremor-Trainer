@@ -12,24 +12,24 @@ namespace TremorTrainer.ViewModels
     public class ItemsViewModel : BaseViewModel
     {
         private Session _selectedItem;
-        private readonly ISessionService _datastore;
+        private readonly ISessionService _sessionService;
+        private readonly IMessageService _messageService;
 
         public ObservableCollection<Session> Items { get; }
         public Command LoadItemsCommand { get; }
-        public Command AddItemCommand { get; }
+        public Command ExportSessionsCommand { get; }
         public Command<Session> ItemTapped { get; }
 
-        public ItemsViewModel(ISessionService dataStore)
+        public ItemsViewModel(ISessionService sessionService, IMessageService messageService)
         {
-            _datastore = dataStore;
+            _sessionService = sessionService;
+            _messageService = messageService;
 
-            Title = "Browse";
+            Title = "Sessions";
             Items = new ObservableCollection<Session>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-
             ItemTapped = new Command<Session>(OnItemSelected);
-
-            AddItemCommand = new Command(OnAddItem);
+            ExportSessionsCommand = new Command(OnExportButtonClicked);
         }
 
         async Task ExecuteLoadItemsCommand()
@@ -39,7 +39,7 @@ namespace TremorTrainer.ViewModels
             try
             {
                 Items.Clear();
-                var items = await _datastore.GetItemsAsync(true);
+                var items = await _sessionService.GetItemsAsync(true);
                 foreach (var item in items)
                 {
                     Items.Add(item);
@@ -73,9 +73,11 @@ namespace TremorTrainer.ViewModels
             }
         }
 
-        private async void OnAddItem(object obj)
+        private async void OnExportButtonClicked(object obj)
         {
-            await Shell.Current.GoToAsync(nameof(NewItemPage));
+            //todo: add export to csv logic here
+            await _messageService.ShowAsync("Session Export functionality not yet supported. Sorry!");
+           
         }
 
         async void OnItemSelected(Session item)

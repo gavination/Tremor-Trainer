@@ -10,18 +10,20 @@ namespace TremorTrainer.Services
     public class SessionService : ISessionService
     {
         readonly List<Session> _items;
-        private ISessionRepository _sessionRepository;
+        private readonly ISessionRepository _sessionRepository;
+        private readonly IMessageService _messageService;
 
-        public SessionService(ISessionRepository sessionRepository)
+        public SessionService(ISessionRepository sessionRepository, IMessageService messageService)
         {
             _sessionRepository = sessionRepository;
+            _messageService = messageService;
             _items = _sessionRepository.GetSessions();
         }
 
         public async Task<bool> AddItemAsync(Session newItem)
         {
             _items.Add(newItem);
-            var result = await _sessionRepository.AddSession(newItem);
+            var result = _sessionRepository.AddSession(newItem);
 
             if (result > 0)
             {
@@ -29,7 +31,9 @@ namespace TremorTrainer.Services
             }
             else
             {
-                throw new Exception();
+                string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to save session to database.";
+                await _messageService.ShowAsync(errorMessage);
+                throw new Exception(errorMessage);
             }
         }
 
