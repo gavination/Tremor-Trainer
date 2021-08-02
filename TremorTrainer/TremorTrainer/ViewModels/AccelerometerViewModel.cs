@@ -19,20 +19,20 @@ namespace TremorTrainer.ViewModels
         //todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
+        private string _sessionButtonText;
         private int _currentSessionLength;
         private int _sessionTimeLimit;
         private DateTime _sessionStartTime;
 
-
         public string ReadingText => _readingText;
         public string TimerText => _timerText;
+        public string SessionButtonText => _sessionButtonText;
 
         public AccelerometerViewModel(
             IMessageService messageService,
             ISessionService sessionService,
             ITimerService timerService,
             IAccelerometerService accelerometerService)
-
         {
             // Fulfill external services 
             _messageService = messageService;
@@ -49,18 +49,24 @@ namespace TremorTrainer.ViewModels
             _timerText = _timerService.FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
             OnPropertyChanged("TimerText");
 
-            // Register Button Press Commands and subscribe to necessary events
-            StartSessionCommand = new Command(async () => await ToggleSession());
-            Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+            _sessionButtonText = "Start Session";
+            OnPropertyChanged("SessionButtonText");
 
-            // Register timer elapsed event 
+            // Register Button Press Commands 
+            StartSessionCommand = new Command(async () => await ToggleSessionAsync());
+            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
+
+            // Subscribe to necessary events
+            Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
             _timerService.Timer.Elapsed += OnTimedEvent;
 
-            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
         }
 
-        private async Task ToggleSession()
+        private async Task ToggleSessionAsync()
         {
+            // todo: have the service methods return booleans to determine
+            // whether to record start time and flipping the sessionRunning var
+
             // Determine if this is the start of a new Session
             if (_sessionTimeLimit == _currentSessionLength && !_timerService.SessionRunning)
             {
@@ -70,7 +76,9 @@ namespace TremorTrainer.ViewModels
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
-                OnPropertyChanged("TimerText");
+
+                _sessionButtonText = "Stop Session";
+                OnPropertyChanged("SessionButtonText");
 
             }
             // Determine if restarting a session after a previous run
@@ -81,9 +89,14 @@ namespace TremorTrainer.ViewModels
                 _sessionStartTime = DateTime.Now;
 
                 _currentSessionLength = _sessionTimeLimit;
+                OnPropertyChanged("TimerText");
+
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
-                OnPropertyChanged("TimerText");
+
+                _sessionButtonText = "Stop Session";
+                OnPropertyChanged("SessionButtonText");
+
 
             }
             // Determine if the session is still running
@@ -99,7 +112,25 @@ namespace TremorTrainer.ViewModels
                 await WrapUpSessionAsync();
 
                 _timerService.SessionRunning = false;
+
+                _sessionButtonText = "Start Session";
+                OnPropertyChanged("SessionButtonText");
                 ;
+            }
+            // Determine if the session was stopped and a new one needs to be created
+            // Reset the current session length, flip the SessionRunning bool, and restart the timer
+            else if(_currentSessionLength > 0 && !_timerService.SessionRunning)
+            {
+                _sessionStartTime = DateTime.Now;
+                _currentSessionLength = _sessionTimeLimit;
+                _timerService.SessionRunning = true;
+
+                await _accelerometerService.StartAccelerometer(_currentSessionLength);
+                await _timerService.StartTimerAsync(_currentSessionLength);
+                OnPropertyChanged("TimerText");
+
+                _sessionButtonText = "Stop Session";
+                OnPropertyChanged("SessionButtonText");
             }
         }
 
@@ -112,11 +143,12 @@ namespace TremorTrainer.ViewModels
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _timerService.SessionRunning = false;
 
-            //todo: test session until new features roll in. 
+            //todo: test session until new features roll in. create a session with values to determine baselines and sessiontype
+
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
-                Details = $"Average Session Value - X: {averageReading.X}, Y: {averageReading.Y}, Z: {averageReading.Z}",
+                Details = $"Session Type: {SessionType.Induction}. Average Session Values - X: {averageReading.X}, Y: {averageReading.Y}, Z: {averageReading.Z}",
                 XAverageVariance = averageReading.X,
                 YAverageVariance = averageReading.Y,
                 ZAverageVariance = averageReading.Z,
@@ -125,7 +157,8 @@ namespace TremorTrainer.ViewModels
                 ZBaseline = 0,
                 Duration = sessionDuration,
                 Score = 0,
-                StartTime = DateTime.Now
+                StartTime = DateTime.Now,
+                Type = SessionType.Induction
             };
 
             bool result = await _sessionService.AddItemAsync(newSession);

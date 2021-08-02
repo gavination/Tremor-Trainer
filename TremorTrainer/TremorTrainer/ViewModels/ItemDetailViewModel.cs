@@ -13,6 +13,7 @@ namespace TremorTrainer.ViewModels
         private Guid _itemId;
         private string _text;
         private string _description;
+        private string _type;
 
         private readonly ISessionService _dataStore;
         public Guid Id { get; set; }
@@ -32,6 +33,12 @@ namespace TremorTrainer.ViewModels
         {
             get => _description;
             set => SetProperty(ref _description, value);
+        }
+
+        public string Type
+        {
+            get => _type;
+            set => SetProperty(ref _type, value);
         }
 
         public Guid ItemId
