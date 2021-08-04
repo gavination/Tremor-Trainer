@@ -1,9 +1,5 @@
 ﻿using SQLite;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using TremorTrainer.Models;
-using Unity;
 
 namespace TremorTrainer.Utilities
 {

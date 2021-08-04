@@ -9,6 +9,7 @@ namespace TremorTrainer.Models
         public Guid Id { get; set; }
         public DateTime StartTime { get; set; }
         public TimeSpan Duration { get; set; }
+        public SessionType Type { get; set; }
         public float XAverageVariance { get; set; }
         public float YAverageVariance { get; set; }
         public float ZAverageVariance { get; set; }
@@ -18,5 +19,12 @@ namespace TremorTrainer.Models
         public int Score { get; set; }
         public string Details { get; set; }
         public string Status { get; set; }
+    }
+
+    public enum SessionType
+    {
+        Induction,
+        Maintenance,
+        AsNeeded
     }
 }

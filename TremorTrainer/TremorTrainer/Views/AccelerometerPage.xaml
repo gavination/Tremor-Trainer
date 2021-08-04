@@ -25,14 +25,18 @@
         <ScrollView Grid.Row="1">
             <StackLayout Orientation="Vertical" Padding="30,24,30,24" Spacing="10">
                 <Label Text="Tap to Start A Session" FontSize="Title" />
-                <Button Margin="0,50,0,0" Text="Start Sampling"
+                <Button Margin="0,50,0,0"
+                        Text="{Binding SessionButtonText, Mode=OneWay}"
                         Command="{Binding StartSessionCommand}"
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White" />
                 <Label FontSize="Large"></Label>
-                <Label Text="{Binding TimerText, Mode=TwoWay}" FontSize="Large"></Label>
+                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
                 <Label Text="{Binding ReadingText, Mode=TwoWay}" FontSize="Large"></Label>
-                <Button Margin="0,50,0,0" Text="View Results" Command="{Binding ViewResultsCommand}"></Button>
+                <Button Margin="0,50,0,0"
+                        Text= "View Results"
+                        Command="{Binding ViewResultsCommand}">
+                </Button>
        
             </StackLayout>
         </ScrollView>

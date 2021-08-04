@@ -34,11 +34,11 @@ namespace TremorTrainer.Repositories
 
             if (fetchedSession != null)
             {
-                return  _database.Connection.Update(session);
+                return _database.Connection.Update(session);
             }
             else
             {
-                return  _database.Connection.Insert(session);
+                return _database.Connection.Insert(session);
             }
         }
 
@@ -51,6 +51,6 @@ namespace TremorTrainer.Repositories
     public interface ISessionRepository
     {
         int AddSession(Session newItem);
-       List<Session> GetSessions();
+        List<Session> GetSessions();
     }
 }

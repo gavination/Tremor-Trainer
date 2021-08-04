@@ -77,7 +77,7 @@ namespace TremorTrainer.ViewModels
         {
             //todo: add export to csv logic here
             await _messageService.ShowAsync("Session Export functionality not yet supported. Sorry!");
-           
+
         }
 
         async void OnItemSelected(Session item)

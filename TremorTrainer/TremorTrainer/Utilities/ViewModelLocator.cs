@@ -1,6 +1,4 @@
-﻿using SQLite;
-using TremorTrainer.Models;
-using TremorTrainer.Repositories;
+﻿using TremorTrainer.Repositories;
 using TremorTrainer.Services;
 using TremorTrainer.ViewModels;
 using Unity;
@@ -20,10 +18,12 @@ namespace TremorTrainer.Utilities
             _unityContainer.RegisterInstance<IConnection>(new DbConnection(Constants.DatabasePath, Constants.Flags));
 
             // Register types in the constructor
+            _unityContainer.RegisterType<ITimerService, TimerService>();
             _unityContainer.RegisterType<ISessionRepository, SessionRepository>();
             _unityContainer.RegisterType<ISessionService, SessionService>();
             _unityContainer.RegisterType<IMessageService, MessageService>();
-            
+            _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>();
+
         }
 
         // Register types in the constructor
