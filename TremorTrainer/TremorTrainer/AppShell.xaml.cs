@@ -30,6 +30,8 @@ namespace TremorTrainer
             }
             catch (Exception e)
             {
+                //todo: replace this with user friendly message
+                // NEVER ADMIT FAULT
                 var message = $"Error: Something went wrong. Details {e.Message}";
                 Console.WriteLine(message);
                 App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
