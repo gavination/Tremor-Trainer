@@ -16,17 +16,42 @@ namespace TremorTrainer.ViewModels
         private readonly ITimerService _timerService;
         private readonly IAccelerometerService _accelerometerService;
 
+        // setup private timer and ui vars
+        private readonly int _sessionTimeLimit;
         //todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
         private string _sessionButtonText;
         private int _currentSessionLength;
-        private int _sessionTimeLimit;
         private DateTime _sessionStartTime;
 
-        public string ReadingText => _readingText;
-        public string TimerText => _timerText;
-        public string SessionButtonText => _sessionButtonText;
+        public string ReadingText
+        {
+            get { return _readingText; }
+            private set
+            {
+                _readingText = value;
+                OnPropertyChanged("ReadingText");
+            }
+        }
+        public string TimerText
+        {
+            get { return _timerText; }
+            private set
+            {
+                _timerText = value;
+                OnPropertyChanged("TimerText");
+            }
+        }
+        public string SessionButtonText 
+        {
+            get { return _sessionButtonText; }
+            private set
+            {
+                _sessionButtonText = value;
+                OnPropertyChanged("SessionButtonText");
+            }
+        }
 
         public AccelerometerViewModel(
             IMessageService messageService,
@@ -46,11 +71,10 @@ namespace TremorTrainer.ViewModels
             _currentSessionLength = (int)App.Current.Properties["SessionLength"];
             _sessionTimeLimit = _currentSessionLength;
 
-            _timerText = _timerService.FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
-            OnPropertyChanged("TimerText");
+            TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
 
-            _sessionButtonText = "Start Session";
-            OnPropertyChanged("SessionButtonText");
+
+            SessionButtonText = "Start Session";
 
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
@@ -77,8 +101,7 @@ namespace TremorTrainer.ViewModels
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
 
-                _sessionButtonText = "Stop Session";
-                OnPropertyChanged("SessionButtonText");
+                SessionButtonText = "Stop Session";
 
             }
             // Determine if restarting a session after a previous run
@@ -89,13 +112,14 @@ namespace TremorTrainer.ViewModels
                 _sessionStartTime = DateTime.Now;
 
                 _currentSessionLength = _sessionTimeLimit;
-                OnPropertyChanged("TimerText");
+
+                TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
+                TimerText = FormatTimeSpan(span);
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
 
-                _sessionButtonText = "Stop Session";
-                OnPropertyChanged("SessionButtonText");
+                SessionButtonText = "Stop Session";
 
 
             }
@@ -113,9 +137,7 @@ namespace TremorTrainer.ViewModels
 
                 _timerService.SessionRunning = false;
 
-                _sessionButtonText = "Start Session";
-                OnPropertyChanged("SessionButtonText");
-                ;
+                SessionButtonText = "Start Session";
             }
             // Determine if the session was stopped and a new one needs to be created
             // Reset the current session length, flip the SessionRunning bool, and restart the timer
@@ -127,10 +149,11 @@ namespace TremorTrainer.ViewModels
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
-                OnPropertyChanged("TimerText");
 
-                _sessionButtonText = "Stop Session";
-                OnPropertyChanged("SessionButtonText");
+                TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
+                TimerText = FormatTimeSpan(span);
+
+                SessionButtonText = "Stop Session";
             }
         }
 
@@ -179,8 +202,7 @@ namespace TremorTrainer.ViewModels
 
             Console.WriteLine(readingFormat);
 
-            _readingText = readingFormat;
-            OnPropertyChanged("ReadingText");
+            ReadingText = readingFormat;
         }
 
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
@@ -191,18 +213,21 @@ namespace TremorTrainer.ViewModels
             //update the ui with a propertychanged event here
             TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
 
-            //TODO: modify this to incorporate leading zeros in the Label.
-            _timerText = $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
-            OnPropertyChanged("TimerText");
+            TimerText = FormatTimeSpan(span);
 
             if (_currentSessionLength == 0)
             {
-                OnPropertyChanged("TimerText");
-
                 //stop the timer, saves the result. resets the _sessionRunning flag
                 _timerService.SessionRunning = false;
+                SessionButtonText = "Start Session";
                 await WrapUpSessionAsync();
             }
+        }
+
+        private string FormatTimeSpan(TimeSpan span)
+        {
+            //TODO: modify this to incorporate leading zeros in the Label.
+            return $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
         }
 
 

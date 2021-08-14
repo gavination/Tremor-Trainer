@@ -7,12 +7,10 @@ namespace TremorTrainer.Services
     public class TimerService : ITimerService
     {
         private Timer _timer;
-        private TimeSpan _span;
         private bool _sessionRunning;
         private IMessageService _messageService;
         private readonly int _interval;
 
-        public TimeSpan Span => _span;
         public Timer Timer => _timer;
         public int Interval => _interval;
         public bool SessionRunning
@@ -28,11 +26,6 @@ namespace TremorTrainer.Services
             _timer.Interval = Constants.CountdownInterval;
             _sessionRunning = false;
             _messageService = messageService;
-        }
-
-        public string FormatTimeSpan(TimeSpan span)
-        {
-            return $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
         }
 
         public async Task StartTimerAsync(int timerLength)
@@ -82,7 +75,6 @@ namespace TremorTrainer.Services
         Timer Timer { get; }
         int Interval { get; }
         bool SessionRunning { get; set; }
-        string FormatTimeSpan(TimeSpan span);
         Task StartTimerAsync(int timerLength);
         Task StopTimerAsync();
     }

@@ -32,7 +32,7 @@
                         TextColor="White" />
                 <Label FontSize="Large"></Label>
                 <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
-                <Label Text="{Binding ReadingText, Mode=TwoWay}" FontSize="Large"></Label>
+                <Label Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
                 <Button Margin="0,50,0,0"
                         Text= "View Results"
                         Command="{Binding ViewResultsCommand}">

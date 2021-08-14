@@ -79,6 +79,8 @@ namespace TremorTrainer.Services
             }
         }
 
+        // Test method to prove processing capability of accelerometer vals. 
+        // Not to be kept long-term
         public Vector3 GetAverageReading()
         {
             if (_readings.Count > 0)

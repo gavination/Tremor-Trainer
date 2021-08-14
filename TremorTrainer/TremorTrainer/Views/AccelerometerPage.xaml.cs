@@ -1,8 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using TremorTrainer.ViewModels;
+﻿using TremorTrainer.ViewModels;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace TremorTrainer.Views
 {
@@ -12,7 +9,6 @@ namespace TremorTrainer.Views
         public AccelerometerPage()
         {
             InitializeComponent();
-
             BindingContext = _viewModel = App.Locator.AccelerometerViewModel;
         }
     }
