@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms" x:DataType="viewmodels:AccelerometerViewModel"
-             xmlns:gauge="clr-namespace:Syncfusion.SfGauge.XForms;assembly=Syncfusion.SfGauge.XForms"
+             xmlns:gauge="clr-namespace:Syncfusion.SfGauge.XForms;assembly=Syncfusion.SfGauge.XForms" xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
              x:Class="TremorTrainer.Views.AccelerometerPage"
              Title="{Binding Title}">
 
@@ -24,20 +24,20 @@
             </StackLayout>
         </StackLayout>
         <ScrollView Grid.Row="1">
-            <StackLayout Orientation="Vertical" Padding="30,20,30,24" Spacing="10">
+            <StackLayout Orientation="Vertical" Padding="30,0,30,24" Spacing="0">
                 
                 <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
                 <Label FontSize="Large"></Label>
-                <gauge:SfCircularGauge>
+                <gauge:SfCircularGauge HeightRequest="300">
                     <gauge:SfCircularGauge.Headers>
-                        <gauge:Header Text="Too Slow!" Position="0.1,0.55" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
-                        <gauge:Header Text="Too Fast!" Position="0.87,0.55" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
-                        <gauge:Header Text="Goal Range" Position="0.5, .03" TextSize="15" ForegroundColor="#27beb7" FontAttributes = "Bold"/>
+                        <gauge:Header Text="Too Slow!" Position="0.1,0.53" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
+                        <gauge:Header Text="Too Fast!" Position="0.87,0.53" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
+                        <gauge:Header Text="Goal Range" Position="0.5, .025" TextSize="15" ForegroundColor="#27beb7" FontAttributes = "Bold"/>
                     </gauge:SfCircularGauge.Headers>
 
-                    <gauge:SfCircularGauge.Scales >
+                    <gauge:SfCircularGauge.Scales  >
 
-                        <gauge:Scale  StartValue = "0" EndValue = "100" StartAngle = "180" SweepAngle = "180" Interval = "10"
+                        <gauge:Scale StartValue = "0" EndValue = "100" StartAngle = "180" SweepAngle = "180" Interval = "10"
 			                ShowLabels = "False" ShowTicks = "False" ShowRim = "False" RimThickness = "40" 
 							RadiusFactor = "0.9" RimColor = "#e0e0e0">
 
@@ -51,21 +51,30 @@
                                 <gauge:Range StartValue = "66" EndValue = "100" Color = "#F03E3E" Thickness = "40" Offset = "0.9" />
                             </gauge:Scale.Ranges>
                         </gauge:Scale>
-
                     </gauge:SfCircularGauge.Scales>
                 </gauge:SfCircularGauge>
-                
-                <Label Margin="0,-50,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
-                <Button Margin="0,10,0,0"
-                        Text="{Binding SessionButtonText, Mode=OneWay}"
-                        Command="{Binding StartSessionCommand}"
-                        BackgroundColor="{StaticResource Primary}"
-                        TextColor="White" />
-                <Button Margin="0,50,0,0"
-                        Text= "View Results"
-                        Command="{Binding ViewResultsCommand}">
-                </Button>
-       
+
+                <Label  Margin="0,-60,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
+                <buttons:SfButton
+                            Margin="0,20,0,0"
+                            Command="{Binding StartSessionCommand}"
+                            HorizontalOptions="Fill"
+                            Style="{DynamicResource LoginFormBorderlessEntryBorderStyle}"
+                            Text="{Binding SessionButtonText, Mode=OneWay}"
+                            TextColor="White"
+                            BackgroundColor="{StaticResource Primary}"
+                 />
+
+                <buttons:SfButton
+                            Margin="0,50,0,0"
+                            Style="{DynamicResource LoginFormBorderlessEntryBorderStyle}"
+                            Command="{Binding ViewResultsCommand}"
+                            HorizontalOptions="Fill"
+                            Text="View Results"
+                            TextColor="White"
+                            BackgroundColor="{StaticResource Primary}"
+                />
+
             </StackLayout>
         </ScrollView>
     </Grid>
