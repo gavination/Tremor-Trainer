@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms" x:DataType="viewmodels:AccelerometerViewModel"
+             xmlns:gauge="clr-namespace:Syncfusion.SfGauge.XForms;assembly=Syncfusion.SfGauge.XForms"
              x:Class="TremorTrainer.Views.AccelerometerPage"
              Title="{Binding Title}">
 
@@ -15,24 +16,51 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackLayout BackgroundColor="{StaticResource Accent}" VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
+        <StackLayout BackgroundColor="White" VerticalOptions="FillAndExpand" HorizontalOptions="Fill">
             <StackLayout Orientation="Horizontal" HorizontalOptions="Center" VerticalOptions="Center">
-                <ContentView Padding="0,40,0,40" VerticalOptions="FillAndExpand">
-                    <Image Source="xamarin_logo.png" VerticalOptions="Center" HeightRequest="64" />
+                <ContentView Padding="10,20,0,20" VerticalOptions="Center">
+                    <Image Source="UVA_Health_RGB_Primary.png" VerticalOptions="Fill" WidthRequest="300" HeightRequest="64" Aspect="AspectFit"/>
                 </ContentView>
             </StackLayout>
         </StackLayout>
         <ScrollView Grid.Row="1">
-            <StackLayout Orientation="Vertical" Padding="30,24,30,24" Spacing="10">
-                <Label Text="Tap to Start A Session" FontSize="Title" />
-                <Button Margin="0,50,0,0"
+            <StackLayout Orientation="Vertical" Padding="30,20,30,24" Spacing="10">
+                
+                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
+                <Label FontSize="Large"></Label>
+                <gauge:SfCircularGauge>
+                    <gauge:SfCircularGauge.Headers>
+                        <gauge:Header Text="Too Slow!" Position="0.1,0.55" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
+                        <gauge:Header Text="Too Fast!" Position="0.87,0.55" TextSize="15" ForegroundColor="#F03E3E" FontAttributes = "Bold"/>
+                        <gauge:Header Text="Goal Range" Position="0.5, .03" TextSize="15" ForegroundColor="#27beb7" FontAttributes = "Bold"/>
+                    </gauge:SfCircularGauge.Headers>
+
+                    <gauge:SfCircularGauge.Scales >
+
+                        <gauge:Scale  StartValue = "0" EndValue = "100" StartAngle = "180" SweepAngle = "180" Interval = "10"
+			                ShowLabels = "False" ShowTicks = "False" ShowRim = "False" RimThickness = "40" 
+							RadiusFactor = "0.9" RimColor = "#e0e0e0">
+
+                            <gauge:Scale.Pointers>
+                                <gauge:NeedlePointer  Value="70" KnobRadius="0" KnobStrokeColor = "#0682F6" KnobStrokeWidth = "6"
+                                    Color="OrangeRed" KnobColor="White" LengthFactor="0.66" Type="Triangle" Thickness = "10"/>
+                            </gauge:Scale.Pointers>
+                            <gauge:Scale.Ranges>
+                                <gauge:Range StartValue = "0" EndValue = "33" Color = "#F03E3E" Thickness = "40" Offset = "0.9" />
+                                <gauge:Range StartValue = "33" EndValue = "66" Color = "#27beb7" Thickness = "40" Offset = "0.9" />
+                                <gauge:Range StartValue = "66" EndValue = "100" Color = "#F03E3E" Thickness = "40" Offset = "0.9" />
+                            </gauge:Scale.Ranges>
+                        </gauge:Scale>
+
+                    </gauge:SfCircularGauge.Scales>
+                </gauge:SfCircularGauge>
+                
+                <Label Margin="0,-50,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
+                <Button Margin="0,10,0,0"
                         Text="{Binding SessionButtonText, Mode=OneWay}"
                         Command="{Binding StartSessionCommand}"
                         BackgroundColor="{StaticResource Primary}"
                         TextColor="White" />
-                <Label FontSize="Large"></Label>
-                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
-                <Label Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
                 <Button Margin="0,50,0,0"
                         Text= "View Results"
                         Command="{Binding ViewResultsCommand}">
