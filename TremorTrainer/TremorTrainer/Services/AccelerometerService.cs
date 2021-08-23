@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using TremorTrainer.Repositories;
 using Xamarin.Essentials;
 
 namespace TremorTrainer.Services
@@ -13,31 +14,35 @@ namespace TremorTrainer.Services
 
         private readonly IMessageService _messageService;
         private readonly List<Vector3> _readings;
+        private readonly IAccelerometerRepository _accelerometerRepository;
 
         public List<Vector3> Readings
         {
             get => _readings;
         }
 
-        public AccelerometerService(IMessageService messageService, ITimerService timerService)
+        public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository)
         {
             _messageService = messageService;
             _readings = new List<Vector3>();
-
+            _accelerometerRepository = accelerometerRepository;
         }
-        public async Task StartAccelerometer(int sessionLength)
+
+        public async Task<bool> StartAccelerometer(int sessionLength)
         {
             try
             {
-                if (Accelerometer.IsMonitoring && sessionLength > 0)
+                if (_accelerometerRepository.IsMonitoring && sessionLength > 0)
                 {
                     await _messageService.ShowAsync("Session is already active.");
+                    return false;
                 }
                 else
                 {
                     // Clearing the list before starting a new Session
                     _readings.Clear();
-                    Accelerometer.Start(Constants.SensorSpeed);
+                    _accelerometerRepository.Start(Constants.SensorSpeed);
+                    return true;
 
                 }
             }
@@ -45,14 +50,14 @@ namespace TremorTrainer.Services
             {
                 // Feature not supported on device
                 await _messageService.ShowAsync($"{Constants.DeviceNotSupportedMessage} Details: {ex.Message}");
-
+                return false;
             }
             catch (Exception ex)
             {
                 // Other unknown error has occurred.
                 await _messageService.ShowAsync(Constants.UnknownErrorMessage);
                 Console.WriteLine($"An unknown error occurred: {ex.Message}");
-                throw;
+                return false;
 
             }
         }
@@ -61,9 +66,9 @@ namespace TremorTrainer.Services
         {
             try
             {
-                if (Accelerometer.IsMonitoring)
+                if (_accelerometerRepository.IsMonitoring)
                 {
-                    Accelerometer.Stop();
+                    _accelerometerRepository.Stop();
                 }
                 else
                 {
@@ -86,9 +91,9 @@ namespace TremorTrainer.Services
             if (_readings.Count > 0)
             {
                 // get x, y, and z averages 
-                var xAverage = _readings.Select(x => x.X).Average();
-                var yAverage = _readings.Select(y => y.Y).Average();
-                var zAverage = _readings.Select(z => z.Z).Average();
+                float xAverage = _readings.Select(x => x.X).Average();
+                float yAverage = _readings.Select(y => y.Y).Average();
+                float zAverage = _readings.Select(z => z.Z).Average();
 
                 return new Vector3(x: xAverage, y: yAverage, z: zAverage);
             }
@@ -103,7 +108,7 @@ namespace TremorTrainer.Services
     {
         Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
-        Task StartAccelerometer(int sessionLength);
+        Task<bool> StartAccelerometer(int sessionLength);
         Task StopAccelerometer();
     }
 }
