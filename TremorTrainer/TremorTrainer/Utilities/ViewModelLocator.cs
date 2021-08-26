@@ -18,11 +18,15 @@ namespace TremorTrainer.Utilities
             _unityContainer.RegisterInstance<IConnection>(new DbConnection(Constants.DatabasePath, Constants.Flags));
 
             // Register types in the constructor
+            // -----------------SERVICES------------------------
             _unityContainer.RegisterType<ITimerService, TimerService>();
-            _unityContainer.RegisterType<ISessionRepository, SessionRepository>();
             _unityContainer.RegisterType<ISessionService, SessionService>();
             _unityContainer.RegisterType<IMessageService, MessageService>();
             _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>();
+
+            // -----------------REPOSITORIES------------------------
+            _unityContainer.RegisterType<ISessionRepository, SessionRepository>();
+            _unityContainer.RegisterType<IAccelerometerRepository, AccelerometerRepository>();
 
         }
 
