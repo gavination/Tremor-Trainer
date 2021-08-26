@@ -1,6 +1,9 @@
-﻿using SQLite;
+﻿using CsvHelper;
+using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
@@ -46,11 +49,38 @@ namespace TremorTrainer.Repositories
         {
             return _database.Connection.Delete(session);
         }
+        public bool ExportSessions(List<Session> sessions)
+        {
+            if (sessions.Count > 0)
+            { 
+                // perform export operation
+                using (var writer = new StreamWriter(Constants.ExportPath))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteHeader<Session>();
+                    csv.NextRecord();
+                    foreach (var session in sessions)
+                    {
+                        csv.WriteRecord(session);
+                        csv.NextRecord();
+                    }
+                    return true;
+                }
+            }
+            else
+            {
+                // argument must have records
+                return false;
+            }
+
+        }
+
     }
 
     public interface ISessionRepository
     {
         int AddSession(Session newItem);
         List<Session> GetSessions();
+        bool ExportSessions(List<Session> sessions);
     }
 }

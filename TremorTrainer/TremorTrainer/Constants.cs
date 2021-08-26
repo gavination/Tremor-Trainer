@@ -11,6 +11,7 @@ namespace TremorTrainer
         //Application runtime constants
         public static readonly SensorSpeed SensorSpeed = SensorSpeed.UI;
         public const string DatabaseFilename = "TremorTrainer.db3";
+        public const string CSVFileName = "TremorTrainerSessions.csv";
         public const int PrescribedSessionTimeLimit = 30000;
         public const int AsNeededSessionTimeLimit = 15000;
         public const int CountdownInterval = 1000;
@@ -38,6 +39,14 @@ namespace TremorTrainer
             {
                 string basePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 return Path.Combine(basePath, DatabaseFilename);
+            }
+        }
+        public static string ExportPath
+        {
+            get
+            {
+                string basePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                return Path.Combine(basePath, CSVFileName);
             }
         }
 

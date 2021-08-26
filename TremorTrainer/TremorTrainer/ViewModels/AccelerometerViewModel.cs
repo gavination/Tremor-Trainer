@@ -78,7 +78,7 @@ namespace TremorTrainer.ViewModels
 
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
-            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
+            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/SessionsPage"));
 
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;

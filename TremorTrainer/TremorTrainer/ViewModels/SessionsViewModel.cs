@@ -9,7 +9,7 @@ using Xamarin.Forms;
 
 namespace TremorTrainer.ViewModels
 {
-    public class ItemsViewModel : BaseViewModel
+    public class SessionsViewModel : BaseViewModel
     {
         private Session _selectedItem;
         private readonly ISessionService _sessionService;
@@ -20,7 +20,7 @@ namespace TremorTrainer.ViewModels
         public Command ExportSessionsCommand { get; }
         public Command<Session> ItemTapped { get; }
 
-        public ItemsViewModel(ISessionService sessionService, IMessageService messageService)
+        public SessionsViewModel(ISessionService sessionService, IMessageService messageService)
         {
             _sessionService = sessionService;
             _messageService = messageService;
@@ -75,8 +75,17 @@ namespace TremorTrainer.ViewModels
 
         private async void OnExportButtonClicked(object obj)
         {
-            //todo: add export to csv logic here
-            await _messageService.ShowAsync("Session Export functionality not yet supported. Sorry!");
+            bool result = await _sessionService.ExportSessions();
+
+            if (result)
+            {
+                await _messageService.ShowAsync($"Exported sessions to csv file at this location: {Constants.ExportPath}");
+            }
+            else
+            {
+                string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to export sessions to file";
+                await _messageService.ShowAsync(errorMessage);
+            }
 
         }
 

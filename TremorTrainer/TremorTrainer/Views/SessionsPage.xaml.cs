@@ -3,15 +3,15 @@ using Xamarin.Forms;
 
 namespace TremorTrainer.Views
 {
-    public partial class ItemsPage : ContentPage
+    public partial class SessionsPage : ContentPage
     {
-        ItemsViewModel _viewModel;
+        SessionsViewModel _viewModel;
 
-        public ItemsPage()
+        public SessionsPage()
         {
             InitializeComponent();
 
-            BindingContext = _viewModel = App.Locator.ItemsViewModel;
+            BindingContext = _viewModel = App.Locator.SessionsViewModel;
         }
 
         protected override void OnAppearing()

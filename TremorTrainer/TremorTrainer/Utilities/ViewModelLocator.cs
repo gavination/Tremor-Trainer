@@ -33,7 +33,7 @@ namespace TremorTrainer.Utilities
         // Register types in the constructor
         // Resolving classes as they are called
 
-        public ItemsViewModel ItemsViewModel => _unityContainer.Resolve<ItemsViewModel>();
+        public SessionsViewModel SessionsViewModel => _unityContainer.Resolve<SessionsViewModel>();
         public ItemDetailViewModel ItemDetailViewModel => _unityContainer.Resolve<ItemDetailViewModel>();
         public NewItemViewModel NewItemViewModel => _unityContainer.Resolve<NewItemViewModel>();
         public AccelerometerViewModel AccelerometerViewModel => _unityContainer.Resolve<AccelerometerViewModel>();

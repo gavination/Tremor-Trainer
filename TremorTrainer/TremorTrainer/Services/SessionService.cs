@@ -33,7 +33,7 @@ namespace TremorTrainer.Services
             {
                 string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to save session to database.";
                 await _messageService.ShowAsync(errorMessage);
-                throw new Exception(errorMessage);
+                return await Task.FromResult(false);
             }
         }
 
@@ -48,20 +48,25 @@ namespace TremorTrainer.Services
 
         public async Task<bool> DeleteItemAsync(Guid id)
         {
-            var oldItem = _items.Where((Session arg) => arg.Id == id).FirstOrDefault();
+            var oldItem = _items.FirstOrDefault((Session arg) => arg.Id == id);
             _items.Remove(oldItem);
 
             return await Task.FromResult(true);
         }
 
-        public async Task<Session> GetItemAsync(Guid id)
+        public async Task<Session> GetItemAsync(Guid itemId)
         {
-            return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));
+            return await Task.FromResult(_items.FirstOrDefault(s => s.Id == itemId));
         }
 
         public async Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false)
         {
             return await Task.FromResult(_items);
+        }
+
+        public async Task<bool> ExportSessions()
+        {
+            return await Task.FromResult(_sessionRepository.ExportSessions(_items));
         }
 
     }
@@ -71,5 +76,6 @@ namespace TremorTrainer.Services
         Task<bool> AddItemAsync(Session newItem);
         Task<Session> GetItemAsync(Guid itemId);
         Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false);
+        Task<bool> ExportSessions();
     }
 }
