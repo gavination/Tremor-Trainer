@@ -64,7 +64,7 @@ namespace TremorTrainer.Services
             return await Task.FromResult(_items);
         }
 
-        public async Task<bool> ExportSessions()
+        public async Task<string> ExportSessions()
         {
             return await Task.FromResult(_sessionRepository.ExportSessions(_items));
         }
@@ -76,6 +76,6 @@ namespace TremorTrainer.Services
         Task<bool> AddItemAsync(Session newItem);
         Task<Session> GetItemAsync(Guid itemId);
         Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false);
-        Task<bool> ExportSessions();
+        Task<string> ExportSessions();
     }
 }

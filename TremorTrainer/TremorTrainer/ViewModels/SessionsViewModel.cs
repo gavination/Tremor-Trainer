@@ -75,9 +75,9 @@ namespace TremorTrainer.ViewModels
 
         private async void OnExportButtonClicked(object obj)
         {
-            bool result = await _sessionService.ExportSessions();
+            string result = await _sessionService.ExportSessions();
 
-            if (result)
+            if (result != null)
             {
                 await _messageService.ShowAsync($"Exported sessions to csv file at this location: {Constants.ExportPath}");
             }

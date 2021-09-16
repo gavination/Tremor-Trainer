@@ -123,6 +123,7 @@
     <BundleResource Include="Resources\xamarin_logo%402x.png" />
     <BundleResource Include="Resources\xamarin_logo%403x.png" />
     <InterfaceDefinition Include="Resources\LaunchScreen.storyboard" />
+    <BundleResource Include="Resources\UVA_Health_RGB_Primary.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -157,54 +158,13 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\TremorTrainer\TremorTrainer.csproj">
-      <Project>{358A8C7B-BFE4-4271-80B4-29E01FDE0A00}</Project>
+      <Project>{F73498A5-2126-4F0E-8DD8-612FF064FAFE}</Project>
       <Name>TremorTrainer</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\hero_img.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape%402x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape%402x~ipad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape%403x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape%403x~ipad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape%404x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground-Landscape~ipad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground%402x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground%402x~ipad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground%403x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground%403x~ipad.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground%404x.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <BundleResource Include="Resources\LoginBackground~ipad.png" />
-  </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Assets.xcassets\UVA_Logo.imageset\" />
+    <Folder Include="Assets.xcassets\hero_img.jpg.imageset\" />
+  </ItemGroup>
 </Project>

@@ -80,6 +80,7 @@
     <Compile Include="Renderers\BorderlessEntryRenderer.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -104,6 +105,14 @@
     <AndroidResource Include="Resources\drawable\xamarin_logo.png" />
     <AndroidResource Include="Resources\drawable\icon_about.png" />
     <AndroidResource Include="Resources\drawable\icon_feed.png" />
+    <AndroidResource Include="Resources\drawable-xxxhdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-xhdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-land-xxxhdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-land-xxhdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-land-xhdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-land\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable-hdpi\hero_img.jpg" />
+    <AndroidResource Include="Resources\drawable\hero_img.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TremorTrainer\TremorTrainer.csproj">
@@ -113,33 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxhdpi\hero_img.jpg" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-hdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-land\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-land-xhdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-land-xxhdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-land-xxxhdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xhdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxhdpi\LoginBackground.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AndroidResource Include="Resources\drawable-xxxhdpi\LoginBackground.png" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-hdpi\UVA_Health_RGB_Primary.png" />
