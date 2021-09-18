@@ -184,7 +184,7 @@ namespace TremorTrainer.ViewModels
                 Type = SessionType.Induction
             };
 
-            bool result = await _sessionService.AddItemAsync(newSession);
+            bool result = await _sessionService.AddSessionAsync(newSession);
 
             if (!result)
             {

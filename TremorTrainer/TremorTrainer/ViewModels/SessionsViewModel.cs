@@ -13,17 +13,24 @@ namespace TremorTrainer.ViewModels
     {
         private Session _selectedItem;
         private readonly ISessionService _sessionService;
-        private readonly IMessageService _messageService;
+        private ObservableCollection<Session> _items;
 
-        public ObservableCollection<Session> Items { get; }
+        public ObservableCollection<Session> Items
+        {
+            get { return _items; }
+            private set
+            {
+                _items = value;
+                OnPropertyChanged("Items");
+            }
+        }
         public Command LoadItemsCommand { get; }
         public Command ExportSessionsCommand { get; }
         public Command<Session> ItemTapped { get; }
 
-        public SessionsViewModel(ISessionService sessionService, IMessageService messageService)
+        public SessionsViewModel(ISessionService sessionService)
         {
             _sessionService = sessionService;
-            _messageService = messageService;
 
             Title = "Sessions";
             Items = new ObservableCollection<Session>();
@@ -39,7 +46,7 @@ namespace TremorTrainer.ViewModels
             try
             {
                 Items.Clear();
-                var items = await _sessionService.GetItemsAsync(true);
+                var items = await _sessionService.GetSessionsAsync(true);
                 foreach (var item in items)
                 {
                     Items.Add(item);
@@ -75,16 +82,11 @@ namespace TremorTrainer.ViewModels
 
         private async void OnExportButtonClicked(object obj)
         {
-            string result = await _sessionService.ExportSessions();
-
-            if (result != null)
+            var result = await _sessionService.ExportUserSessions();
+            if (result)
             {
-                await _messageService.ShowAsync($"Exported sessions to csv file at this location: {Constants.ExportPath}");
-            }
-            else
-            {
-                string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to export sessions to file";
-                await _messageService.ShowAsync(errorMessage);
+                await _sessionService.DeleteSessions();
+                Items.Clear();
             }
 
         }

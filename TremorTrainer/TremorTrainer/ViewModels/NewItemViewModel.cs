@@ -60,7 +60,7 @@ namespace TremorTrainer.ViewModels
                 Details = Text
             };
 
-            await _dataStore.AddItemAsync(newItem);
+            await _dataStore.AddSessionAsync(newItem);
 
             // This will pop the current page off the navigation stack
             await Shell.Current.GoToAsync("..");
