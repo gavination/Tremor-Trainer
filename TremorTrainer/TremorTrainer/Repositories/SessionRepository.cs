@@ -1,20 +1,25 @@
-﻿using SQLite;
+﻿using CsvHelper;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.IO;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
+using Xamarin.Forms;
 
 namespace TremorTrainer.Repositories
 {
     public class SessionRepository : ISessionRepository
     {
         private readonly IConnection _database;
+        private readonly IStorageRepository _storageRepository;
 
         public SessionRepository(IConnection dbConnection)
         {
             _database = dbConnection;
             _database.Connection.CreateTable<Session>();
+
+            _storageRepository = DependencyService.Get<IStorageRepository>();
         }
 
         public List<Session> GetSessions()
@@ -46,11 +51,44 @@ namespace TremorTrainer.Repositories
         {
             return _database.Connection.Delete(session);
         }
+
+        public int DeleteSessions()
+        {
+            return _database.Connection.DeleteAll<Session>();
+        }
+
+        public string ExportSessions(List<Session> sessions)
+        {
+            var path = _storageRepository.GetDownloadPath();
+            var filename = DateTime.Now.ToString("yyyy'-'MM'-'dd'-'HH'-'mm'-'ss'Z'") + ".csv";
+
+            var filepath = Path.Combine(path, filename);
+
+            if (sessions.Count > 0)
+            {
+                // perform export operation
+                using (var writer = new StreamWriter(filepath))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteRecords(sessions);
+                    return filepath;
+                }
+            }
+            else
+            {
+                // argument must have records
+                return null;
+
+            }
+        }
+
     }
 
     public interface ISessionRepository
     {
-        int AddSession(Session newItem);
+        int AddSession(Session session);
+        int DeleteSessions();
         List<Session> GetSessions();
+        string ExportSessions(List<Session> sessions);
     }
 }

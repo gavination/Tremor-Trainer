@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="27.1.1" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <PackageReference Include="Syncfusion.Xamarin.Buttons" Version="19.2.0.48" />
@@ -38,6 +39,9 @@
   <ItemGroup>
     <Compile Update="Views\AccelerometerPage.xaml.cs">
       <DependentUpon>AccelerometerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\SessionsPage.xaml.cs">
+      <DependentUpon>SessionsPage.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 

@@ -78,7 +78,7 @@ namespace TremorTrainer.ViewModels
 
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
-            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/ItemsPage"));
+            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/SessionsPage"));
 
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
@@ -184,7 +184,7 @@ namespace TremorTrainer.ViewModels
                 Type = SessionType.Induction
             };
 
-            bool result = await _sessionService.AddItemAsync(newSession);
+            bool result = await _sessionService.AddSessionAsync(newSession);
 
             if (!result)
             {

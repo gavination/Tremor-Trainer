@@ -9,7 +9,7 @@ namespace TremorTrainer.Services
 {
     public class SessionService : ISessionService
     {
-        readonly List<Session> _items;
+        readonly List<Session> _sessions;
         private readonly ISessionRepository _sessionRepository;
         private readonly IMessageService _messageService;
 
@@ -17,13 +17,13 @@ namespace TremorTrainer.Services
         {
             _sessionRepository = sessionRepository;
             _messageService = messageService;
-            _items = _sessionRepository.GetSessions();
+            _sessions = _sessionRepository.GetSessions();
         }
 
-        public async Task<bool> AddItemAsync(Session newItem)
+        public async Task<bool> AddSessionAsync(Session newSession)
         {
-            _items.Add(newItem);
-            var result = _sessionRepository.AddSession(newItem);
+            _sessions.Add(newSession);
+            var result = _sessionRepository.AddSession(newSession);
 
             if (result > 0)
             {
@@ -33,43 +33,74 @@ namespace TremorTrainer.Services
             {
                 string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to save session to database.";
                 await _messageService.ShowAsync(errorMessage);
-                throw new Exception(errorMessage);
+                return await Task.FromResult(false);
             }
         }
 
-        public async Task<bool> UpdateItemAsync(Session item)
+        public async Task<bool> UpdateSessionAsync(Session Session)
         {
-            var oldItem = _items.FirstOrDefault((Session arg) => arg.Id == item.Id);
-            _items.Remove(oldItem);
-            _items.Add(item);
+            var oldSession = _sessions.FirstOrDefault((Session arg) => arg.Id == Session.Id);
+            _sessions.Remove(oldSession);
+            _sessions.Add(Session);
 
             return await Task.FromResult(true);
         }
 
-        public async Task<bool> DeleteItemAsync(Guid id)
+        public async Task<bool> DeleteSessionAsync(Guid id)
         {
-            var oldItem = _items.Where((Session arg) => arg.Id == id).FirstOrDefault();
-            _items.Remove(oldItem);
+            var oldSession = _sessions.FirstOrDefault((Session arg) => arg.Id == id);
+            _sessions.Remove(oldSession);
 
             return await Task.FromResult(true);
         }
 
-        public async Task<Session> GetItemAsync(Guid id)
+        public async Task<Session> GetSessionAsync(Guid SessionId)
         {
-            return await Task.FromResult(_items.FirstOrDefault(s => s.Id == id));
+            return await Task.FromResult(_sessions.FirstOrDefault(s => s.Id == SessionId));
         }
 
-        public async Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false)
+        public async Task<IEnumerable<Session>> GetSessionsAsync(bool forceRefresh = false)
         {
-            return await Task.FromResult(_items);
+            return await Task.FromResult(_sessions);
+        }
+
+        public async Task<bool> ExportUserSessions()
+        {
+            var userResponse = await _messageService.ShowCancelAlertAsync("Export Session Data?",
+                "Exporting will delete your current session data. Are you sure you want to export?");
+            if (userResponse)
+            {
+                var result = _sessionRepository.ExportSessions(_sessions);
+
+                if (result != null)
+                {
+                    await _messageService.ShowAsync($"Exported sessions to csv file at this location: {result}");
+                    return true;
+                }
+                else
+                {
+                    string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to export sessions to file";
+                    await _messageService.ShowAsync(errorMessage);
+                    return false;
+                }
+            }
+            return false;
+           
+        }
+
+        public async Task DeleteSessions()
+        {
+            var result = _sessionRepository.DeleteSessions();
         }
 
     }
 
     public interface ISessionService
     {
-        Task<bool> AddItemAsync(Session newItem);
-        Task<Session> GetItemAsync(Guid itemId);
-        Task<IEnumerable<Session>> GetItemsAsync(bool forceRefresh = false);
+        Task<bool> AddSessionAsync(Session newSession);
+        Task<Session> GetSessionAsync(Guid SessionId);
+        Task<IEnumerable<Session>> GetSessionsAsync(bool forceRefresh = false);
+        Task<bool> ExportUserSessions();
+        Task DeleteSessions();
     }
 }
