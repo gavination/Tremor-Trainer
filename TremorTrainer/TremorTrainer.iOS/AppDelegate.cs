@@ -12,6 +12,7 @@ using System.Linq;
 
 using Foundation;
 using UIKit;
+using Syncfusion.SfGauge.XForms.iOS;
 
 namespace TremorTrainer.iOS
 {
@@ -41,6 +42,7 @@ namespace TremorTrainer.iOS
             SfGradientViewRenderer.Init();
             SfBorderRenderer.Init();
             SfButtonRenderer.Init();
+            SfGaugeRenderer.Init();
             LoadApplication(new App());
 
             return base.FinishedLaunching(app, options);
