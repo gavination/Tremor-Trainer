@@ -9,7 +9,7 @@ namespace TremorTrainer
     public partial class AppShell : Xamarin.Forms.Shell
     {
 
-        public AppShell(int sessionLength)
+        public AppShell(int sessionLength, bool isPrescribedSession)
         {
             InitializeComponent();
             try
@@ -17,21 +17,13 @@ namespace TremorTrainer
                 Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
                 Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
                 Routing.RegisterRoute(nameof(SessionsPage), typeof(SessionsPage));
-
-                if (!App.Current.Properties.ContainsKey("SessionLength"))
-                {
-                    App.Current.Properties.Add("SessionLength", sessionLength);
-                }
-                else
-                {
-                    Console.WriteLine($"The Session Length argument already exists. Overwriting it with the new value");
-                    App.Current.Properties["SessionLength"] = sessionLength;
-                }
+               
+                App.Current.Properties["SessionLength"] = sessionLength;
+                App.Current.Properties["IsPrescribedSession"] = isPrescribedSession;
             }
             catch (Exception e)
             {
                 //todo: replace this with user friendly message
-                // NEVER ADMIT FAULT
                 var message = $"Error: Something went wrong. Details {e.Message}";
                 Console.WriteLine(message);
                 App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");

@@ -14,6 +14,7 @@ namespace TremorTrainer
         public const string CSVFileName = "TremorTrainerSessions.csv";
         public const int PrescribedSessionTimeLimit = 30000;
         public const int AsNeededSessionTimeLimit = 15000;
+        public const int FirstPrescribedSessionTimeLimit = 60000;
         public const int CountdownInterval = 1000;
 
 

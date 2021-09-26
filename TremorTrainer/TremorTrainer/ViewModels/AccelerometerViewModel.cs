@@ -18,7 +18,9 @@ namespace TremorTrainer.ViewModels
 
         // setup private timer and ui vars
         private readonly int _sessionTimeLimit;
-        //todo: replace this once code solidifies
+        private readonly bool _isPrescribedSession;
+
+        // todo: replace this once code solidifies
         private string _readingText = "Placeholder XYZ values";
         private string _timerText;
         private string _sessionButtonText;
@@ -68,8 +70,10 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
-            _currentSessionLength = (int)App.Current.Properties["SessionLength"];
-            _sessionTimeLimit = _currentSessionLength;
+            _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
+            _sessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
+            _currentSessionLength = _sessionTimeLimit;
+
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
 
@@ -111,7 +115,7 @@ namespace TremorTrainer.ViewModels
                 _timerService.SessionRunning = true;
                 _sessionStartTime = DateTime.Now;
 
-                _currentSessionLength = _sessionTimeLimit;
+                _currentSessionLength = _sessionService.GetSessionLength(_isPrescribedSession);
 
                 TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
                 TimerText = FormatTimeSpan(span);
@@ -144,7 +148,7 @@ namespace TremorTrainer.ViewModels
             else if(_currentSessionLength > 0 && !_timerService.SessionRunning)
             {
                 _sessionStartTime = DateTime.Now;
-                _currentSessionLength = _sessionTimeLimit;
+                _currentSessionLength = _sessionService.GetSessionLength(_isPrescribedSession);
                 _timerService.SessionRunning = true;
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
@@ -166,12 +170,12 @@ namespace TremorTrainer.ViewModels
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _timerService.SessionRunning = false;
 
-            //todo: test session until new features roll in. create a session with values to determine baselines and sessiontype
+            var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
 
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
-                Details = $"Session Type: {SessionType.Induction}. Average Session Values - X: {averageReading.X}, Y: {averageReading.Y}, Z: {averageReading.Z}",
+                Details = $"Session Type: {sessionType}. Average Session Values - X: {averageReading.X}, Y: {averageReading.Y}, Z: {averageReading.Z}",
                 XAverageVariance = averageReading.X,
                 YAverageVariance = averageReading.Y,
                 ZAverageVariance = averageReading.Z,
@@ -181,7 +185,7 @@ namespace TremorTrainer.ViewModels
                 Duration = sessionDuration,
                 Score = 0,
                 StartTime = DateTime.Now,
-                Type = SessionType.Induction
+                Type = sessionType
             };
 
             bool result = await _sessionService.AddSessionAsync(newSession);

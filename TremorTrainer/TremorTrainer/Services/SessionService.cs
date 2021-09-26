@@ -103,6 +103,34 @@ namespace TremorTrainer.Services
             }
             return true;
         }
+        public  SessionType GetSessionType(bool isPrescribed)
+        {
+            if (!isPrescribed)
+            {
+                return SessionType.AsNeeded;
+            }
+            bool isFirstSession = DetermineFirstSession();
+            return isFirstSession ? SessionType.Induction : SessionType.Maintenance;
+        }
+
+        public int GetSessionLength(bool isPrescribed)
+        {
+            if (!isPrescribed)
+            {
+                return Constants.AsNeededSessionTimeLimit;
+            }
+
+            //determine if this is the first session for the User
+            var isFirstSession = DetermineFirstSession();
+            if (isFirstSession)
+            {
+                return Constants.FirstPrescribedSessionTimeLimit;
+            }
+            else
+            {
+                return Constants.PrescribedSessionTimeLimit;
+            }
+        }
     }
 
     public interface ISessionService
@@ -110,9 +138,10 @@ namespace TremorTrainer.Services
         Task<bool> AddSessionAsync(Session newSession);
         Task<Session> GetSessionAsync(Guid SessionId);
         Task<IEnumerable<Session>> GetSessionsAsync(bool forceRefresh = false);
+        SessionType GetSessionType(bool isPrescribed);
+        int GetSessionLength(bool isPrescribed);
         Task<bool> ExportUserSessions();
         void DeleteSessions();
-
         bool DetermineFirstSession();
     }
 }
