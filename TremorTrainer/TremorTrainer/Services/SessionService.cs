@@ -88,11 +88,21 @@ namespace TremorTrainer.Services
            
         }
 
-        public async Task DeleteSessions()
+        public void DeleteSessions()
         {
-            var result = _sessionRepository.DeleteSessions();
+            _sessionRepository.DeleteSessions();
         }
 
+        public bool DetermineFirstSession()
+        {
+            var inductionSessions = _sessionRepository.GetSessions().Where(x => x.Type == SessionType.Induction);
+
+            if (inductionSessions.Any())
+            {
+                return false;
+            }
+            return true;
+        }
     }
 
     public interface ISessionService
@@ -101,6 +111,8 @@ namespace TremorTrainer.Services
         Task<Session> GetSessionAsync(Guid SessionId);
         Task<IEnumerable<Session>> GetSessionsAsync(bool forceRefresh = false);
         Task<bool> ExportUserSessions();
-        Task DeleteSessions();
+        void DeleteSessions();
+
+        bool DetermineFirstSession();
     }
 }

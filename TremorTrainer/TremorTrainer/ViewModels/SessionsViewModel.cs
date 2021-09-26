@@ -85,7 +85,7 @@ namespace TremorTrainer.ViewModels
             var result = await _sessionService.ExportUserSessions();
             if (result)
             {
-                await _sessionService.DeleteSessions();
+                _sessionService.DeleteSessions();
                 Items.Clear();
             }
 
