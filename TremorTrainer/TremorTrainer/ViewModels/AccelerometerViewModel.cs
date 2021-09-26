@@ -231,6 +231,7 @@ namespace TremorTrainer.ViewModels
         private string FormatTimeSpan(TimeSpan span)
         {
             //TODO: modify this to incorporate leading zeros in the Label.
+            //TODO: modify this to keep minutes from reflecting the same values as seconds
             return $"Time Remaining: {(int)span.TotalMinutes}:{(int)span.TotalSeconds}";
         }
 
