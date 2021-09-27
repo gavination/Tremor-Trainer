@@ -9,7 +9,7 @@ namespace TremorTrainer.Services
 {
     public class SessionService : ISessionService
     {
-        readonly List<Session> _sessions;
+        private readonly List<Session> _sessions;
         private readonly ISessionRepository _sessionRepository;
         private readonly IMessageService _messageService;
 
@@ -48,7 +48,7 @@ namespace TremorTrainer.Services
 
         public async Task<bool> DeleteSessionAsync(Guid id)
         {
-            var oldSession = _sessions.FirstOrDefault((Session arg) => arg.Id == id);
+            Session oldSession = _sessions.FirstOrDefault((Session arg) => arg.Id == id);
             _sessions.Remove(oldSession);
 
             return await Task.FromResult(true);
