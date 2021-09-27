@@ -82,13 +82,7 @@ namespace TremorTrainer.ViewModels
 
         private async void OnExportButtonClicked(object obj)
         {
-            var result = await _sessionService.ExportUserSessions();
-            if (result)
-            {
-                _sessionService.DeleteSessions();
-                Items.Clear();
-            }
-
+            await _sessionService.ExportUserSessions();
         }
 
         async void OnItemSelected(Session item)
