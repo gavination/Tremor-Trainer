@@ -5,7 +5,7 @@ namespace TremorTrainer.Views
 {
     public partial class SessionsPage : ContentPage
     {
-        SessionsViewModel _viewModel;
+        private readonly SessionsViewModel _viewModel;
 
         public SessionsPage()
         {

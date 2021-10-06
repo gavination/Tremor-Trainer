@@ -162,9 +162,23 @@
       <Name>TremorTrainer</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Assets.xcassets\UVA_Logo.imageset\" />
+    <BundleResource Include="Resources\file.png" />
+  </ItemGroup>
+  <ItemGroup>
     <Folder Include="Assets.xcassets\hero_img.jpg.imageset\" />
+    <Folder Include="Assets.xcassets\UVA_Logo.imageset\" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\hero_img.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\setting.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\star.png">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
 </Project>
