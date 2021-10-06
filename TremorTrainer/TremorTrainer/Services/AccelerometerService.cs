@@ -13,18 +13,14 @@ namespace TremorTrainer.Services
     {
 
         private readonly IMessageService _messageService;
-        private readonly List<Vector3> _readings;
         private readonly IAccelerometerRepository _accelerometerRepository;
 
-        public List<Vector3> Readings
-        {
-            get => _readings;
-        }
+        public List<Vector3> Readings { get; }
 
         public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository)
         {
             _messageService = messageService;
-            _readings = new List<Vector3>();
+            Readings = new List<Vector3>();
             _accelerometerRepository = accelerometerRepository;
         }
 
@@ -40,7 +36,7 @@ namespace TremorTrainer.Services
                 else
                 {
                     // Clearing the list before starting a new Session
-                    _readings.Clear();
+                    Readings.Clear();
                     _accelerometerRepository.Start(Constants.SensorSpeed);
                     return true;
 
@@ -88,12 +84,12 @@ namespace TremorTrainer.Services
         // Not to be kept long-term
         public Vector3 GetAverageReading()
         {
-            if (_readings.Count > 0)
+            if (Readings.Count > 0)
             {
                 // get x, y, and z averages 
-                float xAverage = _readings.Select(x => x.X).Average();
-                float yAverage = _readings.Select(y => y.Y).Average();
-                float zAverage = _readings.Select(z => z.Z).Average();
+                float xAverage = Readings.Select(x => x.X).Average();
+                float yAverage = Readings.Select(y => y.Y).Average();
+                float zAverage = Readings.Select(z => z.Z).Average();
 
                 return new Vector3(x: xAverage, y: yAverage, z: zAverage);
             }

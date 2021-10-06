@@ -16,13 +16,16 @@ namespace TremorTrainer
         public const int AsNeededSessionTimeLimit = 15000;
         public const int FirstPrescribedSessionTimeLimit = 60000;
         public const int CountdownInterval = 1000;
+        public const string BuildNumber = "0.0.1";
 
 
-        // Debug and exception messages
+        // Debug, info, and exception messages
         public const string ContactEmail = "gavin@bionicpanda.net";
         public const string AppName = "Tremor Trainer";
         public const string DeviceNotSupportedMessage = "Unfortunately, this device does not have an Accelerometer and we cannot measure your tremor levels";
         public static string UnknownErrorMessage = $"An Unknown error has occurred. Please contact the Developer at {ContactEmail}";
+
+        public const string AboutMessage = "Tremor Trainer is a cross-platform mobile app lovingly built using Xamarin.Forms 5 by a team of cybernetic pandas. The application seeks to provide access to frontline therapy for those suffering from Functional Tremors. At the time of implementation, there are no known methodologies for providing a means to temper the effects of functional tremors other than Tremor Trainer. Thanks for the combined research and efforts of Drs. Jordan Garris, Alberto Espay, and Amanda Lin, we were able to implement those learnings into a simple to use mobile application that requires not much more than a smartphone (Android, iOS) with an Accelerometer.";
 
         public const SQLite.SQLiteOpenFlags Flags =
             // open the database in read/write mode
@@ -51,5 +54,6 @@ namespace TremorTrainer
             }
         }
 
+        
     }
 }

@@ -1,12 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:TremorTrainer.ViewModels" 
+             x:DataType="viewmodels:SettingsViewModel"
              x:Class="TremorTrainer.Views.SettingsPage">
+    
     <ContentPage.Content>
-        <StackLayout>
-            <Label Text="Welcome to Xamarin.Forms!"
-                VerticalOptions="CenterAndExpand" 
-                HorizontalOptions="CenterAndExpand" />
-        </StackLayout>
+        <TableView HasUnevenRows="True" Intent="Settings">
+            <TableRoot>
+                <TableSection Title="Preferences"
+                              TextColor="DarkGray">
+                    <TextCell
+                        x:Name="About"
+                        Text="About This App" 
+                        Command="{Binding ShowAppInfoCommand}"/>
+                    <TextCell
+                        x:Name="ExportSessions"
+                        StyleId="disclosure"
+                        Text="Export All User Sessions"
+                        Command="{Binding SessionExportCommand}"/>
+                    <TextCell
+                        x:Name="DeleteSessions"
+                        StyleId="disclosure"
+                        Text="Clear Session Data"
+                        Command="{Binding SessionsDeleteCommand}"/>
+                    <TextCell
+                        x:Name="BuildNumber"
+                        StyleId="disclosure"
+                        Text="{Binding BuildIdMessage}"
+                        TextColor="DarkGray"/>
+                </TableSection>
+            </TableRoot>
+        </TableView>
     </ContentPage.Content>
 </ContentPage>
