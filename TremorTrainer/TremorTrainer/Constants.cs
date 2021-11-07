@@ -25,7 +25,7 @@ namespace TremorTrainer
         public const string DeviceNotSupportedMessage = "Unfortunately, this device does not have an Accelerometer and we cannot measure your tremor levels";
         public static string UnknownErrorMessage = $"An Unknown error has occurred. Please contact the Developer at {ContactEmail}";
 
-        public const string AboutMessage = "Tremor Trainer is a cross-platform mobile app lovingly built using Xamarin.Forms 5 by a team of cybernetic pandas. The application seeks to provide access to frontline therapy for those suffering from Functional Tremors. At the time of implementation, there are no known methodologies for providing a means to temper the effects of functional tremors other than Tremor Trainer. Thanks for the combined research and efforts of Drs. Jordan Garris, Alberto Espay, and Amanda Lin, we were able to implement those learnings into a simple to use mobile application that requires not much more than a smartphone (Android, iOS) with an Accelerometer.";
+        public const string AboutMessage = "The Tremor Trainer app was developed in collaboration with neurologists at the University of Virginia and University of Cincinnati for treatment of functional tremor, which is a subset of Functional Neurologic Disorder. It is currently being evaluated in research studies with goal to determine whether it is effective in treating functional tremor";
 
         public const SQLite.SQLiteOpenFlags Flags =
             // open the database in read/write mode
