@@ -28,7 +28,8 @@ namespace TremorTrainer
 
         protected override void OnStart()
         {
-            AppCenter.Start("android=934e7455-28e7-4c3f-b52c-d11e888dfd3b;" +
+            var androidAppCenterSecret = AppSettingsManager.Settings["AndroidAppCenterId"];
+            AppCenter.Start( androidAppCenterSecret +
                   "uwp={Your UWP App secret here};" +
                   "ios={Your iOS App secret here}",
                   typeof(Analytics), typeof(Crashes));

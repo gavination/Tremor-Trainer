@@ -404,3 +404,7 @@ ASALocalRun/
 # Local History for Visual Studio
 .localhistory/
 TremorTrainer/TremorTrainer/config.json
+
+#Ignore sensitive files
+appsettings.json
+appsettings.*.json
