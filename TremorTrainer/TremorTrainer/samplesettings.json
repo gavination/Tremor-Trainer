@@ -1,6 +1,4 @@
 {
-  //NOTE: Rename this file to appsettings.json
-
   "AppDisplayName": "Tremor Trainer",
   "AndroidAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR ANDROID>",
   "IOSAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR IOS>"
