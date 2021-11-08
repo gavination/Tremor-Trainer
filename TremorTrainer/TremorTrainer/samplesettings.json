@@ -1,0 +1,5 @@
+{
+  "AppDisplayName": "Tremor Trainer",
+  "AndroidAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR ANDROID>",
+  "IOSAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR IOS>"
+}

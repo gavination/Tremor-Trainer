@@ -4,6 +4,9 @@ using TremorTrainer.Utilities;
 using TremorTrainer.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -25,6 +28,11 @@ namespace TremorTrainer
 
         protected override void OnStart()
         {
+            var androidAppCenterSecret = AppSettingsManager.Settings["AndroidAppCenterId"];
+            AppCenter.Start( androidAppCenterSecret +
+                  "uwp={Your UWP App secret here};" +
+                  "ios={Your iOS App secret here}",
+                  typeof(Analytics), typeof(Crashes));
         }
 
         protected override void OnSleep()
