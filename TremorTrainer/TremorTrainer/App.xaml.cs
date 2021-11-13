@@ -13,6 +13,7 @@ using Microsoft.AppCenter.Crashes;
 [assembly: ExportFont("Montserrat-Regular.ttf", Alias = "Montserrat-Regular")]
 [assembly: ExportFont("Montserrat-SemiBold.ttf", Alias = "Montserrat-SemiBold")]
 [assembly: ExportFont("UIFontIcons.ttf", Alias = "FontIcons")]
+
 namespace TremorTrainer
 {
     public partial class App : Application
@@ -28,11 +29,26 @@ namespace TremorTrainer
 
         protected override void OnStart()
         {
-            var androidAppCenterSecret = AppSettingsManager.Settings["AndroidAppCenterId"];
-            AppCenter.Start( androidAppCenterSecret +
-                  "uwp={Your UWP App secret here};" +
-                  "ios={Your iOS App secret here}",
-                  typeof(Analytics), typeof(Crashes));
+            try
+            {
+                var androidAppCenterSecret = AppSettingsManager.Settings["AndroidAppCenterId"];
+                var iosAppCenterSecret = AppSettingsManager.Settings["IOSAppCenterId"];
+                AppCenter.Start(androidAppCenterSecret +
+                      iosAppCenterSecret,
+                      typeof(Analytics), typeof(Crashes));
+            }
+            catch(NullReferenceException ex)
+            {
+                var errorMessage = "Unable to fetch appsettings for the mobile client. " +
+                    "Ensure the appsettings file is present in the shared project and the Build Action is set to EmbeddedResource";
+                ex.Data.Add("ErrorDetails", errorMessage);
+            }
+            catch (Exception ex)
+            {
+                var errorMessage = "An unknown error occurred during app startup. Confirm configuration details are properly set";
+                ex.Data.Add("ErrorDetails", errorMessage);
+            }
+
         }
 
         protected override void OnSleep()
