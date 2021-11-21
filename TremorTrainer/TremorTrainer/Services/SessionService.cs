@@ -67,7 +67,7 @@ namespace TremorTrainer.Services
         public async Task<bool> ExportUserSessions()
         {
             var userResponse = await _messageService.ShowCancelAlertAsync("Export Session Data?",
-                "Exporting will delete your current session data. Are you sure you want to export?");
+                "Are you sure you want to export?");
             if (userResponse)
             {
                 var result = _sessionRepository.ExportSessions(_sessions);
