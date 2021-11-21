@@ -86,10 +86,13 @@ namespace TremorTrainer.Services
         {
             if (Readings.Count > 0)
             {
+                // copy a snapshot of the collection to avoid any mutation exceptions
+                var readingsToCompute = Readings;
+
                 // get x, y, and z averages 
-                float xAverage = Readings.Select(x => x.X).Average();
-                float yAverage = Readings.Select(y => y.Y).Average();
-                float zAverage = Readings.Select(z => z.Z).Average();
+                float xAverage = readingsToCompute.Select(x => x.X).Average();
+                float yAverage = readingsToCompute.Select(y => y.Y).Average();
+                float zAverage = readingsToCompute.Select(z => z.Z).Average();
 
                 return new Vector3(x: xAverage, y: yAverage, z: zAverage);
             }
