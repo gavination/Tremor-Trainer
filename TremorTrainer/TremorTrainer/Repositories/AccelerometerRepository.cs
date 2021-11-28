@@ -4,6 +4,8 @@ namespace TremorTrainer.Repositories
 {
     public class AccelerometerRepository : IAccelerometerRepository
     {
+
+
         public bool IsMonitoring
         {
             get => Accelerometer.IsMonitoring;
@@ -18,6 +20,8 @@ namespace TremorTrainer.Repositories
         {
             Accelerometer.Stop();
         }
+
+      
     }
 
     public interface IAccelerometerRepository

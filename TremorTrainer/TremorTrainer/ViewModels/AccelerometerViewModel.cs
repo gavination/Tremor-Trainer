@@ -234,19 +234,20 @@ namespace TremorTrainer.ViewModels
                 // assume sampling is occurring if current lenghth is more than base session limit
                 // this is because the current session length is both the base session time + sampling time
                 _isSampling = true;
-
-                // get the baseline readings
-                //update the gauge max value control on the ui here
-                var runningBaselineTremorLevel = _accelerometerService.GetAverageReading();
-
-
             }
-            else if (_currentSessionLength <= _baseSessionTimeLimit)
+            else if (_currentSessionLength == _baseSessionTimeLimit)
             {
+                // get sampling rate from the samples derived over time.
+                // converts ms to s and passes it over to the AccelerometerService
                 _isSampling = false;
+                var samples = await _accelerometerService.ProcessFFTAsync();
+                _sessionService.ExportReadings(samples);
+
+                //todo: update the gauge max value control on the ui here
+
 
             }
-            
+
 
             // check to see if the session timer has ended
             if (_currentSessionLength == 0)

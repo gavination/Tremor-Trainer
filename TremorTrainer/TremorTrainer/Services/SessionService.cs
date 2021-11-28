@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -88,6 +89,11 @@ namespace TremorTrainer.Services
            
         }
 
+        public string ExportReadings(Complex32[] readings)
+        {
+            return _sessionRepository.ExportReadings(readings);
+        }
+
         public void DeleteSessions()
         {
             _sessionRepository.DeleteSessions();
@@ -141,6 +147,7 @@ namespace TremorTrainer.Services
         SessionType GetSessionType(bool isPrescribed);
         int GetSessionLength(bool isPrescribed);
         Task<bool> ExportUserSessions();
+        string ExportReadings(Complex32[] readings);
         void DeleteSessions();
         bool DetermineFirstSession();
     }

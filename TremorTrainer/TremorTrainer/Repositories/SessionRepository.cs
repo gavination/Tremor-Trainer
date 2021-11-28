@@ -1,8 +1,10 @@
 ﻿using CsvHelper;
+using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Numerics;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
 using Xamarin.Forms;
@@ -80,8 +82,37 @@ namespace TremorTrainer.Repositories
                 return null;
 
             }
-        }
 
+        }
+        public string ExportReadings(Complex32[] readings)
+        {
+            var path = _storageRepository.GetDownloadPath();
+            var filename = "ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".csv";
+            var filepath = Path.Combine(path, filename);
+
+
+            if (readings.Length > 0)
+            {
+                // perform export operation
+                using (var writer = new StreamWriter(filepath))
+                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                {
+                    csv.WriteHeader<Complex>();
+                    csv.NextRecord();
+                    foreach (var reading in readings)
+                    {
+                        csv.WriteRecord(reading);
+                        csv.NextRecord();
+                    }
+                    return filepath;
+                }
+            }
+            else
+            {
+                // argument must have records
+                return null;
+            }
+        }
     }
 
     public interface ISessionRepository
@@ -90,5 +121,6 @@ namespace TremorTrainer.Repositories
         int DeleteSessions();
         List<Session> GetSessions();
         string ExportSessions(List<Session> sessions);
+        string ExportReadings(Complex32[] readings);
     }
 }

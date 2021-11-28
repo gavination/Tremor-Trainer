@@ -1,8 +1,8 @@
-﻿using System;
+﻿using MathNet.Numerics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using System.Threading.Tasks;
 using TremorTrainer.Repositories;
 using Xamarin.Essentials;
@@ -16,6 +16,7 @@ namespace TremorTrainer.Services
         private readonly IAccelerometerRepository _accelerometerRepository;
 
         public List<Vector3> Readings { get; }
+        public int SampleRate { get; set; }
 
         public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository)
         {
@@ -102,12 +103,43 @@ namespace TremorTrainer.Services
                 throw new ArgumentException();
             }
         }
+
+        // Determines sample rate based on how many samples collected over time elapsed
+        // Should be measured in Hz (samples/second)
+        public void DetermineSampleRate(int secondsElapsed) => SampleRate = Readings.Count / secondsElapsed;
+
+        // Retrieve magnitude (length) of the Vector3's in Readings
+        public async Task<Complex32[]> ProcessFFTAsync()
+        {
+            try
+            {
+                var samples = Readings
+                    .Select(m => m.Length())
+                    .Select(c => new Complex32(c, 0))
+                    .ToArray();
+
+                MathNet.Numerics.IntegralTransforms.Fourier.Forward(samples);
+
+                return samples;
+            }
+            catch(Exception e)
+            {
+                // todo: determine proper exception handling protocol here. 
+                await _messageService.ShowAsync(Constants.UnknownErrorMessage + e.Message);
+                throw;
+            }
+
+            
+
+        }
     }
     public interface IAccelerometerService
     {
         Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
+        Task<Complex32[]> ProcessFFTAsync();
+        void DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
 }
