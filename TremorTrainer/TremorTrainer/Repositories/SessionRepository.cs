@@ -1,9 +1,12 @@
 ﻿using CsvHelper;
 using MathNet.Numerics;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Numerics;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
@@ -87,31 +90,63 @@ namespace TremorTrainer.Repositories
         public string ExportReadings(Complex32[] readings)
         {
             var path = _storageRepository.GetDownloadPath();
-            var filename = "ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".csv";
+            var filename = "ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".json";
             var filepath = Path.Combine(path, filename);
 
 
             if (readings.Length > 0)
             {
-                // perform export operation
-                using (var writer = new StreamWriter(filepath))
-                using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                using (var streamWriter = new StreamWriter(filepath))
+                using (var jsonWriter = new JsonTextWriter(streamWriter))
                 {
-                    csv.WriteHeader<Complex>();
-                    csv.NextRecord();
-                    foreach (var reading in readings)
+                    var complexNumbers = readings.Select(r => new ComplexNumber
                     {
-                        csv.WriteRecord(reading);
-                        csv.NextRecord();
-                    }
-                    return filepath;
+                        Imaginary = r.Imaginary,
+                        Magnitude = r.Magnitude,
+                        MagnitudeSquared = r.MagnitudeSquared,
+                        Phase = r.Phase,
+                        Real = r.Real,
+                        Sign = new ComplexNumber
+                        {
+                            Imaginary = r.Sign.Imaginary,
+                            Magnitude = r.Sign.Magnitude,
+                            MagnitudeSquared = r.Sign.MagnitudeSquared,
+                            Phase = r.Sign.Phase,
+                            Real = r.Sign.Real,
+                        }
+                    });
+
+                    var json = JsonConvert.SerializeObject(complexNumbers);
+                    streamWriter.Write(json);
                 }
+                return filepath;
             }
             else
             {
-                // argument must have records
                 return null;
             }
+
+            //if (readings.Length > 0)
+            //{
+            //    // perform export operation
+            //    using (var writer = new StreamWriter(filepath))
+            //    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            //    {
+            //        csv.WriteHeader<Complex>();
+            //        csv.NextRecord();
+            //        foreach (var reading in readings)
+            //        {
+            //            csv.WriteRecord(reading);
+            //            csv.NextRecord();
+            //        }
+            //        return filepath;
+            //    }
+            //}
+            //else
+            //{
+            //    // argument must have records
+            //    return null;
+            //}
         }
     }
 
