@@ -240,14 +240,12 @@ namespace TremorTrainer.ViewModels
                 // get sampling rate from the samples derived over time.
                 // converts ms to s and passes it over to the AccelerometerService
                 _isSampling = false;
+                var sampleRate = _accelerometerService.DetermineSampleRate(_samplingTimeLimit);
                 var samples = await _accelerometerService.ProcessFFTAsync();
                 _sessionService.ExportReadings(samples);
 
                 //todo: update the gauge max value control on the ui here
-
-
             }
-
 
             // check to see if the session timer has ended
             if (_currentSessionLength == 0)

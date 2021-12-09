@@ -106,7 +106,14 @@ namespace TremorTrainer.Services
 
         // Determines sample rate based on how many samples collected over time elapsed
         // Should be measured in Hz (samples/second)
-        public void DetermineSampleRate(int secondsElapsed) => SampleRate = Readings.Count / secondsElapsed;
+        public int DetermineSampleRate(int millisecondsElapsed)
+        {
+            var secondsElapsed = millisecondsElapsed / 1000;
+            var sampleRate = Readings.Count / secondsElapsed;
+            SampleRate = sampleRate;
+            return sampleRate;
+
+        }
 
         // Retrieve magnitude (length) of the Vector3's in Readings
         public async Task<Complex32[]> ProcessFFTAsync()
@@ -139,7 +146,7 @@ namespace TremorTrainer.Services
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
         Task<Complex32[]> ProcessFFTAsync();
-        void DetermineSampleRate(int secondsElapsed);
+        int DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
 }

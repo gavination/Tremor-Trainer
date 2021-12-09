@@ -9,7 +9,7 @@ namespace TremorTrainer
     public static class Constants
     {
         //Application runtime constants
-        public static readonly SensorSpeed SensorSpeed = SensorSpeed.Default;
+        public static readonly SensorSpeed SensorSpeed = SensorSpeed.Fastest;
         public const string DatabaseFilename = "TremorTrainer.db3";
         public const string CSVFileName = "TremorTrainerSessions.csv";
         public const int PrescribedSessionTimeLimit = 30000;

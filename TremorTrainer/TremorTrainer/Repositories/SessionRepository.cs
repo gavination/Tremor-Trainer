@@ -1,13 +1,11 @@
 ﻿using CsvHelper;
 using MathNet.Numerics;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
 using Xamarin.Forms;
@@ -23,7 +21,6 @@ namespace TremorTrainer.Repositories
         {
             _database = dbConnection;
             _database.Connection.CreateTable<Session>();
-
             _storageRepository = DependencyService.Get<IStorageRepository>();
         }
 
@@ -126,27 +123,6 @@ namespace TremorTrainer.Repositories
                 return null;
             }
 
-            //if (readings.Length > 0)
-            //{
-            //    // perform export operation
-            //    using (var writer = new StreamWriter(filepath))
-            //    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-            //    {
-            //        csv.WriteHeader<Complex>();
-            //        csv.NextRecord();
-            //        foreach (var reading in readings)
-            //        {
-            //            csv.WriteRecord(reading);
-            //            csv.NextRecord();
-            //        }
-            //        return filepath;
-            //    }
-            //}
-            //else
-            //{
-            //    // argument must have records
-            //    return null;
-            //}
         }
     }
 
