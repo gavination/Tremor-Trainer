@@ -1,9 +1,11 @@
 ﻿using MathNet.Numerics;
+using MathNet.Numerics.IntegralTransforms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using TremorTrainer.Models;
 using TremorTrainer.Repositories;
 using Xamarin.Essentials;
 
@@ -115,19 +117,47 @@ namespace TremorTrainer.Services
 
         }
 
+
         // Retrieve magnitude (length) of the Vector3's in Readings
-        public async Task<Complex32[]> ProcessFFTAsync()
+        public async Task<TremorLevel> ProcessFFTAsync()
         {
             try
             {
-                var samples = Readings
-                    .Select(m => m.Length())
-                    .Select(c => new Complex32(c, 0))
+                // Get complex values from the Readings List
+
+                var xSamples = Readings
+                    .Select(x => x.X)
+                    .Select(c => new Complex(c, 0))
                     .ToArray();
 
-                MathNet.Numerics.IntegralTransforms.Fourier.Forward(samples);
+                var ySamples = Readings
+                    .Select(y => y.Y)
+                    .Select(c => new Complex(c, 0))
+                    .ToArray();
 
-                return samples;
+                var zSamples = Readings
+                    .Select(z => z.Z)
+                    .Select(c => new Complex(c, 0))
+                    .ToArray();
+
+                // Run the FFT algorithm and create the baseline tremor level
+
+                Fourier.Forward(xSamples);
+                Fourier.Forward(ySamples);
+                Fourier.Forward(zSamples);
+
+                var baseline = new TremorLevel()
+                {
+                    XBaseline = GetAverageComplexReadings(xSamples),
+                    YBaseline = GetAverageComplexReadings(ySamples),
+                    ZBaseline = GetAverageComplexReadings(zSamples)
+                };
+
+                // Clear the list for further processing
+                Readings.Clear();
+
+
+                return baseline;
             }
             catch(Exception e)
             {
@@ -139,13 +169,26 @@ namespace TremorTrainer.Services
             
 
         }
+
+        private Complex GetAverageComplexReadings(Complex[] samples)
+        {
+            Complex sum = new Complex();
+
+            for (int i=0; i < samples.Length; i++)
+            {
+                sum = Complex.Add(sum, i);
+            }
+
+            var average = sum / samples.Length;
+            return average;
+        }
     }
     public interface IAccelerometerService
     {
         Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<Complex32[]> ProcessFFTAsync();
+        Task<TremorLevel> ProcessFFTAsync();
         int DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
