@@ -1,6 +1,5 @@
 ﻿using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
-using MathNet.Filtering.Butterworth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
