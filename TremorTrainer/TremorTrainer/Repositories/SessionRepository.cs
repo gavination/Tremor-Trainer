@@ -1,8 +1,11 @@
 ﻿using CsvHelper;
+using MathNet.Numerics;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using TremorTrainer.Models;
 using TremorTrainer.Utilities;
 using Xamarin.Forms;
@@ -18,7 +21,6 @@ namespace TremorTrainer.Repositories
         {
             _database = dbConnection;
             _database.Connection.CreateTable<Session>();
-
             _storageRepository = DependencyService.Get<IStorageRepository>();
         }
 
@@ -80,8 +82,48 @@ namespace TremorTrainer.Repositories
                 return null;
 
             }
-        }
 
+        }
+        public string ExportReadings(Complex32[] readings, string axisName)
+        {
+            var path = _storageRepository.GetDownloadPath();
+            var filename = $"{axisName}ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".json";
+            var filepath = Path.Combine(path, filename);
+
+
+            if (readings.Length > 0)
+            {
+                using (var streamWriter = new StreamWriter(filepath))
+                using (var jsonWriter = new JsonTextWriter(streamWriter))
+                {
+                    var complexNumbers = readings.Select(r => new ComplexNumber
+                    {
+                        Imaginary = r.Imaginary,
+                        Magnitude = r.Magnitude,
+                        MagnitudeSquared = r.MagnitudeSquared,
+                        Phase = r.Phase,
+                        Real = r.Real,
+                        Sign = new ComplexNumber
+                        {
+                            Imaginary = r.Sign.Imaginary,
+                            Magnitude = r.Sign.Magnitude,
+                            MagnitudeSquared = r.Sign.MagnitudeSquared,
+                            Phase = r.Sign.Phase,
+                            Real = r.Sign.Real,
+                        }
+                    });
+
+                    var json = JsonConvert.SerializeObject(complexNumbers);
+                    streamWriter.Write(json);
+                }
+                return filepath;
+            }
+            else
+            {
+                return null;
+            }
+
+        }
     }
 
     public interface ISessionRepository
@@ -90,5 +132,6 @@ namespace TremorTrainer.Repositories
         int DeleteSessions();
         List<Session> GetSessions();
         string ExportSessions(List<Session> sessions);
+        string ExportReadings(Complex32[] readings, string axisName);
     }
 }

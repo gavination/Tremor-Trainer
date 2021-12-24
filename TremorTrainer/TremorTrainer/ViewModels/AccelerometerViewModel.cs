@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -17,15 +18,22 @@ namespace TremorTrainer.ViewModels
         private readonly IAccelerometerService _accelerometerService;
 
         // setup private timer and ui vars
-        private readonly int _sessionTimeLimit;
+        private readonly int _baseSessionTimeLimit;
+        private readonly int _samplingTimeLimit;
         private readonly bool _isPrescribedSession;
+        private readonly int _downSampleRate;
+        private bool _isSampling;
+        
 
         // todo: replace this once code solidifies
-        private string _readingText = "Placeholder XYZ values";
+        private string _readingText = "Accelerometer values will appear here.";
         private string _timerText;
         private string _sessionButtonText;
         private int _currentSessionLength;
         private DateTime _sessionStartTime;
+        private int _sampleRate;
+        private TremorLevel _baselineTremorLevel;
+        private TremorLevel _currentTremorLevel;
 
         public string ReadingText
         {
@@ -71,8 +79,14 @@ namespace TremorTrainer.ViewModels
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
             _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
-            _sessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
-            _currentSessionLength = _sessionTimeLimit;
+            _isSampling = false;
+            _samplingTimeLimit = Constants.SamplingTimeLimit;
+            _downSampleRate = Constants.DownSampleRate;
+            _baseSessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
+            _currentSessionLength = CreateTotalSessionTimeLimit();
+            _baselineTremorLevel = new TremorLevel();
+            _currentTremorLevel = new TremorLevel();
+            _sampleRate = 0;
 
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_currentSessionLength));
@@ -96,11 +110,12 @@ namespace TremorTrainer.ViewModels
             // whether to record start time and flipping the sessionRunning var
 
             // Determine if this is the start of a new Session
-            if (_sessionTimeLimit == _currentSessionLength && !_timerService.SessionRunning)
+            if(_currentSessionLength == _baseSessionTimeLimit + _samplingTimeLimit && !_timerService.SessionRunning)
             {
                 // Start the accelerometer and the timer
                 _timerService.SessionRunning = true;
                 _sessionStartTime = DateTime.Now;
+                _isSampling = true;
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
@@ -115,7 +130,7 @@ namespace TremorTrainer.ViewModels
                 _timerService.SessionRunning = true;
                 _sessionStartTime = DateTime.Now;
 
-                _currentSessionLength = _sessionService.GetSessionLength(_isPrescribedSession);
+                _currentSessionLength = CreateTotalSessionTimeLimit();
 
                 TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
                 TimerText = FormatTimeSpan(span);
@@ -148,8 +163,9 @@ namespace TremorTrainer.ViewModels
             else if(_currentSessionLength > 0 && !_timerService.SessionRunning)
             {
                 _sessionStartTime = DateTime.Now;
-                _currentSessionLength = _sessionService.GetSessionLength(_isPrescribedSession);
+                _currentSessionLength = CreateTotalSessionTimeLimit();
                 _timerService.SessionRunning = true;
+                _isSampling = true;
 
                 await _accelerometerService.StartAccelerometer(_currentSessionLength);
                 await _timerService.StartTimerAsync(_currentSessionLength);
@@ -172,6 +188,7 @@ namespace TremorTrainer.ViewModels
 
             var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
 
+            // todo: fulfill this with proper baseline information
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
@@ -212,13 +229,51 @@ namespace TremorTrainer.ViewModels
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
             _currentSessionLength -= _timerService.Interval;
-            Console.WriteLine($"Timed event triggered. Session Length Remaining: {_currentSessionLength}");
-
+            
             //update the ui with a propertychanged event here
             TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
 
             TimerText = FormatTimeSpan(span);
+            
+            // determine if the sampling phase is occurring
+            if (_currentSessionLength > _baseSessionTimeLimit)
+            {
+                // assume sampling is occurring if current lenghth is more than base session limit
+                // this is because the current session length is both the base session time + sampling time
+                // the accelerometer service will keep accruing readings to process until the base session starts
+                _isSampling = true;
+            }
+            else if (_currentSessionLength == _baseSessionTimeLimit && _isSampling)
+            {
+                // get sampling rate from the samples derived over time.
+                // converts ms to s and passes it over to the AccelerometerService
+                Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
 
+                _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
+                _isSampling = false;
+
+
+                //todo: update the gauge max value control on the ui here
+            }
+            else if (_currentSessionLength < _baseSessionTimeLimit && !_isSampling)
+            {
+                // gets user's current tremor level and compares it to the baseline 
+                // todo: unecessary computation happens in this call. consider replacing this with a call specifically to just get the new tremor level
+                _currentTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
+
+                if (_currentTremorLevel.XBaseline.Magnitude >= _baselineTremorLevel.XBaseline.Magnitude ||
+                    _currentTremorLevel.YBaseline.Magnitude >= _baselineTremorLevel.YBaseline.Magnitude ||
+                    _currentTremorLevel.ZBaseline.Magnitude >= _baselineTremorLevel.ZBaseline.Magnitude)
+                {
+                    // tremor detected above threshold
+                    // todo: create message instructing the user to focus on slowing down
+
+                    Console.WriteLine("Tremor Detected!");
+
+                }
+            }
+
+            // check to see if the session timer has ended
             if (_currentSessionLength == 0)
             {
                 //stop the timer, saves the result. resets the _sessionRunning flag
@@ -231,6 +286,11 @@ namespace TremorTrainer.ViewModels
         private string FormatTimeSpan(TimeSpan span)
         {
             return $"Time Remaining: {span}";
+        }
+
+        private int CreateTotalSessionTimeLimit()
+        {
+            return _sessionService.GetSessionLength(_isPrescribedSession) + _samplingTimeLimit;
         }
 
 

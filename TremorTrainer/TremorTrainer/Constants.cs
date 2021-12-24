@@ -9,13 +9,16 @@ namespace TremorTrainer
     public static class Constants
     {
         //Application runtime constants
-        public static readonly SensorSpeed SensorSpeed = SensorSpeed.UI;
+        public static readonly SensorSpeed SensorSpeed = SensorSpeed.Fastest;
         public const string DatabaseFilename = "TremorTrainer.db3";
         public const string CSVFileName = "TremorTrainerSessions.csv";
         public const int PrescribedSessionTimeLimit = 30000;
         public const int AsNeededSessionTimeLimit = 15000;
+        public const int SamplingTimeLimit = 10000;
         public const int FirstPrescribedSessionTimeLimit = 60000;
         public const int CountdownInterval = 1000;
+        // measured in Hz, the desired rate for the accelerometer values to be downsampled to
+        public const int DownSampleRate = 50;
         public const string BuildNumber = "0.0.1";
 
 
