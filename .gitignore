@@ -408,3 +408,6 @@ TremorTrainer/TremorTrainer/config.json
 #Ignore sensitive files
 appsettings.json
 appsettings.*.json
+
+#Ignore Python virtual environment
+.venv

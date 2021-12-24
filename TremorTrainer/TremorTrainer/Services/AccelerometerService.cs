@@ -16,15 +16,17 @@ namespace TremorTrainer.Services
 
         private readonly IMessageService _messageService;
         private readonly IAccelerometerRepository _accelerometerRepository;
+        private readonly ISessionRepository _sessionRepository;
 
         public List<Vector3> Readings { get; }
         public int SampleRate { get; set; }
 
-        public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository)
+        public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository, ISessionRepository sessionRepository)
         {
             _messageService = messageService;
             Readings = new List<Vector3>();
             _accelerometerRepository = accelerometerRepository;
+            _sessionRepository = sessionRepository;
         }
 
         public async Task<bool> StartAccelerometer(int sessionLength)
@@ -117,9 +119,25 @@ namespace TremorTrainer.Services
 
         }
 
+        public Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate)
+        {
+            // takes every nth element in originally collected samples to downsample 
+            // this may be a naive implementation of sampling. May need to be updated in the future
 
-        // Retrieve magnitude (length) of the Vector3's in Readings
-        public async Task<TremorLevel> ProcessFFTAsync()
+            var samplingFactor = sampleRate / desiredRate;
+            var downSampledArray = new List<Complex32>();
+            for (int i = 0; i < samples.Length; i++)
+            {
+                if(i % samplingFactor == 0)
+                {
+                    downSampledArray.Add(samples[i]);
+                } 
+            }
+            return downSampledArray.ToArray();
+        }
+
+
+        public async Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
         {
             try
             {
@@ -127,17 +145,17 @@ namespace TremorTrainer.Services
 
                 var xSamples = Readings
                     .Select(x => x.X)
-                    .Select(c => new Complex(c, 0))
+                    .Select(c => new Complex32(c, 0))
                     .ToArray();
 
                 var ySamples = Readings
                     .Select(y => y.Y)
-                    .Select(c => new Complex(c, 0))
+                    .Select(c => new Complex32(c, 0))
                     .ToArray();
 
                 var zSamples = Readings
                     .Select(z => z.Z)
-                    .Select(c => new Complex(c, 0))
+                    .Select(c => new Complex32(c, 0))
                     .ToArray();
 
                 // Run the FFT algorithm and create the baseline tremor level
@@ -146,11 +164,27 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
+                // debug code for testing the validity of the values
+                // todo: remove this once tests have been run
+                if (isSampling)
+                {
+                    // Downsample the readings for better processing later
+
+                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+                    var downSampledX = Downsample(xSamples, desiredSampleRate, currentSampleRate);
+                    var downSampledY = Downsample(ySamples, desiredSampleRate, currentSampleRate);
+                    var downSampledZ = Downsample(xSamples, desiredSampleRate, currentSampleRate);
+
+                    _sessionRepository.ExportReadings(downSampledX, "X");
+                    _sessionRepository.ExportReadings(downSampledY, "Y");
+                    _sessionRepository.ExportReadings(downSampledZ, "Z");
+                }
+
                 var baseline = new TremorLevel()
                 {
-                    XBaseline = GetAverageComplexReadings(xSamples),
-                    YBaseline = GetAverageComplexReadings(ySamples),
-                    ZBaseline = GetAverageComplexReadings(zSamples)
+                    XBaseline = GetComplexAverage(xSamples),
+                    YBaseline = GetComplexAverage(ySamples),
+                    ZBaseline = GetComplexAverage(zSamples)
                 };
 
                 // Clear the list for further processing
@@ -166,17 +200,15 @@ namespace TremorTrainer.Services
                 throw;
             }
 
-            
-
         }
 
-        private Complex GetAverageComplexReadings(Complex[] samples)
+        private Complex32 GetComplexAverage(Complex32[] samples)
         {
-            Complex sum = new Complex();
+            Complex32 sum = new Complex32();
 
             for (int i=0; i < samples.Length; i++)
             {
-                sum = Complex.Add(sum, i);
+                sum = Complex32.Add(sum, i);
             }
 
             var average = sum / samples.Length;
@@ -188,8 +220,9 @@ namespace TremorTrainer.Services
         Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<TremorLevel> ProcessFFTAsync();
+        Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
         int DetermineSampleRate(int secondsElapsed);
+        Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate);
         Task StopAccelerometer();
     }
 }

@@ -89,10 +89,6 @@ namespace TremorTrainer.Services
            
         }
 
-        public string ExportReadings(Complex32[] readings)
-        {
-            return _sessionRepository.ExportReadings(readings);
-        }
 
         public void DeleteSessions()
         {
@@ -147,7 +143,6 @@ namespace TremorTrainer.Services
         SessionType GetSessionType(bool isPrescribed);
         int GetSessionLength(bool isPrescribed);
         Task<bool> ExportUserSessions();
-        string ExportReadings(Complex32[] readings);
         void DeleteSessions();
         bool DetermineFirstSession();
     }

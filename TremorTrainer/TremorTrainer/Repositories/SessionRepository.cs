@@ -84,10 +84,10 @@ namespace TremorTrainer.Repositories
             }
 
         }
-        public string ExportReadings(Complex32[] readings)
+        public string ExportReadings(Complex32[] readings, string axisName)
         {
             var path = _storageRepository.GetDownloadPath();
-            var filename = "ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".json";
+            var filename = $"{axisName}ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".json";
             var filepath = Path.Combine(path, filename);
 
 
@@ -132,6 +132,6 @@ namespace TremorTrainer.Repositories
         int DeleteSessions();
         List<Session> GetSessions();
         string ExportSessions(List<Session> sessions);
-        string ExportReadings(Complex32[] readings);
+        string ExportReadings(Complex32[] readings, string axisName);
     }
 }

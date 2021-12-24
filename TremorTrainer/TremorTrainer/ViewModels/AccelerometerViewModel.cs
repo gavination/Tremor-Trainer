@@ -21,6 +21,7 @@ namespace TremorTrainer.ViewModels
         private readonly int _baseSessionTimeLimit;
         private readonly int _samplingTimeLimit;
         private readonly bool _isPrescribedSession;
+        private readonly int _downSampleRate;
         private bool _isSampling;
         
 
@@ -80,6 +81,7 @@ namespace TremorTrainer.ViewModels
             _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
             _isSampling = false;
             _samplingTimeLimit = Constants.SamplingTimeLimit;
+            _downSampleRate = Constants.DownSampleRate;
             _baseSessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
             _currentSessionLength = CreateTotalSessionTimeLimit();
             _baselineTremorLevel = new TremorLevel();
@@ -186,6 +188,7 @@ namespace TremorTrainer.ViewModels
 
             var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
 
+            // todo: fulfill this with proper baseline information
             Session newSession = new Session
             {
                 Id = Guid.NewGuid(),
@@ -244,16 +247,19 @@ namespace TremorTrainer.ViewModels
             {
                 // get sampling rate from the samples derived over time.
                 // converts ms to s and passes it over to the AccelerometerService
+                Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
+
+                _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
                 _isSampling = false;
-                _sampleRate = _accelerometerService.DetermineSampleRate(_samplingTimeLimit);
-                _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync();
-                
+
+
                 //todo: update the gauge max value control on the ui here
             }
             else if (_currentSessionLength < _baseSessionTimeLimit && !_isSampling)
             {
                 // gets user's current tremor level and compares it to the baseline 
-                _currentTremorLevel = await _accelerometerService.ProcessFFTAsync();
+                // todo: unecessary computation happens in this call. consider replacing this with a call specifically to just get the new tremor level
+                _currentTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
 
                 if (_currentTremorLevel.XBaseline.Magnitude >= _baselineTremorLevel.XBaseline.Magnitude ||
                     _currentTremorLevel.YBaseline.Magnitude >= _baselineTremorLevel.YBaseline.Magnitude ||
@@ -265,7 +271,6 @@ namespace TremorTrainer.ViewModels
                     Console.WriteLine("Tremor Detected!");
 
                 }
-
             }
 
             // check to see if the session timer has ended

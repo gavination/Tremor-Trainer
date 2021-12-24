@@ -1,11 +1,11 @@
-﻿using System.Numerics;
+﻿using MathNet.Numerics;
 
 namespace TremorTrainer.Models
 {
     public class TremorLevel
     {
-        public Complex XBaseline { get; set; }
-        public Complex YBaseline { get; set; }
-        public Complex ZBaseline { get; set; }
+        public Complex32 XBaseline { get; set; }
+        public Complex32 YBaseline { get; set; }
+        public Complex32 ZBaseline { get; set; }
     }
 }
