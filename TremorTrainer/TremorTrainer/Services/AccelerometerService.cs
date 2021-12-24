@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using MathNet.Filtering.Butterworth;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,6 +137,29 @@ namespace TremorTrainer.Services
             return downSampledArray.ToArray();
         }
 
+        public void ButterworthFilter(Complex32[] samples, int sampleRate, int order, double cutoffFrequency, int dcGain )
+        {
+            // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
+
+            if (cutoffFrequency > 0)
+            {
+                var length = samples.Length;
+                var numBins = length / 2;  // Half the length of the FFT by symmetry
+                var binWidth = sampleRate / length; // Hz
+                
+                // Filter
+                Parallel.For(1, length / 2, i =>
+                {
+                    var binFreq = binWidth * i;
+                    var gain = dcGain / (Math.Sqrt((1 +
+                                  Math.Pow(binFreq / cutoffFrequency, 2.0 * order))));
+
+                    var complexGain = new Complex32((float)gain, 0);
+                    samples[i] = Complex32.Multiply(samples[i], complexGain);
+                    samples[length - i] = Complex32.Multiply(length - i, complexGain);
+                });
+            }
+        }
 
         public async Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
         {
@@ -168,9 +192,14 @@ namespace TremorTrainer.Services
                 // todo: remove this once tests have been run
                 if (isSampling)
                 {
-                    // Downsample the readings for better processing later
+                    // Filter and Downsample the readings for better processing later
 
                     var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+
+                    ButterworthFilter(xSamples, currentSampleRate, 3, 0.3, 1);
+                    ButterworthFilter(ySamples, currentSampleRate, 3, 0.3, 1);
+                    ButterworthFilter(zSamples, currentSampleRate, 3, 0.3, 1);
+
                     var downSampledX = Downsample(xSamples, desiredSampleRate, currentSampleRate);
                     var downSampledY = Downsample(ySamples, desiredSampleRate, currentSampleRate);
                     var downSampledZ = Downsample(xSamples, desiredSampleRate, currentSampleRate);
