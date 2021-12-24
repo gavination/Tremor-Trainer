@@ -120,7 +120,7 @@ namespace TremorTrainer.Services
 
         }
 
-        public Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate)
+        private Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate)
         {
             // takes every nth element in originally collected samples to downsample 
             // this may be a naive implementation of sampling. May need to be updated in the future
@@ -137,7 +137,7 @@ namespace TremorTrainer.Services
             return downSampledArray.ToArray();
         }
 
-        public void ButterworthFilter(Complex32[] samples, int sampleRate, int order, double cutoffFrequency, int dcGain )
+        private void ButterworthFilter(Complex32[] samples, int sampleRate, int order, double cutoffFrequency, int dcGain )
         {
             // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
 
@@ -251,7 +251,6 @@ namespace TremorTrainer.Services
         Task<bool> StartAccelerometer(int sessionLength);
         Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
         int DetermineSampleRate(int secondsElapsed);
-        Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate);
         Task StopAccelerometer();
     }
 }
