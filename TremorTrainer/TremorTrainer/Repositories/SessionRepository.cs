@@ -87,7 +87,7 @@ namespace TremorTrainer.Repositories
         public string ExportReadings(Complex32[] readings, string axisName)
         {
             var path = _storageRepository.GetDownloadPath();
-            var filename = $"{axisName}ReadingData-" + DateTime.Now.ToString("MMMM dd HH:mm:ss") + ".json";
+            var filename = $"{axisName}ReadingData.json";
             var filepath = Path.Combine(path, filename);
 
 
