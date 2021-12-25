@@ -110,7 +110,7 @@ namespace TremorTrainer.Services
 
         // Determines sample rate based on how many samples collected over time elapsed
         // Should be measured in Hz (samples/second)
-        public int DetermineSampleRate(int millisecondsElapsed)
+        public double DetermineSampleRate(int millisecondsElapsed)
         {
             var secondsElapsed = millisecondsElapsed / 1000;
             var sampleRate = Readings.Count / secondsElapsed;
@@ -136,22 +136,23 @@ namespace TremorTrainer.Services
             return downSampledArray.ToArray();
         }
 
-        private void ButterworthFilter(Complex32[] samples, int sampleRate, int order, double cutoffFrequency, int dcGain )
+        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, int dcGain )
         {
             // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
+            // High pass butterworth filter to whittle out effects caused by gravity
 
             if (cutoffFrequency > 0)
             {
                 var length = samples.Length;
                 var numBins = length / 2;  // Half the length of the FFT by symmetry
-                var binWidth = sampleRate / length; // Hz
+                double binWidth = sampleRate / length; // Hz
                 
                 // Filter
                 Parallel.For(1, length / 2, i =>
                 {
                     var binFreq = binWidth * i;
                     var gain = dcGain / (Math.Sqrt((1 +
-                                  Math.Pow(binFreq / cutoffFrequency, 2.0 * order))));
+                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order))));
 
                     var complexGain = new Complex32((float)gain, 0);
                     samples[i] = Complex32.Multiply(samples[i], complexGain);
@@ -199,9 +200,10 @@ namespace TremorTrainer.Services
                     ButterworthFilter(ySamples, currentSampleRate, 3, 0.3, 1);
                     ButterworthFilter(zSamples, currentSampleRate, 3, 0.3, 1);
 
-                    var downSampledX = Downsample(xSamples, desiredSampleRate, currentSampleRate);
-                    var downSampledY = Downsample(ySamples, desiredSampleRate, currentSampleRate);
-                    var downSampledZ = Downsample(xSamples, desiredSampleRate, currentSampleRate);
+                    // casting sample rate to int here to simplify sample selection
+                    var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledZ = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
 
                     _sessionRepository.ExportReadings(downSampledX, "X");
                     _sessionRepository.ExportReadings(downSampledY, "Y");
@@ -249,7 +251,7 @@ namespace TremorTrainer.Services
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
         Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
-        int DetermineSampleRate(int secondsElapsed);
+        double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
 }
