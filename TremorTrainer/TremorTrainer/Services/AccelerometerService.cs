@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -136,7 +137,7 @@ namespace TremorTrainer.Services
             return downSampledArray.ToArray();
         }
 
-        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, int dcGain )
+        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, double dcGain )
         {
             // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
             // High pass butterworth filter to whittle out effects caused by gravity
@@ -151,13 +152,17 @@ namespace TremorTrainer.Services
                 Parallel.For(1, length / 2, i =>
                 {
                     var binFreq = binWidth * i;
+                    
+
                     var gain = dcGain / (Math.Sqrt((1 +
-                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order))));
+                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order)))); //cutoffFrequency / binFreq is highpass and binFreq / cutoffFrequency is lowpass
 
                     var complexGain = new Complex32((float)gain, 0);
                     samples[i] = Complex32.Multiply(samples[i], complexGain);
-                    samples[length - i] = Complex32.Multiply(length - i, complexGain);
+                    samples[length - i] = Complex32.Multiply(samples[length - i], complexGain);
                 });
+
+                samples[0] = Complex32.Multiply(samples[0], new Complex32((float)dcGain, 0));
             }
         }
 
@@ -188,38 +193,46 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
+                // Filter and Downsample the readings for better processing later
+
+                var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+
+                ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
+                ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
+                ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
+
+                // casting sample rate to int here to simplify sample selection
+                var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
+                var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
+                var downSampledZ = Downsample(zSamples, desiredSampleRate, (int)currentSampleRate);
+
                 // debug code for testing the validity of the values
-                // todo: remove this once tests have been run
                 if (isSampling)
                 {
-                    // Filter and Downsample the readings for better processing later
-
-                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
-
-                    ButterworthFilter(xSamples, currentSampleRate, 3, 0.3, 1);
-                    ButterworthFilter(ySamples, currentSampleRate, 3, 0.3, 1);
-                    ButterworthFilter(zSamples, currentSampleRate, 3, 0.3, 1);
-
-                    // casting sample rate to int here to simplify sample selection
-                    var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledZ = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-
                     _sessionRepository.ExportReadings(downSampledX, "X");
                     _sessionRepository.ExportReadings(downSampledY, "Y");
                     _sessionRepository.ExportReadings(downSampledZ, "Z");
                 }
 
-                var baseline = new TremorLevel()
-                {
-                    XBaseline = GetComplexAverage(xSamples),
-                    YBaseline = GetComplexAverage(ySamples),
-                    ZBaseline = GetComplexAverage(zSamples)
-                };
+                // todo: use the dominant frequency to determine the baseline tremor level
+                // Detecting dominant frequency
+                // Split values into buckets.
+                // Determine the highest magnitude from the bins and compare them to get the overall highest magnitude
+                // Formula: offset + (maxFrequency - minFrequency) * (maxMagnitudePosition)
+                // maxMagnitudePosition = index/
 
                 // Clear the list for further processing
                 Readings.Clear();
 
+                var baseline = new TremorLevel()
+                {
+                    XBaseline = GetComplexAverage(xSamples),
+                    YBaseline = GetComplexAverage(ySamples),
+                    ZBaseline = GetComplexAverage(zSamples),
+                };
+                var xMagnitude = FindHighestMagnitude(downSampledX).Result;
+                var yMagnitude = FindHighestMagnitude(downSampledY).Result;
+                var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
 
                 return baseline;
             }
@@ -232,6 +245,81 @@ namespace TremorTrainer.Services
 
         }
 
+        private async Task<BandValue> FindHighestMagnitude(Complex32[] values)
+        {
+            int index = -1;
+            var max = new Complex32();
+
+            for (int i = 1; i < values.Length / 2; ++i)
+            {
+                if (max.Magnitude < values[i].Magnitude)
+                {
+                    index = i;
+                    max = values[i];
+                }
+            }
+
+            return new BandValue
+            {
+                Index = index,
+                Element = max,
+            };
+
+            /*
+
+            //todo: assume number of elements in array is 500 for now
+            //todo: assume binsize is 5 for now
+            try
+            {
+                var candidates = new List<BandValue>();
+
+                // loop through list and get the highest value per bin
+                for (int i = 4; i < values.Length; i += 5)
+                {
+                    //look at the last 5 values
+                    var temp = new Complex32();
+                    int index = 0;
+                    for (int j = i - 4; j < i; j++)
+                    {
+                        if (values[j].Magnitude <= values[j + 1].Magnitude)
+                        {
+                            temp = values[j + 1];
+                            index = j + 1;
+                        }
+                        else
+                        {
+                            temp = values[j];
+                            index = j;
+                        }
+                    }
+                    var val = new BandValue
+                    {
+                        Index = index,
+                        Element = temp,
+                    };
+                    candidates.Add(val);
+                }
+
+                // find highest magnitude in candidates list
+                BandValue maxMagnitude = candidates.Aggregate
+                    ((c1, c2) => c1.Element.Magnitude > c2.Element.Magnitude ? c1 : c2);
+                Console.WriteLine($"Largest Magnitude: {maxMagnitude.Element.Magnitude}");
+
+                return maxMagnitude;
+            }
+            catch (IndexOutOfRangeException e)
+            {
+                await _messageService.ShowAsync($"Something went wrong with processing the lists. Ensure the down sample rate is correctly set at 50hz. Details: {e.Message}");
+                throw;
+            }
+            catch (Exception e)
+            {
+                await _messageService.ShowAsync($"Something went wrong with processing the lists. Details: {e.Message}");
+                throw;
+            }
+            */
+
+        }
         private Complex32 GetComplexAverage(Complex32[] samples)
         {
             Complex32 sum = new Complex32();
