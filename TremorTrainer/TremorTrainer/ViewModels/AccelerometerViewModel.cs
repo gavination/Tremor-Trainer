@@ -227,63 +227,71 @@ namespace TremorTrainer.ViewModels
 
         private async void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            // todo: add exception handling here
-
-            _currentSessionLength -= _timerService.Interval;
-            
-            //update the ui with a propertychanged event here
-            TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
-
-            TimerText = FormatTimeSpan(span);
-            
-            // determine if the sampling phase is occurring
-            if (_currentSessionLength > _baseSessionTimeLimit)
+            try
             {
-                // assume sampling is occurring if current lenghth is more than base session limit
-                // this is because the current session length is both the base session time + sampling time
-                // the accelerometer service will keep accruing readings to process until the base session starts
-                _isSampling = true;
-            }
-            else if (_currentSessionLength == _baseSessionTimeLimit && _isSampling)
-            {
-                // get sampling rate from the samples derived over time.
-                // converts ms to s and passes it over to the AccelerometerService
-                Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
+                _currentSessionLength -= _timerService.Interval;
 
-                _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
-                _isSampling = false;
+                //update the ui with a propertychanged event here
+                TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
 
-                Console.WriteLine($"Baseline Tremor Magnitude: {_baselineTremorLevel}");
+                TimerText = FormatTimeSpan(span);
 
-
-                //todo: update the gauge max value control on the ui here
-            }
-            else if (_currentSessionLength < _baseSessionTimeLimit && !_isSampling)
-            {
-                // gets user's current tremor level and compares it to the baseline 
-                // todo: unecessary computation happens in this call. consider replacing this with a call specifically to just get the new tremor level
-                _currentTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
-
-                Console.WriteLine($"Current Tremor Magnitude: {_currentTremorLevel}");
-
-                if (_currentTremorLevel >= _baselineTremorLevel)
+                // determine if the sampling phase is occurring
+                if (_currentSessionLength > _baseSessionTimeLimit)
                 {
-                    // tremor detected above threshold
-                    // todo: create message instructing the user to focus on slowing down
+                    // assume sampling is occurring if current lenghth is more than base session limit
+                    // this is because the current session length is both the base session time + sampling time
+                    // the accelerometer service will keep accruing readings to process until the base session starts
+                    _isSampling = true;
+                }
+                else if (_currentSessionLength == _baseSessionTimeLimit && _isSampling)
+                {
+                    // get sampling rate from the samples derived over time.
+                    // converts ms to s and passes it over to the AccelerometerService
+                    Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
 
-                    Console.WriteLine("Tremor Detected!");
+                    _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
+                    _isSampling = false;
 
+                    Console.WriteLine($"Baseline Tremor Magnitude: {_baselineTremorLevel}");
+
+
+                    //todo: update the gauge max value control on the ui here
+                }
+                else if (_currentSessionLength < _baseSessionTimeLimit && !_isSampling)
+                {
+                    // gets user's current tremor level and compares it to the baseline 
+                    // todo: unecessary computation happens in this call. consider replacing this with a call specifically to just get the new tremor level
+                    _currentTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit, _isSampling);
+
+                    Console.WriteLine($"Current Tremor Magnitude: {_currentTremorLevel}");
+
+                    if (_currentTremorLevel >= _baselineTremorLevel)
+                    {
+                        // tremor detected above threshold
+                        // todo: create message instructing the user to focus on slowing down
+
+                        Console.WriteLine("Tremor Detected!");
+
+                    }
+                }
+
+                // check to see if the session timer has ended
+                if (_currentSessionLength == 0)
+                {
+                    //stop the timer, saves the result. resets the _sessionRunning flag
+                    _timerService.SessionRunning = false;
+                    SessionButtonText = "Start Session";
+                    await WrapUpSessionAsync();
                 }
             }
-
-            // check to see if the session timer has ended
-            if (_currentSessionLength == 0)
+            catch(Exception ex)
             {
-                //stop the timer, saves the result. resets the _sessionRunning flag
-                _timerService.SessionRunning = false;
-                SessionButtonText = "Start Session";
-                await WrapUpSessionAsync();
+                await _messageService.ShowAsync($"An unknown error has occurred. Contact the team with the error details: {ex.Message}");
+                throw;
             }
+
+            
         }
 
         private string FormatTimeSpan(TimeSpan span)
