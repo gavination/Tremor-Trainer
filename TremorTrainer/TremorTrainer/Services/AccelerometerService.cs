@@ -86,29 +86,6 @@ namespace TremorTrainer.Services
             }
         }
 
-        // Test method to prove processing capability of accelerometer vals. 
-        // Not to be kept long-term
-        public Vector3 GetAverageReading()
-        {
-            if (Readings.Count > 0)
-            {
-                // copy a snapshot of the collection to avoid any mutation exceptions
-                var readingsToCompute = Readings;
-
-                // get x, y, and z averages 
-                float xAverage = readingsToCompute.Select(x => x.X).Average();
-                float yAverage = readingsToCompute.Select(y => y.Y).Average();
-                float zAverage = readingsToCompute.Select(z => z.Z).Average();
-
-                return new Vector3(x: xAverage, y: yAverage, z: zAverage);
-            }
-            else
-            {
-                Console.WriteLine("No values to compute.");
-                throw new ArgumentException();
-            }
-        }
-
         // Determines sample rate based on how many samples collected over time elapsed
         // Should be measured in Hz (samples/second)
         public double DetermineSampleRate(int millisecondsElapsed)
@@ -127,14 +104,23 @@ namespace TremorTrainer.Services
 
             var samplingFactor = sampleRate / desiredRate;
             var downSampledArray = new List<Complex32>();
-            for (int i = 0; i < samples.Length; i++)
+            if (samples.Length > 0)
             {
-                if(i % samplingFactor == 0)
+                for (int i = 0; i < samples.Length; i++)
                 {
-                    downSampledArray.Add(samples[i]);
-                } 
+                    if (i % samplingFactor == 0)
+                    {
+                        downSampledArray.Add(samples[i]);
+                    }
+                }
+                return downSampledArray.ToArray();
             }
-            return downSampledArray.ToArray();
+            else
+            {
+                var errorMessage = "Sample list is empty";
+                throw new ArgumentException(errorMessage);
+            }
+
         }
 
         private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, double dcGain )
@@ -153,7 +139,6 @@ namespace TremorTrainer.Services
                 {
                     var binFreq = binWidth * i;
                     
-
                     var gain = dcGain / (Math.Sqrt((1 +
                                   Math.Pow(cutoffFrequency / binFreq, 2.0 * order)))); //cutoffFrequency / binFreq is highpass and binFreq / cutoffFrequency is lowpass
 
@@ -166,7 +151,7 @@ namespace TremorTrainer.Services
             }
         }
 
-        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
+        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed)
         {
             try
             {
@@ -207,12 +192,12 @@ namespace TremorTrainer.Services
                 var downSampledZ = Downsample(zSamples, desiredSampleRate, (int)currentSampleRate);
 
                 // debug code for testing the validity of the values
-                if (isSampling)
-                {
-                    _sessionRepository.ExportReadings(downSampledX, "X");
-                    _sessionRepository.ExportReadings(downSampledY, "Y");
-                    _sessionRepository.ExportReadings(downSampledZ, "Z");
-                }
+                //if (isSampling)
+                //{
+                //    _sessionRepository.ExportReadings(downSampledX, "X");
+                //    _sessionRepository.ExportReadings(downSampledY, "Y");
+                //    _sessionRepository.ExportReadings(downSampledZ, "Z");
+                //}
 
                 // Clear the list for further processing
                 Readings.Clear();
@@ -266,10 +251,9 @@ namespace TremorTrainer.Services
     }
     public interface IAccelerometerService
     {
-        Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
+        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
