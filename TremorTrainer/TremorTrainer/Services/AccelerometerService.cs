@@ -166,7 +166,7 @@ namespace TremorTrainer.Services
             }
         }
 
-        public async Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
+        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
         {
             try
             {
@@ -214,27 +214,16 @@ namespace TremorTrainer.Services
                     _sessionRepository.ExportReadings(downSampledZ, "Z");
                 }
 
-                // todo: use the dominant frequency to determine the baseline tremor level
-                // Detecting dominant frequency
-                // Split values into buckets.
-                // Determine the highest magnitude from the bins and compare them to get the overall highest magnitude
-                // Formula: offset + (maxFrequency - minFrequency) * (maxMagnitudePosition)
-                // maxMagnitudePosition = index/
-
                 // Clear the list for further processing
                 Readings.Clear();
 
-                var baseline = new TremorLevel()
-                {
-                    XBaseline = GetComplexAverage(xSamples),
-                    YBaseline = GetComplexAverage(ySamples),
-                    ZBaseline = GetComplexAverage(zSamples),
-                };
                 var xMagnitude = FindHighestMagnitude(downSampledX).Result;
                 var yMagnitude = FindHighestMagnitude(downSampledY).Result;
                 var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
 
-                return baseline;
+                var maxMagnitude = new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
+
+                return maxMagnitude;
             }
             catch(Exception e)
             {
@@ -245,7 +234,7 @@ namespace TremorTrainer.Services
 
         }
 
-        private async Task<BandValue> FindHighestMagnitude(Complex32[] values)
+        private async Task<Complex32> FindHighestMagnitude(Complex32[] values)
         {
             int index = -1;
             var max = new Complex32();
@@ -259,65 +248,7 @@ namespace TremorTrainer.Services
                 }
             }
 
-            return new BandValue
-            {
-                Index = index,
-                Element = max,
-            };
-
-            /*
-
-            //todo: assume number of elements in array is 500 for now
-            //todo: assume binsize is 5 for now
-            try
-            {
-                var candidates = new List<BandValue>();
-
-                // loop through list and get the highest value per bin
-                for (int i = 4; i < values.Length; i += 5)
-                {
-                    //look at the last 5 values
-                    var temp = new Complex32();
-                    int index = 0;
-                    for (int j = i - 4; j < i; j++)
-                    {
-                        if (values[j].Magnitude <= values[j + 1].Magnitude)
-                        {
-                            temp = values[j + 1];
-                            index = j + 1;
-                        }
-                        else
-                        {
-                            temp = values[j];
-                            index = j;
-                        }
-                    }
-                    var val = new BandValue
-                    {
-                        Index = index,
-                        Element = temp,
-                    };
-                    candidates.Add(val);
-                }
-
-                // find highest magnitude in candidates list
-                BandValue maxMagnitude = candidates.Aggregate
-                    ((c1, c2) => c1.Element.Magnitude > c2.Element.Magnitude ? c1 : c2);
-                Console.WriteLine($"Largest Magnitude: {maxMagnitude.Element.Magnitude}");
-
-                return maxMagnitude;
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                await _messageService.ShowAsync($"Something went wrong with processing the lists. Ensure the down sample rate is correctly set at 50hz. Details: {e.Message}");
-                throw;
-            }
-            catch (Exception e)
-            {
-                await _messageService.ShowAsync($"Something went wrong with processing the lists. Details: {e.Message}");
-                throw;
-            }
-            */
+            return max.Magnitude;
 
         }
         private Complex32 GetComplexAverage(Complex32[] samples)
@@ -338,7 +269,7 @@ namespace TremorTrainer.Services
         Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
+        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
