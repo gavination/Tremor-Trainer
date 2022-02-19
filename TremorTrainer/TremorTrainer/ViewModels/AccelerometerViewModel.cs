@@ -30,6 +30,7 @@ namespace TremorTrainer.ViewModels
         // todo: replace this once code solidifies
         private string _readingText = "Accelerometer values will appear here.";
         private string _timerText;
+        private string _tremorText = "Placeholder tremor detection text";
         private string _sessionButtonText;
         private int _currentSessionLength;
         private DateTime _sessionStartTime;
@@ -37,6 +38,16 @@ namespace TremorTrainer.ViewModels
         private float _baselineTremorLevel;
         private float _currentTremorLevel;
 
+        public string TremorText
+        {
+            get { return _tremorText; }
+            private set
+            {
+                _tremorText = value;
+                OnPropertyChanged("TremorText");
+            }
+        }
+            
         public string ReadingText
         {
             get { return _readingText; }
@@ -297,12 +308,16 @@ namespace TremorTrainer.ViewModels
         {
             // Run an FFT over the newly collected values
             _currentTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, Constants.CompareInterval);
-            Console.WriteLine($"Current Tremor Level: {_currentTremorLevel}");
+            var message = $"Current Tremor Level: {_currentTremorLevel}";
+            Console.WriteLine(message);
+            TremorText = message;
             // Compare the magnitude to the baseline tremor level
 
             if (_currentTremorLevel >= _baselineTremorLevel)
             {
-                Console.WriteLine("Tremor Detected");
+                var tremorMessage = "Tremor Detected!";
+                Console.WriteLine(tremorMessage);
+                TremorText = tremorMessage;
             }
 
         }

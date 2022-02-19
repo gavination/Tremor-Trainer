@@ -72,10 +72,6 @@ namespace TremorTrainer.Services
                 {
                     _accelerometerRepository.Stop();
                 }
-                else
-                {
-                    await _messageService.ShowAsync("Session has already ended");
-                }
             }
             catch (Exception ex)
             {
