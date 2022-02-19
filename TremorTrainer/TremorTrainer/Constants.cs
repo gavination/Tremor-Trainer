@@ -17,6 +17,8 @@ namespace TremorTrainer
         public const int SamplingTimeLimit = 10000;
         public const int FirstPrescribedSessionTimeLimit = 60000;
         public const int CountdownInterval = 1000;
+        public const int CompareInterval = 3000;
+
         // measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;
         public const string BuildNumber = "0.0.1";

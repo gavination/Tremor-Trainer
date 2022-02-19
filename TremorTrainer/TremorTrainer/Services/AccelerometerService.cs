@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics;
 using MathNet.Numerics.IntegralTransforms;
+using MoreLinq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,10 +72,6 @@ namespace TremorTrainer.Services
                 {
                     _accelerometerRepository.Stop();
                 }
-                else
-                {
-                    await _messageService.ShowAsync("Session has already ended");
-                }
             }
             catch (Exception ex)
             {
@@ -82,29 +79,6 @@ namespace TremorTrainer.Services
                 await _messageService.ShowAsync(Constants.UnknownErrorMessage);
                 Console.WriteLine($"An unknown error occurred: {ex.Message}");
                 throw;
-            }
-        }
-
-        // Test method to prove processing capability of accelerometer vals. 
-        // Not to be kept long-term
-        public Vector3 GetAverageReading()
-        {
-            if (Readings.Count > 0)
-            {
-                // copy a snapshot of the collection to avoid any mutation exceptions
-                var readingsToCompute = Readings;
-
-                // get x, y, and z averages 
-                float xAverage = readingsToCompute.Select(x => x.X).Average();
-                float yAverage = readingsToCompute.Select(y => y.Y).Average();
-                float zAverage = readingsToCompute.Select(z => z.Z).Average();
-
-                return new Vector3(x: xAverage, y: yAverage, z: zAverage);
-            }
-            else
-            {
-                Console.WriteLine("No values to compute.");
-                throw new ArgumentException();
             }
         }
 
@@ -126,17 +100,26 @@ namespace TremorTrainer.Services
 
             var samplingFactor = sampleRate / desiredRate;
             var downSampledArray = new List<Complex32>();
-            for (int i = 0; i < samples.Length; i++)
+            if (samples.Length > 0)
             {
-                if(i % samplingFactor == 0)
+                for (int i = 0; i < samples.Length; i++)
                 {
-                    downSampledArray.Add(samples[i]);
-                } 
+                    if (i % samplingFactor == 0)
+                    {
+                        downSampledArray.Add(samples[i]);
+                    }
+                }
+                return downSampledArray.ToArray();
             }
-            return downSampledArray.ToArray();
+            else
+            {
+                var errorMessage = "Sample list is empty";
+                throw new ArgumentException(errorMessage);
+            }
+
         }
 
-        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, int dcGain )
+        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, double dcGain )
         {
             // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
             // High pass butterworth filter to whittle out effects caused by gravity
@@ -151,17 +134,20 @@ namespace TremorTrainer.Services
                 Parallel.For(1, length / 2, i =>
                 {
                     var binFreq = binWidth * i;
+                    
                     var gain = dcGain / (Math.Sqrt((1 +
-                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order))));
+                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order)))); //cutoffFrequency / binFreq is highpass and binFreq / cutoffFrequency is lowpass
 
                     var complexGain = new Complex32((float)gain, 0);
                     samples[i] = Complex32.Multiply(samples[i], complexGain);
-                    samples[length - i] = Complex32.Multiply(length - i, complexGain);
+                    samples[length - i] = Complex32.Multiply(samples[length - i], complexGain);
                 });
+
+                samples[0] = Complex32.Multiply(samples[0], new Complex32((float)dcGain, 0));
             }
         }
 
-        public async Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling)
+        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed)
         {
             try
             {
@@ -188,40 +174,37 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
+                // Filter and Downsample the readings for better processing later
+
+                var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+
+                ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
+                ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
+                ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
+
+                // casting sample rate to int here to simplify sample selection
+                var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
+                var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
+                var downSampledZ = Downsample(zSamples, desiredSampleRate, (int)currentSampleRate);
+
                 // debug code for testing the validity of the values
-                // todo: remove this once tests have been run
-                if (isSampling)
-                {
-                    // Filter and Downsample the readings for better processing later
-
-                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
-
-                    ButterworthFilter(xSamples, currentSampleRate, 3, 0.3, 1);
-                    ButterworthFilter(ySamples, currentSampleRate, 3, 0.3, 1);
-                    ButterworthFilter(zSamples, currentSampleRate, 3, 0.3, 1);
-
-                    // casting sample rate to int here to simplify sample selection
-                    var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledZ = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-
-                    _sessionRepository.ExportReadings(downSampledX, "X");
-                    _sessionRepository.ExportReadings(downSampledY, "Y");
-                    _sessionRepository.ExportReadings(downSampledZ, "Z");
-                }
-
-                var baseline = new TremorLevel()
-                {
-                    XBaseline = GetComplexAverage(xSamples),
-                    YBaseline = GetComplexAverage(ySamples),
-                    ZBaseline = GetComplexAverage(zSamples)
-                };
+                //if (isSampling)
+                //{
+                //    _sessionRepository.ExportReadings(downSampledX, "X");
+                //    _sessionRepository.ExportReadings(downSampledY, "Y");
+                //    _sessionRepository.ExportReadings(downSampledZ, "Z");
+                //}
 
                 // Clear the list for further processing
                 Readings.Clear();
 
+                var xMagnitude = FindHighestMagnitude(downSampledX).Result;
+                var yMagnitude = FindHighestMagnitude(downSampledY).Result;
+                var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
 
-                return baseline;
+                var maxMagnitude = new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
+
+                return maxMagnitude;
             }
             catch(Exception e)
             {
@@ -232,6 +215,23 @@ namespace TremorTrainer.Services
 
         }
 
+        private async Task<Complex32> FindHighestMagnitude(Complex32[] values)
+        {
+            int index = -1;
+            var max = new Complex32();
+
+            for (int i = 1; i < values.Length / 2; ++i)
+            {
+                if (max.Magnitude < values[i].Magnitude)
+                {
+                    index = i;
+                    max = values[i];
+                }
+            }
+
+            return max.Magnitude;
+
+        }
         private Complex32 GetComplexAverage(Complex32[] samples)
         {
             Complex32 sum = new Complex32();
@@ -247,10 +247,9 @@ namespace TremorTrainer.Services
     }
     public interface IAccelerometerService
     {
-        Vector3 GetAverageReading();
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<TremorLevel> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed, bool isSampling = false);
+        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }

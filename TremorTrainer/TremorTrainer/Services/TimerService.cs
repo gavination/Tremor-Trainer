@@ -9,10 +9,14 @@ namespace TremorTrainer.Services
         private Timer _timer;
         private bool _sessionRunning;
         private IMessageService _messageService;
-        private readonly int _interval;
+        private int _interval;
 
         public Timer Timer => _timer;
-        public int Interval => _interval;
+        public int Interval
+        {
+            get => _interval;
+            set => _interval = value;
+        }
         public bool SessionRunning
         {
             get => _sessionRunning;
@@ -73,7 +77,7 @@ namespace TremorTrainer.Services
     public interface ITimerService
     {
         Timer Timer { get; }
-        int Interval { get; }
+        int Interval { get; set; }
         bool SessionRunning { get; set; }
         Task StartTimerAsync(int timerLength);
         Task StopTimerAsync();

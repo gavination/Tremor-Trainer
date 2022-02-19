@@ -31,6 +31,8 @@
             <StackLayout Orientation="Vertical" Padding="30,0,30,24" Spacing="0">
                 
                 <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
+                <Label Text="{Binding TremorText, Mode=OneWay}" FontSize="Large"></Label>
+
                 <Label FontSize="Large"></Label>
                 <gauge:SfCircularGauge HeightRequest="300">
                     <gauge:SfCircularGauge.Headers>

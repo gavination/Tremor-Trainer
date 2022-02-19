@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace TremorTrainer.Services
 {
@@ -6,11 +7,16 @@ namespace TremorTrainer.Services
     {
         public async Task ShowAsync(string message)
         {
-            await App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
+            Device.BeginInvokeOnMainThread(async () =>
+            {
+                await App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
+
+            });
         }
 
         public async Task<bool> ShowCancelAlertAsync(string title, string message)
         {
+
            return await App.Current.MainPage.DisplayAlert(title, message, "OK", "Cancel");
         }
     }
