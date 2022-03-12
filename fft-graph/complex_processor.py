@@ -11,7 +11,6 @@ def convert_to_complex_array(file_contents):
 
 def create_frequency_signal(complex_numbers, time_in_seconds, graph_name):
 
-    # assumes sampling stage of 10 seconds
     sample_rate = int(len(complex_numbers)/time_in_seconds)
 
     # Casts the fourier transform coefficients as a numpy array
