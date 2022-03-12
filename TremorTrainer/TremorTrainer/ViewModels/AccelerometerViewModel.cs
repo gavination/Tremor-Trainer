@@ -18,7 +18,7 @@ namespace TremorTrainer.ViewModels
         private readonly ITimerService _mainTimerService;
         private readonly ITimerService _sessionTimerService;
         private readonly IAccelerometerService _accelerometerService;
-
+          
         // setup private timer and ui vars
         private readonly int _baseSessionTimeLimit;
         private readonly int _samplingTimeLimit;
@@ -102,7 +102,6 @@ namespace TremorTrainer.ViewModels
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
             _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
-            _isSampling = false;
             _samplingTimeLimit = Constants.SamplingTimeLimit;
             _downSampleRate = Constants.DownSampleRate;
             _baseSessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
