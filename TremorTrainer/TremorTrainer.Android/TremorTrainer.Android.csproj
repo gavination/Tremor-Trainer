@@ -129,6 +129,7 @@
     <ProjectReference Include="..\TremorTrainer\TremorTrainer.csproj">
       <Project>{F73498A5-2126-4F0E-8DD8-612FF064FAFE}</Project>
       <Name>TremorTrainer</Name>
+      <ReferenceSourceTarget></ReferenceSourceTarget>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

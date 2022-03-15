@@ -2,7 +2,6 @@ using System;
 using Xunit;
 using TremorTrainerTests.Mocks;
 using TremorTrainer.Services;
-using Xamarin.Essentials;
 
 namespace TremorTrainerTests
 {
@@ -16,11 +15,13 @@ namespace TremorTrainerTests
             MockAccelerometerRepository mockAccelerometerRepository = new MockAccelerometerRepository()
                 .StartThrowsFeatureNotSupportedException();
             MockMessageService mockMessageService = new MockMessageService();
+            MockSessionRepository mockSessionRepository = new MockSessionRepository();
 
             // Act
             AccelerometerService accelerometerService = new AccelerometerService(
                 mockMessageService.Object,
-                mockAccelerometerRepository.Object
+                mockAccelerometerRepository.Object,
+                mockSessionRepository.Object
                 );
 
             var result = accelerometerService.StartAccelerometer(123);
@@ -35,12 +36,14 @@ namespace TremorTrainerTests
             MockAccelerometerRepository mockAccelerometerRepository = new MockAccelerometerRepository()
                 .StartThrowsException();
             MockMessageService mockMessageService = new MockMessageService();
+            MockSessionRepository mockSessionRepository = new MockSessionRepository();
 
             // Act
             AccelerometerService accelerometerService = new AccelerometerService(
                 mockMessageService.Object,
-                mockAccelerometerRepository.Object
-                );
+                mockAccelerometerRepository.Object,
+                mockSessionRepository.Object
+            );
 
             var result = accelerometerService.StartAccelerometer(123);
 
@@ -57,11 +60,13 @@ namespace TremorTrainerTests
             MockMessageService mockMessageService = new MockMessageService();
             mockAccelerometerRepository.SetupGet(x => x.IsMonitoring)
                 .Returns(true);
+            MockSessionRepository mockSessionRepository = new MockSessionRepository();
 
             // Act
             AccelerometerService accelerometerService = new AccelerometerService(
                 mockMessageService.Object,
-                mockAccelerometerRepository.Object
+                mockAccelerometerRepository.Object,
+                mockSessionRepository.Object
                 );
 
             var result = accelerometerService.StartAccelerometer(123);
@@ -78,11 +83,14 @@ namespace TremorTrainerTests
             MockMessageService mockMessageService = new MockMessageService();
             mockAccelerometerRepository.SetupGet(x => x.IsMonitoring)
                 .Returns(false);
+            MockSessionRepository mockSessionRepository = new MockSessionRepository();
+
 
             // Act
             AccelerometerService accelerometerService = new AccelerometerService(
                 mockMessageService.Object,
-                mockAccelerometerRepository.Object
+                mockAccelerometerRepository.Object,
+                mockSessionRepository.Object
                 );
 
             var result = accelerometerService.StartAccelerometer(123);

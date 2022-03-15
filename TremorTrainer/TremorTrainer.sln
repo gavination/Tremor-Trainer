@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TremorTrainer.Android", "Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TremorTrainer.iOS", "TremorTrainer.iOS\TremorTrainer.iOS.csproj", "{68D81856-FCDA-47CA-B2B0-6284374B3425}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TremorTrainer", "TremorTrainer\TremorTrainer.csproj", "{F73498A5-2126-4F0E-8DD8-612FF064FAFE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TremorTrainer", "TremorTrainer\TremorTrainer.csproj", "{F73498A5-2126-4F0E-8DD8-612FF064FAFE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TremorTrainerTests", "TremorTrainerTests\TremorTrainerTests.csproj", "{04292C4B-2C90-4145-89F7-6F063176F8CF}"
 EndProject
