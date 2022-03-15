@@ -1,6 +1,4 @@
-﻿using MathNet.Numerics;
-using System;
-using System.Numerics;
+﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -27,10 +25,11 @@ namespace TremorTrainer.ViewModels
         private bool _isSampling;
         
 
-        // todo: replace this once code solidifies
+        // todo: replace these fields once code solidifies
         private string _readingText = "Accelerometer values will appear here.";
-        private string _timerText;
         private string _tremorText = "Placeholder tremor detection text";
+        
+        private string _timerText;
         private string _sessionButtonText;
         private int _currentSessionLength;
         private DateTime _sessionStartTime;
@@ -93,7 +92,7 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
-            _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
+            _isPrescribedSession = (bool)Application.Current.Properties["IsPrescribedSession"];
             _isSampling = false;
             _samplingTimeLimit = Constants.SamplingTimeLimit;
             _downSampleRate = Constants.DownSampleRate;
@@ -161,12 +160,6 @@ namespace TremorTrainer.ViewModels
             // Cancel the run and save the current status as a result
             else if (_currentSessionLength >= 0 && _mainTimerService.SessionRunning)
             {
-                // Creates a timestamp if none exists yet
-                if (_sessionStartTime == null)
-                {
-                    _sessionStartTime = DateTime.Now;
-                }
-
                 if (!_isSampling)
                 {
                     // Stop the Running Session, save the results, and dispose of the timer
