@@ -16,14 +16,20 @@ namespace TremorTrainer.ViewModels
         private readonly ITimerService _mainTimerService;
         private readonly ITimerService _sessionTimerService;
         private readonly IAccelerometerService _accelerometerService;
-
+          
         // setup private timer and ui vars
         private readonly int _baseSessionTimeLimit;
         private readonly int _samplingTimeLimit;
         private readonly bool _isPrescribedSession;
         private readonly int _downSampleRate;
-        private bool _isSampling;
-        
+
+        private enum SessionState
+        {
+            Idle,
+            Sampling,
+            Detecting,
+            Running,
+        }
 
         // todo: replace these fields once code solidifies
         private string _readingText = "Accelerometer values will appear here.";
@@ -36,6 +42,8 @@ namespace TremorTrainer.ViewModels
         private int _sampleRate;
         private float _baselineTremorLevel;
         private float _currentTremorLevel;
+        private SessionState _currentSessionState;
+
 
         public string TremorText
         {
@@ -92,15 +100,15 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements and register propertychanged events
             Title = "Start Training";
-            _isPrescribedSession = (bool)Application.Current.Properties["IsPrescribedSession"];
-            _isSampling = false;
+            _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
             _samplingTimeLimit = Constants.SamplingTimeLimit;
             _downSampleRate = Constants.DownSampleRate;
             _baseSessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
             _currentSessionLength = _samplingTimeLimit;
             _baselineTremorLevel = new float();
             _currentTremorLevel = new float();
-            _sampleRate = 0;
+            _sampleRate = 50;
+            _currentSessionState = SessionState.Idle;
 
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_samplingTimeLimit));
@@ -123,72 +131,51 @@ namespace TremorTrainer.ViewModels
             // todo: have the service methods return booleans to determine
             // whether to record start time and flipping the sessionRunning var
 
-            // Determine if this is the start of a new Session
-            if(_currentSessionLength == _samplingTimeLimit && !_mainTimerService.SessionRunning)
+
+            switch (_currentSessionState)
             {
-                // Start the accelerometer and the timer
-                _mainTimerService.SessionRunning = true;
-                _sessionStartTime = DateTime.Now;
-                _isSampling = true;
+                case SessionState.Idle:
 
-                await _accelerometerService.StartAccelerometer(_currentSessionLength);
-                await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                    // Start the accelerometer and the timer
+                    _mainTimerService.SessionRunning = true;
+                    _sessionStartTime = DateTime.Now;
+                    _currentSessionLength = _samplingTimeLimit;
 
-                SessionButtonText = "Stop Session";
-
-            }
-            // Determine if restarting a session after a previous run
-            else if (_currentSessionLength <= 0 && !_mainTimerService.SessionRunning)
-            {
-                // reset the session length and start a new Session
-                _mainTimerService.SessionRunning = true;
-                _sessionStartTime = DateTime.Now;
-
-                _currentSessionLength = _samplingTimeLimit;
-
-                TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
-                TimerText = FormatTimeSpan(span);
-
-                await _accelerometerService.StartAccelerometer(_currentSessionLength);
-                await _mainTimerService.StartTimerAsync(_currentSessionLength);
-
-                SessionButtonText = "Stop Session";
+                    await _accelerometerService.StartAccelerometer(_currentSessionLength);
+                    await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                    
+                    _currentSessionState = SessionState.Sampling;
 
 
-            }
-            // Determine if the session is still running
-            // Cancel the run and save the current status as a result
-            else if (_currentSessionLength >= 0 && _mainTimerService.SessionRunning)
-            {
-                if (!_isSampling)
-                {
-                    // Stop the Running Session, save the results, and dispose of the timer
+                    TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
+                    TimerText = FormatTimeSpan(span);
+
+                    SessionButtonText = "Stop Session";
+                    break;
+
+                case SessionState.Running:
+
                     await WrapUpSessionAsync();
-                }
-                _mainTimerService.SessionRunning = false;
+                    _mainTimerService.SessionRunning = false;
+                    SessionButtonText = "Start Session";
 
-                SessionButtonText = "Start Session";
+                    _currentSessionState = SessionState.Idle;
+                    break;
+
+                case SessionState.Sampling:
+
+                    await WrapUpSessionAsync(false);
+                    _mainTimerService.SessionRunning = false;
+                    SessionButtonText = "Stop Session";
+
+                    _currentSessionState = SessionState.Idle;
+                    break;
+
             }
-            // Determine if the session was stopped and a new one needs to be created
-            // Reset the current session length, flip the SessionRunning bool, and restart the timer
-            else if(_currentSessionLength > 0 && !_mainTimerService.SessionRunning)
-            {
-                _sessionStartTime = DateTime.Now;
-                _currentSessionLength = _samplingTimeLimit;
-                _mainTimerService.SessionRunning = true;
-                _isSampling = true;
 
-                await _accelerometerService.StartAccelerometer(_currentSessionLength);
-                await _mainTimerService.StartTimerAsync(_currentSessionLength);
-
-                TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
-                TimerText = FormatTimeSpan(span);
-
-                SessionButtonText = "Stop Session";
-            }
         }
 
-        private async Task WrapUpSessionAsync()
+        private async Task WrapUpSessionAsync(bool shouldSaveSession = true)
         {
             //Accelerometer and timer wrap up
             await _mainTimerService.StopTimerAsync();
@@ -196,32 +183,35 @@ namespace TremorTrainer.ViewModels
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
 
-            var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
-
-            // todo: fulfill this with proper baseline information
-            Session newSession = new Session
+            if (shouldSaveSession)
             {
-                Id = Guid.NewGuid(),
-                Details = $"Session Type: {sessionType}. Saved to the local DB",
-                XAverageVariance = 0,
-                YAverageVariance = 0,
-                ZAverageVariance = 0,
-                XBaseline = 0,
-                YBaseline = 0,
-                ZBaseline = 0,
-                Duration = sessionDuration,
-                Score = 0,
-                StartTime = DateTime.Now,
-                Type = sessionType
-            };
+                var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
 
-            bool result = await _sessionService.AddSessionAsync(newSession);
+                // todo: fulfill this with proper baseline information
+                Session newSession = new Session
+                {
+                    Id = Guid.NewGuid(),
+                    Details = $"Session Type: {sessionType}. Saved to the local DB",
+                    XAverageVariance = 0,
+                    YAverageVariance = 0,
+                    ZAverageVariance = 0,
+                    XBaseline = 0,
+                    YBaseline = 0,
+                    ZBaseline = 0,
+                    Duration = sessionDuration,
+                    Score = 0,
+                    StartTime = DateTime.Now,
+                    Type = sessionType
+                };
 
-            if (!result)
-            {
-                //todo: consider throwing an exception here, perhaps.
-                string errorMessage = "Unable to save the results of your session.";
-                await _messageService.ShowAsync(errorMessage);
+                bool result = await _sessionService.AddSessionAsync(newSession);
+
+                if (!result)
+                {
+                    //todo: consider throwing an exception here, perhaps.
+                    string errorMessage = "Unable to save the results of your session.";
+                    await _messageService.ShowAsync(errorMessage);
+                }
             }
         }
 
@@ -240,53 +230,56 @@ namespace TremorTrainer.ViewModels
             {
                 _currentSessionLength -= _mainTimerService.Interval;
 
-                //update the ui with a propertychanged event here
+                //update the ui
                 TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
 
                 TimerText = FormatTimeSpan(span);
 
-
-                if (_currentSessionLength == 0 && _isSampling)
+                if (_currentSessionLength == 0)
                 {
-                    // get sampling rate from the samples derived over time.
-                    // converts ms to s and passes it over to the AccelerometerService
-                    Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
+                    switch (_currentSessionState)
+                    {
+                        case SessionState.Sampling:
+                            Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
 
-                    Console.WriteLine("Processing values...");
-                    _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit);
+                            Console.WriteLine("Processing values...");
+                            _baselineTremorLevel = await _accelerometerService.ProcessFFTAsync(_downSampleRate, _samplingTimeLimit);
 
-                    Console.WriteLine($"Baseline Tremor Magnitude: {_baselineTremorLevel}");
+                            Console.WriteLine($"Baseline Tremor Magnitude: {_baselineTremorLevel}");
 
-                    // stop the timer and unsubscribe from the event here
-                    await _mainTimerService.StopTimerAsync();
-                    await _accelerometerService.StopAccelerometer();
-                    _accelerometerService.Readings.Clear();
+                            // stop the timer and unsubscribe from the event here
+                            await _mainTimerService.StopTimerAsync();
+                            await _accelerometerService.StopAccelerometer();
+                            _accelerometerService.Readings.Clear();
 
-                    //todo: update the gauge max value control on the ui here
-                    //todo: create a toast notification here to inform the user of the timer change
+                            //todo: update the gauge max value control on the ui here
+                            //todo: create a toast notification here to inform the user of the timer change
 
 
-                    // proceed to the main session state
-                    // reassign the current session time limit and restart the timer
-                    // start another timer with a different interval for comparing values
-                    _isSampling = false;
-                    await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
-                    _currentSessionLength = _baseSessionTimeLimit;
-                    await _mainTimerService.StartTimerAsync(_currentSessionLength);
-                    _sessionTimerService.Interval = Constants.CompareInterval;
-                    _sessionTimerService.Timer.Elapsed += OnSessionTimedEvent;
-                    await _sessionTimerService.StartTimerAsync(_currentSessionLength);
-                }
+                            // proceed to the main session state
+                            // reassign the current session time limit and restart the timer
+                            // start another timer with a different interval for comparing values
+                            await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
+                            _currentSessionLength = _baseSessionTimeLimit;
+                            await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                            _sessionTimerService.Interval = Constants.CompareInterval;
+                            _sessionTimerService.Timer.Elapsed += OnSessionTimedEvent;
+                            await _sessionTimerService.StartTimerAsync(_currentSessionLength);
+                            _currentSessionState = SessionState.Running;
+                            break;
+                        
+                        case SessionState.Running:
 
-                else if (_currentSessionLength == 0)
-                {
-                    // assume this marks the end of the session 
-                    _mainTimerService.SessionRunning = false;
-                    SessionButtonText = "Start Session";
-                    await _mainTimerService.StopTimerAsync();
-                    await _sessionTimerService.StopTimerAsync();
-                    await _accelerometerService.StopAccelerometer();
-                    await WrapUpSessionAsync();
+                            // assume this marks the end of the session 
+                            _mainTimerService.SessionRunning = false;
+                            SessionButtonText = "Start Session";
+                            await _mainTimerService.StopTimerAsync();
+                            await _sessionTimerService.StopTimerAsync();
+                            await _accelerometerService.StopAccelerometer();
+                            await WrapUpSessionAsync();
+                            _currentSessionState = SessionState.Idle;
+                            break;
+                    }
                 }
             }
             catch(Exception ex)
