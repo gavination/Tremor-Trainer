@@ -1,6 +1,4 @@
-﻿using MathNet.Numerics;
-using System;
-using System.Numerics;
+﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -33,10 +31,11 @@ namespace TremorTrainer.ViewModels
             Running,
         }
 
-        // todo: replace this once code solidifies
+        // todo: replace these fields once code solidifies
         private string _readingText = "Accelerometer values will appear here.";
-        private string _timerText;
         private string _tremorText = "Placeholder tremor detection text";
+        
+        private string _timerText;
         private string _sessionButtonText;
         private int _currentSessionLength;
         private DateTime _sessionStartTime;

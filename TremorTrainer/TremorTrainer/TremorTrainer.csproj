@@ -13,7 +13,7 @@
     <None Remove="Resources\Fonts\Montserrat-SemiBold.ttf" />
     <None Remove="Resources\Fonts\UIFontIcons.ttf" />
     <None Remove="sample.appsettings.json" />
-    <None Remove="appsettings.json" />
+    <None Remove="sample %28copy%29.appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +25,9 @@
     <EmbeddedResource Include="Resources\Fonts\Montserrat-Regular.ttf" />
     <EmbeddedResource Include="Resources\Fonts\Montserrat-SemiBold.ttf" />
     <EmbeddedResource Include="Resources\Fonts\UIFontIcons.ttf" />
-    <EmbeddedResource Include="appsettings.json" />
+    <EmbeddedResource Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
