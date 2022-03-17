@@ -9,18 +9,38 @@ namespace TremorTrainer
     public static class Constants
     {
         //Application runtime constants
+        
+        // SensorSpeed: defines the rate at which the device polls for accelerometer data. Faster = more accurate
         public static readonly SensorSpeed SensorSpeed = SensorSpeed.Fastest;
-        public const string DatabaseFilename = "TremorTrainer.db3";
-        public const string CSVFileName = "TremorTrainerSessions.csv";
-        public const int PrescribedSessionTimeLimit = 30000;
-        public const int AsNeededSessionTimeLimit = 15000;
-        public const int SamplingTimeLimit = 10000;
+        
+        // DatabaseFilename: the name of the DB file that will be saved locally to the device
+        private const string DatabaseFilename = "TremorTrainer.db3";
+        
+        // CsvFileName: the name of the exported file reflecting DB records
+        private const string CsvFileName = "TremorTrainerSessions.csv";
+        
+        // FirstPrescribedSessionTimeLimit: the time span for the first, typically longer, Prescribed Session
         public const int FirstPrescribedSessionTimeLimit = 60000;
+        
+        // PrescribedSessionTimeLimit: the time span for a running Prescribed Session run after the first
+        public const int PrescribedSessionTimeLimit = 30000;
+        
+        // AsNeededSessionTimeLimit: the time span for a running As Needed Session
+        public const int AsNeededSessionTimeLimit = 15000;
+        
+        // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
+        public const int SamplingTimeLimit = 10000;
+
+        // CountdownInterval: the time interval, in milliseconds, at which the timer counts down. 1000 ms is recommmended
         public const int CountdownInterval = 1000;
+        
+        // CompareInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
         public const int CompareInterval = 3000;
 
-        // measured in Hz, the desired rate for the accelerometer values to be downsampled to
+        // DownSampleRate: measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;
+        
+        // BuildNumber: the current version of the Tremor Trainer App
         public const string BuildNumber = "0.0.1";
 
 
@@ -55,7 +75,7 @@ namespace TremorTrainer
             get
             {
                 string basePath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                return Path.Combine(basePath, CSVFileName);
+                return Path.Combine(basePath, CsvFileName);
             }
         }
 
