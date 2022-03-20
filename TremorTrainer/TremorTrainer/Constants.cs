@@ -30,12 +30,15 @@ namespace TremorTrainer
         
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
         public const int SamplingTimeLimit = 10000;
-
+        
+        // DetectionTimeLimit: the time span for the Detection state run before the Session can compare tremors
+        public const int DetectionTimeLimit = 10000;
+        
         // CountdownInterval: the time interval, in milliseconds, at which the timer counts down. 1000 ms is recommmended
         public const int CountdownInterval = 1000;
         
         // CompareInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
-        public const int CompareInterval = 3000;
+        public const int CompareInterval = 200;
 
         // DownSampleRate: measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;

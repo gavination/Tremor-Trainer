@@ -147,7 +147,9 @@ namespace TremorTrainer.Services
             }
         }
 
-        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed)
+        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
+        // provided values
+        public async Task<float> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
         {
             try
             {
@@ -174,37 +176,47 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
-                // Filter and Downsample the readings for better processing later
 
-                var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+                if (desiredSampleRate > 0)
+                {
+                    
+                    // Filter and Down sample the readings for better processing later
 
-                ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
-                ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
-                ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
+                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
 
-                // casting sample rate to int here to simplify sample selection
-                var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                var downSampledZ = Downsample(zSamples, desiredSampleRate, (int)currentSampleRate);
+                    ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
+                    ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
+                    ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
+                    
+                    // down sample the values before finding the dominant frequency
+                    var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledZ = Downsample(zSamples, desiredSampleRate, (int) currentSampleRate);
 
-                // debug code for testing the validity of the values
-                //if (isSampling)
-                //{
-                //    _sessionRepository.ExportReadings(downSampledX, "X");
-                //    _sessionRepository.ExportReadings(downSampledY, "Y");
-                //    _sessionRepository.ExportReadings(downSampledZ, "Z");
-                //}
+                    Readings.Clear();
 
-                // Clear the list for further processing
-                Readings.Clear();
+                    var xMagnitude = FindHighestMagnitude(downSampledX).Result;
+                    var yMagnitude = FindHighestMagnitude(downSampledY).Result;
+                    var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
 
-                var xMagnitude = FindHighestMagnitude(downSampledX).Result;
-                var yMagnitude = FindHighestMagnitude(downSampledY).Result;
-                var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
+                    var maxMagnitude = 
+                        new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
 
-                var maxMagnitude = new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
+                    return maxMagnitude;
+                }
+                else
+                {
+                    Readings.Clear();
 
-                return maxMagnitude;
+                    var xMagnitude = FindHighestMagnitude(xSamples).Result;
+                    var yMagnitude = FindHighestMagnitude(ySamples).Result;
+                    var zMagnitude = FindHighestMagnitude(zSamples).Result;
+
+                    var maxMagnitude = 
+                        new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
+
+                    return maxMagnitude;
+                }
             }
             catch(Exception e)
             {
@@ -249,7 +261,10 @@ namespace TremorTrainer.Services
     {
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed);
+        
+        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
+        // provided values
+        Task<float> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
