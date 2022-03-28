@@ -134,7 +134,7 @@ namespace TremorTrainer.ViewModels
             _mainTimerService.Timer.Elapsed += OnSamplingTimedEvent;
 
             sessiontimer.Interval = Constants.CompareInterval;
-            //sessiontimer.Elapsed += OnDetectingTimedEvent;
+            sessiontimer.Elapsed += OnDetectingTimedEvent;
 
 
         }
@@ -350,21 +350,21 @@ namespace TremorTrainer.ViewModels
                 Console.WriteLine(message);
                 // Compare the magnitude to the baseline tremor level
 
-                // if (_currentTremorLevel >= _baselineTremorLevel)
-                // {
-                //     _tremorCount++;
-                //     var tremorMessage = $"Tremors Detected: {_tremorCount}";
-                //
-                //     Console.WriteLine(tremorMessage);
-                //     TremorText = tremorMessage;
-                // }
+                if (_currentTremorLevel >= _baselineTremorLevel)
+                {
+                    _tremorCount++;
+                    var tremorMessage = $"Tremors Detected: {_tremorCount}";
+                
+                    Console.WriteLine(tremorMessage);
+                    TremorText = tremorMessage;
+                }
             }
             if (_currentSessionLength == 0)
             {
                 // this marks the end of the detection phase.
                 // stop the main timer
                 sessiontimer.Stop();
-                Console.WriteLine($"Tremors Detected: {_tremorCount}");
+                Console.WriteLine($"Total Times Threshold Exceeded: {_tremorCount}");
                 Console.WriteLine($"Total times invoked: {_invokedCount}");
                 // proceed to the session running phase
                 _currentSessionState = SessionState.Running;

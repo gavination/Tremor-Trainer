@@ -177,7 +177,7 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
-                var secondsElapsed = milliSecondsElapsed / 1000;
+                float secondsElapsed = milliSecondsElapsed / 1000.0f;
 
                 if (desiredSampleRate > 0)
                 {
@@ -250,14 +250,13 @@ namespace TremorTrainer.Services
             }
         }
 
-        private (double, float) FindHighestFrequencyAndMagnitude(Complex32[] values, int secondsElapsed)
+        private (double, float) FindHighestFrequencyAndMagnitude(Complex32[] values, float secondsElapsed)
         {
             int index = -1;
             var max = new Complex32();
             double radianFreq = 0.0;
             double frequency = 0.0;
 
-            // assume time limit is 10s
             var samplesPerSecond = values.Length / secondsElapsed;
             var T = values.Length / samplesPerSecond;
             var dw = 2 * Math.PI / T;
@@ -269,7 +268,6 @@ namespace TremorTrainer.Services
                 max = values[i];
                 //frequency measured in rads/s
                 radianFreq = dw * index;
-                
 
             }
             // convert freq to hz...
