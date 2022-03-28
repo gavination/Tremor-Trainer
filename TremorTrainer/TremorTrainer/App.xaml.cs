@@ -35,7 +35,7 @@ namespace TremorTrainer
                       iosAppCenterSecret,
                       typeof(Analytics), typeof(Crashes));
             }
-            catch(NullReferenceException ex)
+            catch (NullReferenceException ex)
             {
                 var errorMessage = "Unable to fetch appsettings for the mobile client. " +
                     "Ensure the appsettings file is present in the shared project and the Build Action is set to EmbeddedResource";

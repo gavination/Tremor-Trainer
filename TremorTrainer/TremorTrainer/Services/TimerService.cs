@@ -77,7 +77,6 @@ namespace TremorTrainer.Services
     public interface ITimerService
     {
         Timer Timer { get; }
-        int Interval { get; set; }
         bool SessionRunning { get; set; }
         Task StartTimerAsync(int timerLength);
         Task StopTimerAsync();

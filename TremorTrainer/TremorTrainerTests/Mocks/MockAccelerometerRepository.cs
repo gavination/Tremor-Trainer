@@ -26,7 +26,7 @@ namespace TremorTrainerTests.Mocks
         public MockAccelerometerRepository StartThrowsFeatureNotSupportedException()
         {
             Setup(x => x.Start(It.IsAny<SensorSpeed>()))
-                .Throws( new FeatureNotSupportedException());
+                .Throws(new FeatureNotSupportedException());
 
             return this;
         }

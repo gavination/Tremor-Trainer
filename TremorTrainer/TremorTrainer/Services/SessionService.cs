@@ -86,7 +86,7 @@ namespace TremorTrainer.Services
                 }
             }
             return false;
-           
+
         }
 
 
@@ -105,7 +105,7 @@ namespace TremorTrainer.Services
             }
             return true;
         }
-        public  SessionType GetSessionType(bool isPrescribed)
+        public SessionType GetSessionType(bool isPrescribed)
         {
             if (!isPrescribed)
             {
