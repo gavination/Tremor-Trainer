@@ -21,7 +21,7 @@ namespace TremorTrainer.Repositories
             Accelerometer.Stop();
         }
 
-      
+
     }
 
     public interface IAccelerometerRepository

@@ -40,7 +40,7 @@ namespace TremorTrainer.Services
                 _timer.Enabled = true;
                 _sessionRunning = true;
             }
-            else if (timerLength <= 0)
+            else
             {
                 //reset the session length to start a new one
                 timerLength = (int)App.Current.Properties["SessionLength"];
@@ -49,11 +49,6 @@ namespace TremorTrainer.Services
 
                 //trigger a timer event every for every interval that passes
                 _timer.Enabled = true;
-            }
-            else
-            {
-                // session is still active if boolean is true
-                await _messageService.ShowAsync("Session is already active.");
             }
         }
 
@@ -77,7 +72,6 @@ namespace TremorTrainer.Services
     public interface ITimerService
     {
         Timer Timer { get; }
-        int Interval { get; set; }
         bool SessionRunning { get; set; }
         Task StartTimerAsync(int timerLength);
         Task StopTimerAsync();

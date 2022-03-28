@@ -5,19 +5,20 @@ namespace TremorTrainer.Services
 {
     public class MessageService : IMessageService
     {
-        public async Task ShowAsync(string message)
+        public Task ShowAsync(string message)
         {
             Device.BeginInvokeOnMainThread(async () =>
             {
-                await App.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
+                await Application.Current.MainPage.DisplayAlert(Constants.AppName, message, "Ok");
 
             });
+            return Task.CompletedTask;
         }
 
         public async Task<bool> ShowCancelAlertAsync(string title, string message)
         {
 
-           return await App.Current.MainPage.DisplayAlert(title, message, "OK", "Cancel");
+            return await App.Current.MainPage.DisplayAlert(title, message, "OK", "Cancel");
         }
     }
 

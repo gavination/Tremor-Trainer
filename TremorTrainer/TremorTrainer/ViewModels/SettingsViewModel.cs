@@ -45,18 +45,18 @@ namespace TremorTrainer.ViewModels
         {
             string messageTitle = "Delete All Session Data?";
             string message = "Are you sure you want to delete all session data? If you have not used the Export option, this data will be deleted forever.";
-           var result = await _messageService.ShowCancelAlertAsync(messageTitle, message);
-           if (result)
+            var result = await _messageService.ShowCancelAlertAsync(messageTitle, message);
+            if (result)
             {
                 _sessionService.DeleteSessions();
                 await _messageService.ShowAsync("User Session data has been deleted");
             }
-             
+
         }
 
         private async void OnExportButtonClicked(object obj)
         {
-            
+
             await _sessionService.ExportUserSessions();
         }
 

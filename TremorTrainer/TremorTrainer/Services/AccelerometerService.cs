@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Security;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
 using TremorTrainer.Repositories;
@@ -93,7 +94,7 @@ namespace TremorTrainer.Services
 
         }
 
-        private Complex32[] Downsample(Complex32[] samples, int desiredRate, int sampleRate)
+        private Complex32[] DownSample(Complex32[] samples, int desiredRate, int sampleRate)
         {
             // takes every nth element in originally collected samples to downsample 
             // this may be a naive implementation of sampling. May need to be updated in the future
@@ -119,7 +120,7 @@ namespace TremorTrainer.Services
 
         }
 
-        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, double dcGain )
+        private void ButterworthFilter(Complex32[] samples, double sampleRate, int order, double cutoffFrequency, double dcGain)
         {
             // Concept borrowed heavily from the Centerspace blog: https://www.centerspace.net/butterworth-filter-csharp
             // High pass butterworth filter to whittle out effects caused by gravity
@@ -129,14 +130,14 @@ namespace TremorTrainer.Services
                 var length = samples.Length;
                 var numBins = length / 2;  // Half the length of the FFT by symmetry
                 double binWidth = sampleRate / length; // Hz
-                
+
                 // Filter
                 Parallel.For(1, length / 2, i =>
                 {
                     var binFreq = binWidth * i;
-                    
+                    //cutoffFrequency / binFreq is highpass and binFreq / cutoffFrequency is lowpass
                     var gain = dcGain / (Math.Sqrt((1 +
-                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order)))); //cutoffFrequency / binFreq is highpass and binFreq / cutoffFrequency is lowpass
+                                  Math.Pow(cutoffFrequency / binFreq, 2.0 * order)))); 
 
                     var complexGain = new Complex32((float)gain, 0);
                     samples[i] = Complex32.Multiply(samples[i], complexGain);
@@ -147,7 +148,9 @@ namespace TremorTrainer.Services
             }
         }
 
-        public async Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed)
+        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
+        // provided values
+        public async Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
         {
             try
             {
@@ -174,82 +177,124 @@ namespace TremorTrainer.Services
                 Fourier.Forward(ySamples);
                 Fourier.Forward(zSamples);
 
-                // Filter and Downsample the readings for better processing later
+                float secondsElapsed = milliSecondsElapsed / 1000.0f;
 
-                var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
+                if (desiredSampleRate > 0)
+                {
+                    // Filter and Down sample the readings for better processing later
+                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
 
-                ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
-                ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
-                ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
+                    ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
+                    ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
+                    ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
 
-                // casting sample rate to int here to simplify sample selection
-                var downSampledX = Downsample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                var downSampledY = Downsample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                var downSampledZ = Downsample(zSamples, desiredSampleRate, (int)currentSampleRate);
+                    // down sample the values before finding the dominant frequency
+                    var downSampledX = DownSample(xSamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledY = DownSample(ySamples, desiredSampleRate, (int)currentSampleRate);
+                    var downSampledZ = DownSample(zSamples, desiredSampleRate, (int)currentSampleRate);
 
-                // debug code for testing the validity of the values
-                //if (isSampling)
-                //{
-                //    _sessionRepository.ExportReadings(downSampledX, "X");
-                //    _sessionRepository.ExportReadings(downSampledY, "Y");
-                //    _sessionRepository.ExportReadings(downSampledZ, "Z");
-                //}
+                    Readings.Clear();
 
-                // Clear the list for further processing
-                Readings.Clear();
+                    var xFrequencyAndMagnitude =
+                        FindHighestFrequencyAndMagnitude(downSampledX, secondsElapsed);
+                    var yFrequencyAndMagnitude =
+                        FindHighestFrequencyAndMagnitude(downSampledY, secondsElapsed);
+                    var zFrequencyAndMagnitude =
+                        FindHighestFrequencyAndMagnitude(downSampledZ, secondsElapsed);
 
-                var xMagnitude = FindHighestMagnitude(downSampledX).Result;
-                var yMagnitude = FindHighestMagnitude(downSampledY).Result;
-                var zMagnitude = FindHighestMagnitude(downSampledZ).Result;
 
-                var maxMagnitude = new[] { xMagnitude.Magnitude, yMagnitude.Magnitude, zMagnitude.Magnitude }.Max();
+                    // put these lovely tuples in a list and compare them to find which axis has the highest magnitude
+                    var results = new List<(double, float)>
+                    {
+                        xFrequencyAndMagnitude,
+                        yFrequencyAndMagnitude,
+                        zFrequencyAndMagnitude
+                    };
 
-                return maxMagnitude;
+                    var maxReading =
+                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
+                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
+
+                    return localVelocityMaxima;
+                }
+                else
+                {
+                    Readings.Clear();
+
+                    var xFrequencyAndMagnitude = 
+                        FindHighestFrequencyAndMagnitude(xSamples, secondsElapsed);
+                    var yFrequencyAndMagnitude = 
+                        FindHighestFrequencyAndMagnitude(ySamples, secondsElapsed);
+                    var zFrequencyAndMagnitude = 
+                        FindHighestFrequencyAndMagnitude(zSamples, secondsElapsed);
+
+                    var results = new List<(double, float)>
+                    {
+                        xFrequencyAndMagnitude,
+                        yFrequencyAndMagnitude,
+                        zFrequencyAndMagnitude
+                    };
+
+                    var maxReading =
+                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
+
+                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
+                    return localVelocityMaxima;
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 // todo: determine proper exception handling protocol here. 
                 await _messageService.ShowAsync(Constants.UnknownErrorMessage + e.Message);
                 throw;
             }
-
         }
 
-        private async Task<Complex32> FindHighestMagnitude(Complex32[] values)
+        private (double, float) FindHighestFrequencyAndMagnitude(Complex32[] values, float secondsElapsed)
         {
             int index = -1;
             var max = new Complex32();
+            double radianFreq = 0.0;
+            double frequency = 0.0;
 
-            for (int i = 1; i < values.Length / 2; ++i)
+            var samplesPerSecond = values.Length / secondsElapsed;
+            var T = values.Length / samplesPerSecond;
+            var dw = 2 * Math.PI / T;
+
+            for (var i = 1; i < values.Length / 2; ++i)
             {
-                if (max.Magnitude < values[i].Magnitude)
-                {
-                    index = i;
-                    max = values[i];
-                }
-            }
+                if (!(max.Magnitude < values[i].Magnitude)) continue;
+                index = i;
+                max = values[i];
+                //frequency measured in rads/s
+                radianFreq = dw * index;
 
-            return max.Magnitude;
+            }
+            // convert freq to hz...
+            frequency = radianFreq / (2 * Math.PI);
+            
+            (double, float) freqAndMag = (frequency, max.Magnitude);
+
+            return freqAndMag;
 
         }
-        private Complex32 GetComplexAverage(Complex32[] samples)
+
+        private double FindPeakMovementVelocity(double frequency, float magnitude)
         {
-            Complex32 sum = new Complex32();
-
-            for (int i=0; i < samples.Length; i++)
-            {
-                sum = Complex32.Add(sum, i);
-            }
-
-            var average = sum / samples.Length;
-            return average;
+            // using this formula allows us to calculate a local maxima for movement velocity at t=0
+            // m * ω * cos(ω * t) 
+            // cos(0) = 1, so formula realistically evaluates to m* w
+            return frequency * magnitude;
         }
     }
     public interface IAccelerometerService
     {
         List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
-        Task<float> ProcessFFTAsync(int desiredSampleRate, int milliSecondsElapsed);
+
+        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
+        // provided values
+        Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }
