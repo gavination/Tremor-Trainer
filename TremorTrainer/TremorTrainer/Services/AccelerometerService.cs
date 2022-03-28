@@ -150,7 +150,7 @@ namespace TremorTrainer.Services
 
         // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
         // provided values
-        public async Task<(double, float)> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
+        public async Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
         {
             try
             {
@@ -213,7 +213,9 @@ namespace TremorTrainer.Services
 
                     var maxReading =
                         results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-                    return maxReading;
+                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
+
+                    return localVelocityMaxima;
                 }
                 else
                 {
@@ -235,7 +237,9 @@ namespace TremorTrainer.Services
 
                     var maxReading =
                         results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-                    return maxReading;
+
+                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
+                    return localVelocityMaxima;
                 }
             }
             catch (Exception e)
@@ -276,6 +280,14 @@ namespace TremorTrainer.Services
             return freqAndMag;
 
         }
+
+        private double FindPeakMovementVelocity(double frequency, float magnitude)
+        {
+            // using this formula allows us to calculate a local maxima for movement velocity at t=0
+            // m * ω * cos(ω * t) 
+            // cos(0) = 1, so formula realistically evaluates to m* w
+            return frequency * magnitude;
+        }
     }
     public interface IAccelerometerService
     {
@@ -284,7 +296,7 @@ namespace TremorTrainer.Services
 
         // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
         // provided values
-        Task<(double, float)> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
+        Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
         double DetermineSampleRate(int secondsElapsed);
         Task StopAccelerometer();
     }

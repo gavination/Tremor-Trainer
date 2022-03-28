@@ -48,8 +48,8 @@ namespace TremorTrainer.ViewModels
         private int _invokedCount;
         private DateTime _sessionStartTime;
         private readonly int _sampleRate;
-        private (double, float) _baselineTremorLevel;
-        private (double, float) _currentTremorLevel;
+        private double _baselineTremorLevel;
+        private double _currentTremorLevel;
         private SessionState _currentSessionState;
 
         public string TremorText
@@ -267,7 +267,7 @@ namespace TremorTrainer.ViewModels
                                 _detectionTimeLimit,
                                 _downSampleRate);
 
-                            Console.WriteLine($"Baseline Tremor Frequency: {_baselineTremorLevel}");
+                            Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
 
                             // stop the timer and unsubscribe from the event here
                             await _mainTimerService.StopTimerAsync();
@@ -346,7 +346,7 @@ namespace TremorTrainer.ViewModels
                 // # of times invoked
                 _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
                     Constants.CompareInterval);
-                var message = $"Current Tremor Level: {_currentTremorLevel}";
+                var message = $"Current Tremor Velocity: {_currentTremorLevel}";
                 Console.WriteLine(message);
                 // Compare the magnitude to the baseline tremor level
 
