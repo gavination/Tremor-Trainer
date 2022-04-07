@@ -45,11 +45,11 @@ namespace TremorTrainer.ViewModels
         private string _sessionButtonText;
         private int _currentSessionLength;
         private int _tremorCount;
-        private int _invokedCount;
         private DateTime _sessionStartTime;
         private readonly int _sampleRate;
         private double _baselineTremorLevel;
         private double _currentTremorLevel;
+        private double _tremorRate;
         private SessionState _currentSessionState;
 
         public string TremorText
@@ -116,8 +116,6 @@ namespace TremorTrainer.ViewModels
             _sampleRate = 50;
             _currentSessionState = SessionState.Idle;
             _tremorCount = 0;
-
-            _invokedCount = 0;
 
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_samplingTimeLimit));
@@ -276,7 +274,6 @@ namespace TremorTrainer.ViewModels
                             _mainTimerService.Timer.Elapsed -= OnSamplingTimedEvent;
 
 
-                            //todo: update the gauge max value control on the ui here
                             //todo: create a toast notification here to inform the user of the timer change
 
 
@@ -331,6 +328,7 @@ namespace TremorTrainer.ViewModels
             if (_currentSessionLength == 0)
             {
                 await WrapUpSessionAsync();
+                sessiontimer.Stop();
                 _mainTimerService.Timer.Elapsed -= OnSessionTimedEvent;
             }
         }
@@ -338,9 +336,7 @@ namespace TremorTrainer.ViewModels
         private async void OnDetectingTimedEvent(object sender, ElapsedEventArgs e)
         {
             // Run an FFT over the newly collected values
-            _invokedCount++;
 
-            // todo: update the gauge ui control here
             if (_accelerometerService.Readings.Count > 0)
             {
                 // # of times invoked
@@ -363,12 +359,47 @@ namespace TremorTrainer.ViewModels
             {
                 // this marks the end of the detection phase.
                 // stop the main timer
+                // stop the accelerometer
                 sessiontimer.Stop();
-                Console.WriteLine($"Total Times Threshold Exceeded: {_tremorCount}");
-                Console.WriteLine($"Total times invoked: {_invokedCount}");
+                await _accelerometerService.StopAccelerometer();
+
+                // determine tremor rate and convert ms to s for the time limit
+                var t = _detectionTimeLimit/ 1000;
+                _tremorRate = _tremorCount / (double)t;
+
+                Console.WriteLine($"Current tremor rate: {_tremorRate}");
                 // proceed to the session running phase
                 _currentSessionState = SessionState.Running;
+
+
+                // proceed to the running session state
+                // reassign the current session time limit and restart the timer
+                await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
+                _currentSessionLength = _baseSessionTimeLimit;
+
+                TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
+                TimerText = FormatTimeSpan(sessionSpan);
+                await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                _mainTimerService.Timer.Elapsed += OnSessionTimedEvent;
+
+                sessiontimer.Elapsed -= OnDetectingTimedEvent;
+                sessiontimer.Elapsed += OnCompareTremorRates;
+                //set interval to 1 second for updates
+                sessiontimer.Interval = 1000;
+                sessiontimer.Start();
+                _currentSessionState = SessionState.Running;
+
             }
+        }
+
+        private async void OnCompareTremorRates(object sender, ElapsedEventArgs e)
+        {
+            // will run every other second
+            Console.WriteLine("compare method was hit");
+            
+            // will compare rate of tremors to the global tremor rate
+            // will adjust the position of the dial according to the rate
+
         }
 
         private string FormatTimeSpan(TimeSpan span)
@@ -376,10 +407,6 @@ namespace TremorTrainer.ViewModels
             return $"Time Remaining: {span}";
         }
 
-        private int CreateTotalSessionTimeLimit()
-        {
-            return _sessionService.GetSessionLength(_isPrescribedSession);
-        }
 
 
         public ICommand StartSessionCommand { get; }
