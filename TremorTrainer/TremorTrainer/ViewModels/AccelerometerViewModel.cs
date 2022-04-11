@@ -385,8 +385,6 @@ namespace TremorTrainer.ViewModels
 
                 TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
                 TimerText = FormatTimeSpan(sessionSpan);
-                await _mainTimerService.StartTimerAsync(_currentSessionLength);
-                _mainTimerService.Timer.Elapsed += OnSessionTimedEvent;
 
                 sessiontimer.Elapsed -= OnDetectingTimedEvent;
                 sessiontimer.Elapsed += OnCompareTremorRates;
