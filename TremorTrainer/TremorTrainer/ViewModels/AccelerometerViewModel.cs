@@ -324,12 +324,18 @@ namespace TremorTrainer.ViewModels
             TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
             TimerText = FormatTimeSpan(span);
 
-            // stop the session timer and deregister the event handler
             if (_currentSessionLength == 0)
             {
-                await WrapUpSessionAsync();
-                sessiontimer.Stop();
-                _mainTimerService.Timer.Elapsed -= OnSessionTimedEvent;
+                switch (_currentSessionState)
+                {
+                    case SessionState.Running:
+                        
+                        // stop the session timer and deregister the event handler
+                        await WrapUpSessionAsync();
+                        sessiontimer.Stop();
+                        _mainTimerService.Timer.Elapsed -= OnSessionTimedEvent;
+                        break;
+                }
             }
         }
 
