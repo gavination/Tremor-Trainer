@@ -9,10 +9,7 @@ using Xamarin.Forms;
 
 namespace TremorTrainer.ViewModels
 {
-    // WHERE GAVIN LEFT OFF...
-    // todo: compare the current tremor level vs the baseline
-    // todo: log when the tremor is detected
-    // todo: update the UI with the detected baseline value
+    
     public class AccelerometerViewModel : BaseViewModel
     {
         private readonly IMessageService _messageService;
