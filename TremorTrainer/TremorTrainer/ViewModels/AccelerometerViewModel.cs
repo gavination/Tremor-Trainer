@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Input;
@@ -39,6 +40,7 @@ namespace TremorTrainer.ViewModels
         private string _tremorText = "Placeholder tremor detection text";
 
         private string _timerText;
+        private string _pointerPosition;
         private string _sessionButtonText;
         private int _currentSessionLength;
         private int _tremorCount;
@@ -83,6 +85,16 @@ namespace TremorTrainer.ViewModels
             {
                 _sessionButtonText = value;
                 OnPropertyChanged("SessionButtonText");
+            }
+        }
+
+        public string PointerPosition
+        {
+            get => _pointerPosition;
+            private set
+            {
+                _pointerPosition = value; 
+                OnPropertyChanged("PointerPosition");
             }
         }
 
@@ -342,7 +354,6 @@ namespace TremorTrainer.ViewModels
 
             if (_accelerometerService.Readings.Count > 0)
             {
-                // # of times invoked
                 _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
                     Constants.CompareInterval);
                 var message = $"Current Tremor Velocity: {_currentTremorLevel}";
@@ -358,47 +369,66 @@ namespace TremorTrainer.ViewModels
                     TremorText = tremorMessage;
                 }
             }
-            if (_currentSessionLength == 0)
+
+            switch (_currentSessionState)
             {
-                // this marks the end of the detection phase.
-                // stop the main timer
-                // stop the accelerometer
-                sessiontimer.Stop();
-                await _accelerometerService.StopAccelerometer();
+                case SessionState.Detecting:
+                    if (_currentSessionLength == 0)
+                    {
+                        // this marks the end of the detection phase.
+                        // stop the main timer
+                        // stop the accelerometer
+                        sessiontimer.Stop();
+                        await _accelerometerService.StopAccelerometer();
 
-                // determine tremor rate and convert ms to s for the time limit
-                var t = _detectionTimeLimit/ 1000;
-                _tremorRate = _tremorCount / (double)t;
+                        // determine tremor rate and convert ms to s for the time limit
+                        var t = _detectionTimeLimit/ 1000;
+                        _tremorRate = _tremorCount / (double)t;
 
-                Console.WriteLine($"Current tremor rate: {_tremorRate}");
-                // proceed to the session running phase
-                _currentSessionState = SessionState.Running;
+                        Console.WriteLine($"Current tremor rate: {_tremorRate}");
+                        // proceed to the session running phase
+                        _currentSessionState = SessionState.Running;
 
 
-                // proceed to the running session state
-                // reassign the current session time limit and restart the timer
-                await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
-                _currentSessionLength = _baseSessionTimeLimit;
+                        // proceed to the running session state
+                        // reassign the current session time limit and restart the timer
+                        // reset the tremor count
+                        await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
+                        _currentSessionLength = _baseSessionTimeLimit;
 
-                TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
-                TimerText = FormatTimeSpan(sessionSpan);
+                        _tremorCount = 0;
 
-                sessiontimer.Elapsed -= OnDetectingTimedEvent;
-                sessiontimer.Elapsed += OnCompareTremorRates;
-                //set interval to 1 second for updates
-                sessiontimer.Interval = 1000;
-                sessiontimer.Start();
-                _currentSessionState = SessionState.Running;
+                        TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
+                        TimerText = FormatTimeSpan(sessionSpan);
 
+                        sessiontimer.Elapsed += OnCompareTremorRates;
+                        //set interval to 1 second for updates
+                        sessiontimer.Interval = 1000;
+                        sessiontimer.Start();
+                        _currentSessionState = SessionState.Running;
+                    }
+
+                    break;
+           
             }
         }
 
         private async void OnCompareTremorRates(object sender, ElapsedEventArgs e)
         {
-            // will run every other second
+            // will run every second
             Console.WriteLine("compare method was hit");
             
             // will compare rate of tremors to the global tremor rate
+            // assumes a time delta of 1 sec
+            var t = 1000;
+            var currentTremorRate = _tremorCount / (double)t;
+            var tremorPercentage = (currentTremorRate / _tremorRate) * 100;
+            PointerPosition = tremorPercentage.ToString(CultureInfo.CurrentCulture);
+            if (tremorPercentage >= 100)
+            {
+                // update the gauge control to its max value
+                PointerPosition = "100";
+            }
             // will adjust the position of the dial according to the rate
 
         }
