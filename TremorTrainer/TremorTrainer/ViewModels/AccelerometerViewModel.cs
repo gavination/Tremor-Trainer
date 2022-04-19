@@ -354,20 +354,7 @@ namespace TremorTrainer.ViewModels
 
             if (_accelerometerService.Readings.Count > 0)
             {
-                _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
-                    Constants.CompareInterval);
-                var message = $"Current Tremor Velocity: {_currentTremorLevel}";
-                Console.WriteLine(message);
-                // Compare the magnitude to the baseline tremor level
-
-                if (_currentTremorLevel >= _baselineTremorLevel)
-                {
-                    _tremorCount++;
-                    var tremorMessage = $"Tremors Detected: {_tremorCount}";
-                
-                    Console.WriteLine(tremorMessage);
-                    TremorText = tremorMessage;
-                }
+                await DetectTremors();
             }
 
             switch (_currentSessionState)
@@ -401,13 +388,13 @@ namespace TremorTrainer.ViewModels
                         TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
                         TimerText = FormatTimeSpan(sessionSpan);
 
+                        sessiontimer.Elapsed -= OnDetectingTimedEvent;
                         sessiontimer.Elapsed += OnCompareTremorRates;
-                        //set interval to 1 second for updates
-                        sessiontimer.Interval = 1000;
+                        
+                        sessiontimer.Interval = Constants.CompareInterval;
                         sessiontimer.Start();
                         _currentSessionState = SessionState.Running;
                     }
-
                     break;
            
             }
@@ -417,13 +404,15 @@ namespace TremorTrainer.ViewModels
         {
             // will run every second
             Console.WriteLine("compare method was hit");
+            _tremorCount = 0;
+            await DetectTremors();
             
-            // will compare rate of tremors to the global tremor rate
-            // assumes a time delta of 1 sec
-            var t = 1000;
-            var currentTremorRate = _tremorCount / (double)t;
+            // todo: will compare rate of tremors to the global tremor rate
+            // assumes a time delta of 200 ms
+            double t = Constants.CompareInterval / 1000d;
+            var currentTremorRate = _tremorCount / t;
             var tremorPercentage = (currentTremorRate / _tremorRate) * 100;
-            PointerPosition = tremorPercentage.ToString(CultureInfo.CurrentCulture);
+            PointerPosition = tremorPercentage.ToString(CultureInfo.InvariantCulture);
             if (tremorPercentage >= 100)
             {
                 // update the gauge control to its max value
@@ -436,6 +425,24 @@ namespace TremorTrainer.ViewModels
         private string FormatTimeSpan(TimeSpan span)
         {
             return $"Time Remaining: {span}";
+        }
+
+        private async Task DetectTremors()
+        {
+            _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
+                Constants.CompareInterval);
+            var message = $"Current Tremor Velocity: {_currentTremorLevel}";
+            Console.WriteLine(message);
+            // Compare the magnitude to the baseline tremor level
+
+            if (_currentTremorLevel >= _baselineTremorLevel)
+            {
+                _tremorCount++;
+                var tremorMessage = $"Tremors Detected: {_tremorCount}";
+                
+                Console.WriteLine(tremorMessage);
+                TremorText = tremorMessage;
+            }
         }
 
 
