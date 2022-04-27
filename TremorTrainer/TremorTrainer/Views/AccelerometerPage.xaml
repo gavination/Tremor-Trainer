@@ -48,7 +48,7 @@
 							RadiusFactor = "0.9" RimColor = "#e0e0e0">
 
                             <gauge:Scale.Pointers>
-                                <gauge:NeedlePointer  Value="70" KnobRadius="0" KnobStrokeColor = "#0682F6" KnobStrokeWidth = "6"
+                                <gauge:NeedlePointer  Value="{Binding PointerPosition}" KnobRadius="0" KnobStrokeColor = "#0682F6" KnobStrokeWidth = "6"
                                     Color="OrangeRed" KnobColor="White" LengthFactor="0.66" Type="Triangle" Thickness = "10"/>
                             </gauge:Scale.Pointers>
                             <gauge:Scale.Ranges>
