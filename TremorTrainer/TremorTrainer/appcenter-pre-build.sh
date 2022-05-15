@@ -4,7 +4,6 @@
 # It will inject the VS App Center secrets necessary for collecting app telemetry
 # It assumes the machine running has the AndroidAppCenterId and IOSAppCenterId environment vars set
 
-
 # Install JQ for modifying the template.appsettings.json file. 
 sudo apt-get -y install jq
 
