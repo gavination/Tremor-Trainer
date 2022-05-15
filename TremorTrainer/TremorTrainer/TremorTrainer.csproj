@@ -12,12 +12,12 @@
     <None Remove="Resources\Fonts\Montserrat-Regular.ttf" />
     <None Remove="Resources\Fonts\Montserrat-SemiBold.ttf" />
     <None Remove="Resources\Fonts\UIFontIcons.ttf" />
-    <None Remove="sample.appsettings.json" />
     <None Remove="sample %28copy%29.appsettings.json" />
+    <None Remove="template.appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="sample.appsettings.json">
+    <EmbeddedResource Include="template.appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Fonts\Montserrat-Bold.ttf" />
