@@ -7,7 +7,9 @@
 # Install JQ for modifying the template.appsettings.json file. 
 sudo apt-get -y install jq
 
+
 # Pipe template into the appsettings file and replace values with proper secrets
+cd ../TremorTrainer
 cat template.appsettings.json | jq \
  --arg androidAppCenterId  "$AndroidAppCenterId" \
  --arg iosAppCenterId "$IOSAppCenterId" \
