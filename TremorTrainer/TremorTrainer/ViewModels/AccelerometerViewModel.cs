@@ -170,6 +170,8 @@ namespace TremorTrainer.ViewModels
                     TimerText = FormatTimeSpan(span);
 
                     SessionButtonText = "Stop Session";
+                    TremorText = "Measuring your tremor levels...";
+
 
                     Analytics.TrackEvent($"Session Started at {_sessionStartTime} ");
                     break;
