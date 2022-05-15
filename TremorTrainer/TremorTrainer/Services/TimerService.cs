@@ -32,7 +32,7 @@ namespace TremorTrainer.Services
             _messageService = messageService;
         }
 
-        public async Task StartTimerAsync(int timerLength)
+        public Task StartTimerAsync(int timerLength)
         {
             if (timerLength > 0)
             {
@@ -43,13 +43,15 @@ namespace TremorTrainer.Services
             else
             {
                 //reset the session length to start a new one
-                timerLength = (int)App.Current.Properties["SessionLength"];
+                timerLength = (int)Xamarin.Forms.Application.Current.Properties["SessionLength"];
                 _timer = new Timer(_interval);
                 _sessionRunning = true;
 
                 //trigger a timer event every for every interval that passes
                 _timer.Enabled = true;
             }
+
+            return Task.CompletedTask;
         }
 
         public async Task StopTimerAsync()

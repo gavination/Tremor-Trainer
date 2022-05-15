@@ -6,6 +6,7 @@ using Android.Runtime;
 using Android.OS;
 using Android;
 
+
 namespace TremorTrainer.Droid
 {
     [Activity(Label = "TremorTrainer", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Orientation, ScreenOrientation = ScreenOrientation.Portrait)]

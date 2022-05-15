@@ -31,6 +31,7 @@ namespace TremorTrainer
             {
                 var androidAppCenterSecret = AppSettingsManager.Settings["AndroidAppCenterId"];
                 var iosAppCenterSecret = AppSettingsManager.Settings["IOSAppCenterId"];
+                AppCenter.LogLevel = LogLevel.Verbose;
                 AppCenter.Start(androidAppCenterSecret +
                       iosAppCenterSecret,
                       typeof(Analytics), typeof(Crashes));

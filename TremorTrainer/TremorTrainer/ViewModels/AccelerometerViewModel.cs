@@ -7,6 +7,9 @@ using TremorTrainer.Models;
 using TremorTrainer.Services;
 using Xamarin.Essentials;
 using Xamarin.Forms;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
 
 namespace TremorTrainer.ViewModels
 {
@@ -37,7 +40,7 @@ namespace TremorTrainer.ViewModels
 
         // todo: replace these fields once code solidifies
         private string _readingText = "Accelerometer values will appear here.";
-        private string _tremorText = "Placeholder tremor detection text";
+        private string _tremorText = "";
 
         private string _timerText;
         private string _pointerPosition;
@@ -167,6 +170,8 @@ namespace TremorTrainer.ViewModels
                     TimerText = FormatTimeSpan(span);
 
                     SessionButtonText = "Stop Session";
+
+                    Analytics.TrackEvent($"Session Started at {_sessionStartTime} ");
                     break;
 
                 case SessionState.Running:
@@ -177,6 +182,8 @@ namespace TremorTrainer.ViewModels
                     _currentSessionLength = _samplingTimeLimit;
 
                     _currentSessionState = SessionState.Idle;
+                    Analytics.TrackEvent($"Stopping a Running session at {DateTime.Now}...");
+
                     break;
 
                 case SessionState.Sampling:
@@ -187,6 +194,8 @@ namespace TremorTrainer.ViewModels
                     SessionButtonText = "Start Session";
 
                     _currentSessionState = SessionState.Idle;
+                    Analytics.TrackEvent($"Stopping a session during Sampling stage at {DateTime.Now}...");
+
                     break;
 
                 case SessionState.Detecting:
@@ -197,6 +206,8 @@ namespace TremorTrainer.ViewModels
                     await WrapUpSessionAsync(false);
                     SessionButtonText = "Stop Session";
                     _currentSessionState = SessionState.Idle;
+                    Analytics.TrackEvent($"Stopping a session during Detecting stage at {DateTime.Now}...");
+
                     break;
             }
         }
@@ -209,6 +220,10 @@ namespace TremorTrainer.ViewModels
             await _accelerometerService.StopAccelerometer();
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
+
+            Analytics.TrackEvent("Session has been wrapped up and sensors stopped");
+
+
 
             if (shouldSaveSession)
             {
@@ -232,12 +247,15 @@ namespace TremorTrainer.ViewModels
                 };
 
                 bool result = await _sessionService.AddSessionAsync(newSession);
+                Analytics.TrackEvent("Saving Session Details...");
 
                 if (!result)
                 {
                     //todo: consider throwing an exception here, perhaps.
                     string errorMessage = "Unable to save the results of your session.";
                     await _messageService.ShowAsync(errorMessage);
+                    Analytics.TrackEvent(errorMessage);
+
                 }
             }
         }
