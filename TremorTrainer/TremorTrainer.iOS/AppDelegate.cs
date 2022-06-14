@@ -9,6 +9,7 @@ using Syncfusion.XForms.iOS.Buttons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xamarin.Essentials;
 
 using Foundation;
 using UIKit;
@@ -44,6 +45,8 @@ namespace TremorTrainer.iOS
             SfButtonRenderer.Init();
             SfGaugeRenderer.Init();
             LoadApplication(new App());
+
+            Console.WriteLine("iOS Application Launching...");
 
             return base.FinishedLaunching(app, options);
         }

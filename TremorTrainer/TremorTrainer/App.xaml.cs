@@ -35,16 +35,15 @@ namespace TremorTrainer
 #endif
 
 #if RELEASE
-                // todo: remove this and add a pre-build script to generate appsettings.json
                 var androidAppCenterSecret = Environment.GetEnvironmentVariable("AndroidAppCenterId");
                 var iosAppCenterSecret = Environment.GetEnvironmentVariable("IOSAppCenterId");
 #endif
 
 
                 AppCenter.LogLevel = LogLevel.Verbose;
-                AppCenter.Start(androidAppCenterSecret +
-                      iosAppCenterSecret,
-                      typeof(Analytics), typeof(Crashes));
+                AppCenter.Start($"android={androidAppCenterSecret};" +
+                      $"ios={iosAppCenterSecret};",
+                      typeof(Analytics), typeof(Crashes));;
 
                 // todo: remove this once pre-build script is in place. 
                 if (androidAppCenterSecret != null && androidAppCenterSecret.Length > 0)

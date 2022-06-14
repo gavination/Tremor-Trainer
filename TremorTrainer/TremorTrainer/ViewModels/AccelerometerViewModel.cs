@@ -29,6 +29,7 @@ namespace TremorTrainer.ViewModels
         private readonly int _detectionTimeLimit;
         private readonly bool _isPrescribedSession;
         private readonly int _downSampleRate;
+        
 
         private enum SessionState
         {
@@ -52,6 +53,7 @@ namespace TremorTrainer.ViewModels
         private double _baselineTremorLevel;
         private double _currentTremorLevel;
         private double _tremorRate;
+        private double _goalTremorFrequency;
         private SessionState _currentSessionState;
 
         public string TremorText
@@ -134,6 +136,8 @@ namespace TremorTrainer.ViewModels
 
 
             SessionButtonText = "Start Session";
+            
+            Console.WriteLine("Constructor invoked properly");
 
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
@@ -145,12 +149,11 @@ namespace TremorTrainer.ViewModels
 
             sessionTimer.Interval = Constants.CompareInterval;
             sessionTimer.Elapsed += OnDetectingTimedEvent;
-
-
         }
 
         private async Task ToggleSessionAsync()
         {
+            Console.WriteLine("Button pressed");
 
             switch (_currentSessionState)
             {
@@ -213,7 +216,6 @@ namespace TremorTrainer.ViewModels
                     break;
             }
         }
-
         private async Task WrapUpSessionAsync(bool shouldSaveSession = true)
         {
             //Accelerometer and timer wrap up
@@ -261,14 +263,12 @@ namespace TremorTrainer.ViewModels
                 }
             }
         }
-
         private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
             AccelerometerData data = e.Reading;
             _accelerometerService.Readings.Add(data.Acceleration);
 
         }
-
         private async void OnSamplingTimedEvent(object sender, ElapsedEventArgs e)
         {
             try
@@ -374,7 +374,6 @@ namespace TremorTrainer.ViewModels
                 OnCompareTremorRates();
             }
         }
-
         private async void OnDetectingTimedEvent(object sender, ElapsedEventArgs e)
         {
             // Run an FFT over the newly collected values
@@ -409,6 +408,10 @@ namespace TremorTrainer.ViewModels
                         // reset the tremor count
                         await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
                         _currentSessionLength = _baseSessionTimeLimit;
+                        
+                        // goal tremor frequency is 2/3 of the currently prescribed rate
+                        _goalTremorFrequency = _tremorRate * 0.66;
+                        Console.WriteLine($"Goal tremor frequency: {_goalTremorFrequency}");
 
                         _tremorCount = 0;
 
@@ -423,7 +426,6 @@ namespace TremorTrainer.ViewModels
            
             }
         }
-
         private async void OnCompareTremorRates()
         {
 
@@ -447,12 +449,10 @@ namespace TremorTrainer.ViewModels
 
 
         }
-
         private string FormatTimeSpan(TimeSpan span)
         {
             return $"Time Remaining: {span}";
         }
-
         private async Task DetectTremor()
         {
             _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
@@ -470,7 +470,6 @@ namespace TremorTrainer.ViewModels
                 TremorText = tremorMessage;
             }
         }
-
         public ICommand StartSessionCommand { get; }
         public ICommand ViewResultsCommand { get; }
     }
