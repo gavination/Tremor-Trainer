@@ -100,6 +100,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StorageRepository.cs" />
+    <Compile Include="SoundService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -132,6 +133,10 @@
     <AndroidResource Include="Resources\drawable-land\hero_img.jpg" />
     <AndroidResource Include="Resources\drawable-hdpi\hero_img.jpg" />
     <AndroidResource Include="Resources\drawable\hero_img.jpg" />
+    <AndroidResource Include="Resources\raw\metronomeding.mp3">
+      <SubType></SubType>
+      <Generator></Generator>
+    </AndroidResource>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TremorTrainer\TremorTrainer.csproj">
@@ -179,6 +184,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\file.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\raw\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
 </Project>
