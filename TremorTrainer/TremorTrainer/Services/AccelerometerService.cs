@@ -255,8 +255,6 @@ namespace TremorTrainer.Services
             int index = -1;
             var max = new Complex32();
             double radianFreq = 0.0;
-            double frequency = 0.0;
-
             var samplesPerSecond = values.Length / secondsElapsed;
             var T = values.Length / samplesPerSecond;
             var dw = 2 * Math.PI / T;
@@ -271,8 +269,7 @@ namespace TremorTrainer.Services
 
             }
             // convert freq to hz...
-            frequency = radianFreq / (2 * Math.PI);
-            
+            double frequency = radianFreq / (2 * Math.PI);
             (double, float) freqAndMag = (frequency, max.Magnitude);
 
             return freqAndMag;
