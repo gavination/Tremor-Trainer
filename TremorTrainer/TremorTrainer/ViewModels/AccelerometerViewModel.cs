@@ -123,7 +123,6 @@ namespace TremorTrainer.ViewModels
             _detectionTimeLimit = Constants.DetectionTimeLimit;
             _downSampleRate = Constants.DownSampleRate;
             _baseSessionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
-            _detectionTimeLimit =
             _currentSessionLength = _samplingTimeLimit;
             _sampleRate = 50;
             _currentSessionState = SessionState.Idle;
@@ -267,6 +266,11 @@ namespace TremorTrainer.ViewModels
             AccelerometerData data = e.Reading;
             _accelerometerService.Readings.Add(data.Acceleration);
 
+            //debug code for showing accelerometer readings
+            //string readingFormat =
+            //    $"Reading X:{data.Acceleration.X}, Y:{data.Acceleration.Y}, Z:{data.Acceleration.Z}";
+            //ReadingText = readingFormat;
+
         }
 
         private async void OnSamplingTimedEvent(object sender, ElapsedEventArgs e)
@@ -378,9 +382,11 @@ namespace TremorTrainer.ViewModels
         private async void OnDetectingTimedEvent(object sender, ElapsedEventArgs e)
         {
             // Run an FFT over the newly collected values
+            // Ensure there are readings from the accelerometer first
 
-            if (_accelerometerService.Readings.Count > 0)
+            if (_accelerometerService.Readings.Count > 10)
             {
+                Console.WriteLine($"Accelerometer Reading Count: {_accelerometerService.Readings.Count}");
                 await DetectTremor();
             }
 
@@ -420,7 +426,6 @@ namespace TremorTrainer.ViewModels
                         _currentSessionState = SessionState.Running;
                     }
                     break;
-           
             }
         }
 
@@ -444,8 +449,6 @@ namespace TremorTrainer.ViewModels
 
             // set tremor count to 0 again for the next event invocation
             _tremorCount = 0;
-
-
         }
 
         private string FormatTimeSpan(TimeSpan span)
@@ -457,6 +460,7 @@ namespace TremorTrainer.ViewModels
         {
             _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
                 Constants.CompareInterval);
+            Console.WriteLine($"Accelerometer Values: {_accelerometerService.Readings.Count} values in list");
             var message = $"Current Tremor Velocity: {_currentTremorLevel}";
             Console.WriteLine(message);
             // Compare the magnitude to the baseline tremor level
@@ -467,7 +471,7 @@ namespace TremorTrainer.ViewModels
                 var tremorMessage = $"Tremors Detected: {_tremorCount}";
                 
                 Console.WriteLine(tremorMessage);
-                TremorText = tremorMessage;
+                //TremorText = tremorMessage;
             }
         }
 
