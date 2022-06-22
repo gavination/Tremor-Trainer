@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using AVFoundation;
 using Foundation;
 using TremorTrainer.Services;
@@ -13,7 +14,7 @@ namespace TremorTrainer.iOS
         AVAudioPlayer _player;
 
 
-        public bool playSound()
+        public Task playSound()
         {
             var fileName = "metronomeding.mp3";
             string sFilePath = NSBundle.MainBundle.PathForResource
@@ -24,7 +25,6 @@ namespace TremorTrainer.iOS
                 _player = null;
             };
             _player.Play();
-            return true;
-        }
+            return Task.CompletedTask;
     }
 }

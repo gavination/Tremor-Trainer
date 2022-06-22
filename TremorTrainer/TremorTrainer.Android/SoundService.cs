@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.Media;
 using TremorTrainer.Droid;
 using TremorTrainer.Services;
@@ -11,12 +12,12 @@ namespace TremorTrainer.Droid
 	{
         private MediaPlayer _mediaPlayer;
 
-        public bool playSound()
+        public Task playSound()
         {
             _mediaPlayer = MediaPlayer.Create(global::Android.App.Application.Context,
                 Resource.Raw.metronomeding);
             _mediaPlayer.Start();
-            return true;
+            return Task.CompletedTask;
         }
     }
 }

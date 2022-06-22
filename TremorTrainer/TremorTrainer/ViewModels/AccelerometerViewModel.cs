@@ -20,6 +20,7 @@ namespace TremorTrainer.ViewModels
         private readonly ISessionService _sessionService;
         private readonly ITimerService _mainTimerService;
         private readonly IAccelerometerService _accelerometerService;
+        private readonly ISoundService _soundService;
 
         private Timer sessionTimer;
 
@@ -53,6 +54,10 @@ namespace TremorTrainer.ViewModels
         private double _currentTremorLevel;
         private double _tremorRate;
         private SessionState _currentSessionState;
+
+        public ICommand StartSessionCommand { get; }
+        public ICommand ViewResultsCommand { get; }
+        public ICommand PlaySoundCommand { get; }
 
         public string TremorText
         {
@@ -114,6 +119,7 @@ namespace TremorTrainer.ViewModels
             _accelerometerService = accelerometerService;
 
             sessionTimer = new Timer();
+            _soundService = DependencyService.Get<ISoundService>();
 
             // ViewModel Page Setup
             // Setup UI elements, initialize vars, and register propertyChanged events
@@ -475,7 +481,5 @@ namespace TremorTrainer.ViewModels
             }
         }
 
-        public ICommand StartSessionCommand { get; }
-        public ICommand ViewResultsCommand { get; }
     }
 }

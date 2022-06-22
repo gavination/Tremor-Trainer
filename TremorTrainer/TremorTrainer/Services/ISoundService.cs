@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
+
 namespace TremorTrainer.Services
 {
 	public interface ISoundService
 	{
-		bool playSound();
+		Task playSound();
 	}
 }
 
