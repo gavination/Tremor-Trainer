@@ -8,8 +8,8 @@ using Xamarin.Forms;
 
 namespace TremorTrainer.iOS
 {
-	public class SoundService : ISoundService
-	{
+    public class SoundService : ISoundService
+    {
 
         AVAudioPlayer _player;
 
@@ -21,10 +21,12 @@ namespace TremorTrainer.iOS
               (Path.GetFileNameWithoutExtension(fileName), Path.GetExtension(fileName));
             var url = NSUrl.FromString(sFilePath);
             _player = AVAudioPlayer.FromUrl(url);
-            _player.FinishedPlaying += (object sender, AVStatusEventArgs e) => {
+            _player.FinishedPlaying += (object sender, AVStatusEventArgs e) =>
+            {
                 _player = null;
             };
             _player.Play();
             return Task.CompletedTask;
+        }
     }
 }

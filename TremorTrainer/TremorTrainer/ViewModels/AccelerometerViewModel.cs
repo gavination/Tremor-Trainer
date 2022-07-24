@@ -23,6 +23,7 @@ namespace TremorTrainer.ViewModels
         private readonly ISoundService _soundService;
 
         private Timer sessionTimer;
+        private Timer goalTremorTimer;
 
         // setup private timer and ui vars
         private readonly int _baseSessionTimeLimit;
@@ -53,6 +54,7 @@ namespace TremorTrainer.ViewModels
         private double _baselineTremorLevel;
         private double _currentTremorLevel;
         private double _tremorRate;
+        private double _goalTremorRate;
         private SessionState _currentSessionState;
 
         public ICommand StartSessionCommand { get; }
@@ -119,6 +121,7 @@ namespace TremorTrainer.ViewModels
             _accelerometerService = accelerometerService;
 
             sessionTimer = new Timer();
+            goalTremorTimer = new Timer();
             _soundService = DependencyService.Get<ISoundService>();
 
             // ViewModel Page Setup
@@ -134,7 +137,6 @@ namespace TremorTrainer.ViewModels
             _currentSessionState = SessionState.Idle;
             _tremorCount = 0;
 
-
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_samplingTimeLimit));
 
 
@@ -143,6 +145,7 @@ namespace TremorTrainer.ViewModels
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
             ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/SessionsPage"));
+            PlaySoundCommand = new Command(async () => await _soundService.playSound());
 
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
@@ -150,8 +153,6 @@ namespace TremorTrainer.ViewModels
 
             sessionTimer.Interval = Constants.CompareInterval;
             sessionTimer.Elapsed += OnDetectingTimedEvent;
-
-
         }
 
         private async Task ToggleSessionAsync()
@@ -224,6 +225,7 @@ namespace TremorTrainer.ViewModels
             //Accelerometer and timer wrap up
             await _mainTimerService.StopTimerAsync();
             sessionTimer.Stop();
+            goalTremorTimer.Stop();
             await _accelerometerService.StopAccelerometer();
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
@@ -411,6 +413,9 @@ namespace TremorTrainer.ViewModels
                         var t = _detectionTimeLimit/ 1000;
                         _tremorRate = _tremorCount / (double)t;
 
+                        // setup the metronome to play audio at proper intervals
+                        ConfigureMetronome();
+
                         Console.WriteLine($"Current tremor rate: {_tremorRate}");
                         // proceed to the session running phase
                         _currentSessionState = SessionState.Running;
@@ -457,6 +462,13 @@ namespace TremorTrainer.ViewModels
             _tremorCount = 0;
         }
 
+        private async void OnMetronomeInterval(object sender, ElapsedEventArgs e)
+        {
+            string datetime = DateTime.Now.ToString("hh:mm:ss tt");
+            Console.WriteLine($"we boopin at {datetime}");
+            await _soundService.playSound();
+        }
+
         private string FormatTimeSpan(TimeSpan span)
         {
             return $"Time Remaining: {span}";
@@ -479,6 +491,21 @@ namespace TremorTrainer.ViewModels
                 Console.WriteLine(tremorMessage);
                 //TremorText = tremorMessage;
             }
+        }
+
+        private void ConfigureMetronome()
+        {
+            // determine the goal rate for the metronome
+            // goal rate = 2/3rds of the current rate
+            _goalTremorRate = _tremorRate * .66;
+
+            // metronome must be evenly spaced. Divide 1 second by goal tremor rate to determine interval
+            var metronomeInterval = 1 / _goalTremorRate;
+            goalTremorTimer.Interval = metronomeInterval;
+
+            // start the timer
+            goalTremorTimer.Elapsed += OnMetronomeInterval;
+            goalTremorTimer.Start();
         }
 
     }
