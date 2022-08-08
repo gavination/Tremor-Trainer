@@ -22,9 +22,9 @@ namespace TremorTrainer.Services
         private readonly ISessionRepository _sessionRepository;
 
         private List<Vector3> Readings { get; }
-        private CircularBuffer bufferX { get; }
-        private CircularBuffer bufferY { get; }
-        private CircularBuffer bufferZ { get; }
+        private CircularBuffer bufferX { get; set; }
+        private CircularBuffer bufferY { get; set; }
+        private CircularBuffer bufferZ { get; set; }
 
         public double SampleRate { get; private set; }
 
@@ -171,14 +171,36 @@ namespace TremorTrainer.Services
             }
         }
 
-        private (double, float) GetMaxFrequencyAndAmplitude(Complex32 [] xSamples, Complex32 [] ySamples, Complex32 [] zSamples, int desiredSampleRate = 0)
+        private (double, float, int) FindHighestFrequencyAndMagnitude(Complex32[] values, double sampleRate)
         {
+            int index = -1;
+            var max = new Complex32();
+
+            for (var i = 1; i < values.Length / 2; ++i)
+            {
+                if (max.Magnitude >= values[i].Magnitude) continue;
+                index = i;
+                max = values[i];
+            }
+
+            //https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
+            double freqPerBin = sampleRate / values.Length;
+            double frequency = index * freqPerBin;
+            return (frequency, max.Magnitude, index);
+        }
+
+        private (double, float, int) GetMaxFrequencyAndAmplitude(Complex32 [] xSamples, Complex32 [] ySamples, Complex32 [] zSamples, int desiredSampleRate = 0)
+        {
+            // represents the sample rate, post downsampling
+            double effectiveSampleRate = SampleRate;
+
             Fourier.Forward(xSamples);
             Fourier.Forward(ySamples);
             Fourier.Forward(zSamples);
 
-            // represents the sample rate, post downsampling
-            double effectiveSampleRate = SampleRate;
+            ButterworthFilter(xSamples, effectiveSampleRate, 5, 0.3, 1);
+            ButterworthFilter(ySamples, effectiveSampleRate, 5, 0.3, 1);
+            ButterworthFilter(zSamples, effectiveSampleRate, 5, 0.3, 1);
 
             if (desiredSampleRate > 0)
             {
@@ -189,16 +211,14 @@ namespace TremorTrainer.Services
                 effectiveSampleRate = desiredSampleRate;
             }
 
-            float secondsElapsed = (float)((xSamples.Length) / effectiveSampleRate);
-
             var xFrequencyAndMagnitude =
-                FindHighestFrequencyAndMagnitude(xSamples, secondsElapsed);
+                FindHighestFrequencyAndMagnitude(xSamples, effectiveSampleRate);
             var yFrequencyAndMagnitude =
-                FindHighestFrequencyAndMagnitude(ySamples, secondsElapsed);
+                FindHighestFrequencyAndMagnitude(ySamples, effectiveSampleRate);
             var zFrequencyAndMagnitude =
-                FindHighestFrequencyAndMagnitude(zSamples, secondsElapsed);
+                FindHighestFrequencyAndMagnitude(zSamples, effectiveSampleRate);
 
-            var results = new List<(double, float)>
+            var results = new List<(double, float, int)>
                     {
                         xFrequencyAndMagnitude,
                         yFrequencyAndMagnitude,
@@ -206,6 +226,14 @@ namespace TremorTrainer.Services
                     };
 
             var maxReading = results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
+
+
+            Console.Write($"SR: {effectiveSampleRate} maxFAI{maxReading} : ({ySamples.Length})[");
+            for (int i = 1; i < 1 + 8; i++)
+            {
+                Console.Write($"{ySamples[i].Magnitude}, ");
+            }
+            Console.Write("]");
 
             return maxReading;
         }
@@ -227,7 +255,16 @@ namespace TremorTrainer.Services
 
             CalculateSampleRate();
 
+            //Initialize circular buffers
+            const double bufferTime = 2.0;
+            bufferX = new CircularBuffer((int)(bufferTime * SampleRate));
+            bufferY = new CircularBuffer((int)(bufferTime * SampleRate));
+            bufferZ = new CircularBuffer((int)(bufferTime * SampleRate));
+
             var maxFreqAndAmp = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
+
+            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
+            Console.WriteLine("");
 
             var localVelocityMaxima = FindPeakMovementVelocity(maxFreqAndAmp.Item1, maxFreqAndAmp.Item2);
 
@@ -240,7 +277,6 @@ namespace TremorTrainer.Services
         public async Task<(double, double)> ProcessDetectionStage(int millisecondsElapsed)
         {
             // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
-            Console.WriteLine($"Processing Detection [0]:{bufferX[0]}, {bufferY[0]}, {bufferZ[0]} ");
             var maxFreqAndAmp = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
 
             var localVelocityMaxima = FindPeakMovementVelocity(maxFreqAndAmp.Item1, maxFreqAndAmp.Item2);
@@ -253,106 +289,17 @@ namespace TremorTrainer.Services
                 TremorCount += dt * maxFreqAndAmp.Item1;
             }
 
+            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
+            Console.WriteLine($" : count {TremorCount}");
+
             return (localVelocityMaxima, maxFreqAndAmp.Item1);
         }
-
-        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
-        // provided values
-        /*public async Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
-        {
-            try
-            {
-                // Get complex values from the Readings List
-
-                // Run the FFT algorithm and create the baseline tremor level
-                Complex32 [] xSamples = bufferX.ToArray();
-                Complex32 [] ySamples = bufferY.ToArray();
-                Complex32 [] zSamples = bufferZ.ToArray();
-
-
-                Fourier.Forward(xSamples);
-                Fourier.Forward(ySamples);
-                Fourier.Forward(zSamples);
-
-                float secondsElapsed = milliSecondsElapsed / 1000.0f;
-
-                if (desiredSampleRate > 0)
-                {
-                    // Filter and Downsample the readings for better processing later
-                    var currentSampleRate = CalculateSampleRate(milliSecondsElapsed);
-
-                    ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
-                    ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
-                    ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
-
-                    // down sample the values before finding the dominant frequency
-                    var downSampledX = DownSample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledY = DownSample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledZ = DownSample(zSamples, desiredSampleRate, (int)currentSampleRate);
-
-                    //todo: remove
-                    Readings.Clear();
-
-                    var xFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledX, secondsElapsed);
-                    var yFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledY, secondsElapsed);
-                    var zFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledZ, secondsElapsed);
-
-
-                    // put these lovely tuples in a list and compare them to find which axis has the highest magnitude
-                    var results = new List<(double, float)>
-                    {
-                        xFrequencyAndMagnitude,
-                        yFrequencyAndMagnitude,
-                        zFrequencyAndMagnitude
-                    };
-
-                    var maxReading =
-                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
-
-                    return localVelocityMaxima;
-                }
-                else
-                {
-                    Readings.Clear();
-
-                    var xFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(xSamples, secondsElapsed);
-                    var yFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(ySamples, secondsElapsed);
-                    var zFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(zSamples, secondsElapsed);
-
-                    var results = new List<(double, float)>
-                    {
-                        xFrequencyAndMagnitude,
-                        yFrequencyAndMagnitude,
-                        zFrequencyAndMagnitude
-                    };
-
-                    var maxReading =
-                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-
-                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
-                    return localVelocityMaxima;
-                }
-            }
-            catch (Exception e)
-            {
-                // todo: determine proper exception handling protocol here. 
-                await _messageService.ShowAsync(Constants.UnknownErrorMessage + e.Message);
-                throw;
-            }
-        }*/
 
         public void AddAccelerometerReading(AccelerometerData data)
         {
             if (!IsReading)
             {
-                Console.WriteLine("HOW THE FUCK DID WE GET HERE?");
+                Console.WriteLine("HOW DID WE GET HERE?");
                 return;
             }
 
@@ -369,31 +316,7 @@ namespace TremorTrainer.Services
             Readings.Clear();
         }
 
-        private (double, float) FindHighestFrequencyAndMagnitude(Complex32[] values, float secondsElapsed)
-        {
-            int index = -1;
-            var max = new Complex32();
-            double radianFreq = 0.0;
-            var samplesPerSecond = values.Length / secondsElapsed;
-            var T = values.Length / samplesPerSecond;
-            var dw = 2 * Math.PI / T;
-
-            for (var i = 1; i < values.Length / 2; ++i)
-            {
-                if (!(max.Magnitude < values[i].Magnitude)) continue;
-                index = i;
-                max = values[i];
-                //frequency measured in rads/s
-                radianFreq = dw * index;
-
-            }
-            // convert freq to hz...
-            double frequency = radianFreq / (2 * Math.PI);
-            (double, float) freqAndMag = (frequency, max.Magnitude);
-
-            return freqAndMag;
-
-        }
+       
 
         private double FindPeakMovementVelocity(double frequency, float magnitude)
         {

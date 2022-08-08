@@ -391,8 +391,6 @@ namespace TremorTrainer.ViewModels
 
                 // setup the metronome to play audio at proper intervals
                 ConfigureMetronome();
-
-                Console.WriteLine($"Current tremor rate: {_tremorRate}");
                 
                 
                 // proceed to the session running phase
@@ -507,7 +505,6 @@ namespace TremorTrainer.ViewModels
             _currentTremorLevel = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
             
             var message = $"Current Tremor Velocity: {_currentTremorLevel}";
-            Console.WriteLine(message);
             // Compare the magnitude to the baseline tremor level
 
             if (_currentTremorLevel.Item2 >= _baselineTremorLevel)
@@ -515,8 +512,6 @@ namespace TremorTrainer.ViewModels
 
                 var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
                 TremorCount = tremorMessage;
-                
-                Console.WriteLine(tremorMessage);
                 //TremorText = tremorMessage;
             }
         }
