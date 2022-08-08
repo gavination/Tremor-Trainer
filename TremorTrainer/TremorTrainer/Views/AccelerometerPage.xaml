@@ -32,6 +32,8 @@
                 
                 <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
                 <Label Text="{Binding TremorText, Mode=OneWay}" FontSize="Large"></Label>
+                <Label Text="{Binding TremorCount, Mode=OneWay}" FontSize="Large"></Label>
+
 
                 <Label FontSize="Large"></Label>
                 <gauge:SfCircularGauge HeightRequest="300">

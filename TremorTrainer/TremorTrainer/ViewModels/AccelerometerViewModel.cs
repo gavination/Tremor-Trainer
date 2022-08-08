@@ -2,14 +2,17 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Diagnostics;
 using System.Windows.Input;
 using TremorTrainer.Models;
 using TremorTrainer.Services;
+using TremorTrainer.Repositories;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using MathNet.Numerics;
 
 namespace TremorTrainer.ViewModels
 {
@@ -22,8 +25,9 @@ namespace TremorTrainer.ViewModels
         private readonly IAccelerometerService _accelerometerService;
         private readonly ISoundService _soundService;
 
-        private Timer sessionTimer;
+        private Timer detectingTimer;
         private Timer goalTremorTimer;
+        private Timer runningTimer;
 
         // setup private timer and ui vars
         private readonly int _baseSessionTimeLimit;
@@ -48,11 +52,13 @@ namespace TremorTrainer.ViewModels
         private string _pointerPosition;
         private string _sessionButtonText;
         private int _currentSessionLength;
-        private int _tremorCount;
+        private double _tremorCount;
         private DateTime _sessionStartTime;
         private readonly int _sampleRate;
+
+        //todo: consider renaming to baselineTremorMagnitude
         private double _baselineTremorLevel;
-        private double _currentTremorLevel;
+        private (double, double) _currentTremorLevel;
         private double _tremorRate;
         private double _goalTremorRate;
         private SessionState _currentSessionState;
@@ -61,6 +67,15 @@ namespace TremorTrainer.ViewModels
         public ICommand ViewResultsCommand { get; }
         public ICommand PlaySoundCommand { get; }
 
+        public string TremorCount
+        {
+            get => _tremorCount.ToString();
+            private set
+            {
+                _tremorText = value;
+                OnPropertyChanged("TremorCount");
+            }
+        }
         public string TremorText
         {
             get => _tremorText;
@@ -112,7 +127,8 @@ namespace TremorTrainer.ViewModels
             IMessageService messageService,
             ISessionService sessionService,
             ITimerService timerService,
-            IAccelerometerService accelerometerService)
+            IAccelerometerService accelerometerService,
+            ISessionRepository sessionRepository)
         {
             // Fulfill external services 
             _messageService = messageService;
@@ -120,13 +136,15 @@ namespace TremorTrainer.ViewModels
             _mainTimerService = timerService;
             _accelerometerService = accelerometerService;
 
-            sessionTimer = new Timer();
+            detectingTimer = new Timer();
             goalTremorTimer = new Timer();
+            runningTimer = new Timer();
             _soundService = DependencyService.Get<ISoundService>();
 
             // ViewModel Page Setup
             // Setup UI elements, initialize vars, and register propertyChanged events
             Title = "Start Training";
+            TremorCount = "Placeholder tremor count text.";
             _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
             _samplingTimeLimit = Constants.SamplingTimeLimit;
             _detectionTimeLimit = Constants.DetectionTimeLimit;
@@ -149,10 +167,14 @@ namespace TremorTrainer.ViewModels
 
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
-            _mainTimerService.Timer.Elapsed += OnSamplingTimedEvent;
+            _mainTimerService.Timer.Elapsed += OnSamplingMainTimerEvent;
 
-            sessionTimer.Interval = Constants.CompareInterval;
-            sessionTimer.Elapsed += OnDetectingTimedEvent;
+
+            detectingTimer.Interval = Constants.CompareInterval;
+            detectingTimer.Elapsed += OnDetectingTimedEvent;
+
+            runningTimer.Interval = Constants.CompareInterval;
+            runningTimer.Elapsed += OnComparingTimedEvent;
         }
 
         private async Task ToggleSessionAsync()
@@ -224,11 +246,14 @@ namespace TremorTrainer.ViewModels
         {
             //Accelerometer and timer wrap up
             await _mainTimerService.StopTimerAsync();
-            sessionTimer.Stop();
+            detectingTimer.Stop();
             goalTremorTimer.Stop();
             await _accelerometerService.StopAccelerometer();
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
+
+            var result = _accelerometerService.Dump();
+
 
             Analytics.TrackEvent("Session has been wrapped up and sensors stopped");
 
@@ -255,10 +280,10 @@ namespace TremorTrainer.ViewModels
                     Type = sessionType
                 };
 
-                bool result = await _sessionService.AddSessionAsync(newSession);
+                bool didSucceed = await _sessionService.AddSessionAsync(newSession);
                 Analytics.TrackEvent("Saving Session Details...");
 
-                if (!result)
+                if (!didSucceed)
                 {
                     //todo: consider throwing an exception here, perhaps.
                     string errorMessage = "Unable to save the results of your session.";
@@ -271,8 +296,7 @@ namespace TremorTrainer.ViewModels
 
         private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e)
         {
-            AccelerometerData data = e.Reading;
-            _accelerometerService.Readings.Add(data.Acceleration);
+            _accelerometerService.AddAccelerometerReading(e.Reading);
 
             //debug code for showing accelerometer readings
             //string readingFormat =
@@ -281,7 +305,7 @@ namespace TremorTrainer.ViewModels
 
         }
 
-        private async void OnSamplingTimedEvent(object sender, ElapsedEventArgs e)
+        private async void OnSamplingMainTimerEvent(object sender, ElapsedEventArgs e)
         {
             try
             {
@@ -293,60 +317,46 @@ namespace TremorTrainer.ViewModels
                 ReadingText = "Currently Sampling Your Tremor Activity...";
 
                 // run the FFT logic when timer hits 0
-                if (_currentSessionLength == 0)
+                if (_currentSessionLength <= 0)
                 {
-                    switch (_currentSessionState)
-                    {
-                        case SessionState.Sampling:
-                            Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
+                    _mainTimerService.Timer.Elapsed -= OnSamplingMainTimerEvent;
 
-                            Console.WriteLine("Processing values...");
-                            _baselineTremorLevel = await _accelerometerService.ProcessFftAsync(
-                                _detectionTimeLimit,
-                                _downSampleRate);
+                    Debug.Assert(_currentSessionState == SessionState.Sampling);
 
-                            Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
+                    //The sampling phase is over.
 
-                            // stop the timer and unsubscribe from the event here
-                            await _mainTimerService.StopTimerAsync();
-                            await _accelerometerService.StopAccelerometer();
-                            _accelerometerService.Readings.Clear();
-                            _mainTimerService.Timer.Elapsed -= OnSamplingTimedEvent;
+                    Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
+
+                    Console.WriteLine("Processing values...");
+                    _baselineTremorLevel = await _accelerometerService.ProcessSamplingStage(
+                        _detectionTimeLimit,
+                        _downSampleRate);
+
+                    Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
+
+                    // stop the timer and unsubscribe from the event here
+                    // todo: implement rest flow for acceleromter 
+                    await _mainTimerService.StopTimerAsync();
+                    await _accelerometerService.StopAccelerometer();
+                    _accelerometerService.Reset();
 
 
-                            //todo: create a toast notification here to inform the user of the timer change
+                    //todo: create a toast notification here to inform the user of the timer change
 
 
-                            // proceed to the detection session state
-                            // reassign the current session time limit and restart the timer
-                            // start another timer with a different interval for comparing values
-                            await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
-                            _currentSessionLength = _detectionTimeLimit;
-                            TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
-                            TimerText = FormatTimeSpan(sessionSpan);
-                            ReadingText = "Detecting Your Tremor Rate...";
-                            await _mainTimerService.StartTimerAsync(_currentSessionLength);
-                            _mainTimerService.Timer.Elapsed += OnSessionTimedEvent;
+                    // proceed to the detection session state
+                    // reassign the current session time limit and restart the timer
+                    // start another timer with a different interval for comparing values
+                    await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
+                    _currentSessionLength = _detectionTimeLimit;
+                    TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
+                    TimerText = FormatTimeSpan(sessionSpan);
+                    ReadingText = "Detecting Your Tremor Rate...";
 
-                            sessionTimer.Start();
-                            _currentSessionState = SessionState.Detecting;
-                            break;
-
-                        case SessionState.Running:
-
-                            // todo: evaluate if this case is necessary
-                            // assume this marks the end of the session
-
-                            _mainTimerService.SessionRunning = false;
-                            SessionButtonText = "Start Session";
-                            await _mainTimerService.StopTimerAsync();
-
-                            sessionTimer.Stop();
-                            await _accelerometerService.StopAccelerometer();
-                            await WrapUpSessionAsync();
-                            _currentSessionState = SessionState.Idle;
-                            break;
-                    }
+                    await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                    _mainTimerService.Timer.Elapsed += OnDetectingMainTimerEvent;
+                    detectingTimer.Start();
+                    _currentSessionState = SessionState.Detecting;
                 }
             }
             catch (Exception ex)
@@ -357,7 +367,58 @@ namespace TremorTrainer.ViewModels
                 throw;
             }
         }
-        private async void OnSessionTimedEvent(object sender, ElapsedEventArgs e)
+
+        private async void OnDetectingMainTimerEvent(object sender, ElapsedEventArgs e)
+        {
+            _currentSessionLength -= (int)_mainTimerService.Timer.Interval;
+
+            TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
+            TimerText = FormatTimeSpan(span);
+
+            if (_currentSessionLength <= 0)
+            {
+                Debug.Assert(_currentSessionState == SessionState.Detecting);
+
+                // this marks the end of the detection phase.
+                // stop the detectingTimer
+                // stop the accelerometer
+                detectingTimer.Stop();
+                await _accelerometerService.StopAccelerometer();
+
+                // determine tremor rate and convert ms to s for the time limit
+                var t = _detectionTimeLimit / 1000;
+                _tremorRate = _tremorCount / (double)t;
+
+                // setup the metronome to play audio at proper intervals
+                ConfigureMetronome();
+
+                Console.WriteLine($"Current tremor rate: {_tremorRate}");
+                
+                
+                // proceed to the session running phase
+                _currentSessionState = SessionState.Running;
+
+                // reassign the current session time limit and restart the timer
+                // reset the tremor count
+
+                ReadingText = "Running the Session";
+                await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
+                _currentSessionLength = _baseSessionTimeLimit;
+
+                _tremorCount = 0;
+                TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
+                TimerText = FormatTimeSpan(sessionSpan);
+
+                // Start the running stage's timers
+                runningTimer.Start();
+                await _mainTimerService.StartTimerAsync(_currentSessionLength);
+                _mainTimerService.Timer.Elapsed += OnRunningMainTimerEvent;
+                
+            }
+        }
+
+        // Runs on the _mainTimerService during the SessionState.Running
+        private async void OnRunningMainTimerEvent(object sender, ElapsedEventArgs e)
         {
             _currentSessionLength -= (int)_mainTimerService.Timer.Interval;
 
@@ -365,87 +426,54 @@ namespace TremorTrainer.ViewModels
             TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
             TimerText = FormatTimeSpan(span);
 
-            if (_currentSessionLength == 0)
+            if (_currentSessionLength <= 0)
             {
-                switch (_currentSessionState)
-                {
-                    case SessionState.Running:
-                        
-                        // stop the session timer and deregister the event handler
-                        await WrapUpSessionAsync();
-                        sessionTimer.Stop();
-                        _mainTimerService.Timer.Elapsed -= OnSessionTimedEvent;
-                        break;
-                }
+                Debug.Assert(_currentSessionState == SessionState.Running);
+
+                // The running phase is over.
+                
+                // stop the session timer and deregister the event handler
+                await WrapUpSessionAsync();
+                runningTimer.Stop();
+                _mainTimerService.Timer.Elapsed -= OnRunningMainTimerEvent;
             }
 
-            if (_currentSessionState == SessionState.Running)
-            {
-                ReadingText = "Running the Session";
 
-                OnCompareTremorRates();
-            }
+            OnCompareTremorRates();
+           
         }
-
+        
+        // Runs on the detectingTimer during the Detection Stage
         private async void OnDetectingTimedEvent(object sender, ElapsedEventArgs e)
         {
+            // This event only fires during the detection stage.
+
             // Run an FFT over the newly collected values
             // Ensure there are readings from the accelerometer first
 
-            if (_accelerometerService.Readings.Count > 10)
+            if (_accelerometerService.IsReadyToDetect)
             {
-                Console.WriteLine($"Accelerometer Reading Count: {_accelerometerService.Readings.Count}");
-                await DetectTremor();
+                await DetectTremor(Constants.CompareInterval);
             }
+        }
 
-            switch (_currentSessionState)
+        // Runs on the runningTimer
+        // This event fires during the running stage.
+        private async void OnComparingTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            // Don't look here
+
+            // Run an FFT over the newly collected values
+            // Ensure there are readings from the accelerometer first
+
+            if (_accelerometerService.IsReadyToDetect)
             {
-                case SessionState.Detecting:
-                    if (_currentSessionLength == 0)
-                    {
-                        // this marks the end of the detection phase.
-                        // stop the main timer
-                        // stop the accelerometer
-                        sessionTimer.Stop();
-                        await _accelerometerService.StopAccelerometer();
-
-                        // determine tremor rate and convert ms to s for the time limit
-                        var t = _detectionTimeLimit/ 1000;
-                        _tremorRate = _tremorCount / (double)t;
-
-                        // setup the metronome to play audio at proper intervals
-                        ConfigureMetronome();
-
-                        Console.WriteLine($"Current tremor rate: {_tremorRate}");
-                        // proceed to the session running phase
-                        _currentSessionState = SessionState.Running;
-
-
-                        // proceed to the running session state
-                        // reassign the current session time limit and restart the timer
-                        // reset the tremor count
-                        await _accelerometerService.StartAccelerometer(_baseSessionTimeLimit);
-                        _currentSessionLength = _baseSessionTimeLimit;
-
-                        _tremorCount = 0;
-
-                        TimeSpan sessionSpan = TimeSpan.FromMilliseconds(_currentSessionLength);
-                        TimerText = FormatTimeSpan(sessionSpan);                        
-
-                        
-                        sessionTimer.Start();
-                        _currentSessionState = SessionState.Running;
-                    }
-                    break;
+                await DetectTremor(Constants.CompareInterval);
             }
         }
 
         private async void OnCompareTremorRates()
         {
-
-            Console.WriteLine("compare method was hit");
-            await DetectTremor();
-
             // todo: will compare rate of tremors to the global tremor rate
             double t = 1;
             var currentTremorRate = _tremorCount / t;
@@ -474,19 +502,19 @@ namespace TremorTrainer.ViewModels
             return $"Time Remaining: {span}";
         }
 
-        private async Task DetectTremor()
+        private async Task DetectTremor(int millisecondsElapsed)
         {
-            _currentTremorLevel = await _accelerometerService.ProcessFftAsync(
-                Constants.CompareInterval);
-            Console.WriteLine($"Accelerometer Values: {_accelerometerService.Readings.Count} values in list");
+            _currentTremorLevel = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
+            
             var message = $"Current Tremor Velocity: {_currentTremorLevel}";
             Console.WriteLine(message);
             // Compare the magnitude to the baseline tremor level
 
-            if (_currentTremorLevel >= _baselineTremorLevel)
+            if (_currentTremorLevel.Item2 >= _baselineTremorLevel)
             {
-                _tremorCount++;
-                var tremorMessage = $"Tremors Detected: {_tremorCount}";
+
+                var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
+                TremorCount = tremorMessage;
                 
                 Console.WriteLine(tremorMessage);
                 //TremorText = tremorMessage;
@@ -497,15 +525,15 @@ namespace TremorTrainer.ViewModels
         {
             // determine the goal rate for the metronome
             // goal rate = 2/3rds of the current rate
-            _goalTremorRate = _tremorRate * .66;
+            //_goalTremorRate = _tremorRate * .66;
 
             // metronome must be evenly spaced. Divide 1 second by goal tremor rate to determine interval
-            var metronomeInterval = 1 / _goalTremorRate;
-            goalTremorTimer.Interval = metronomeInterval;
+            //var metronomeInterval = 1 / _goalTremorRate;
+            //goalTremorTimer.Interval = metronomeInterval;
 
             // start the timer
-            goalTremorTimer.Elapsed += OnMetronomeInterval;
-            goalTremorTimer.Start();
+            //goalTremorTimer.Elapsed += OnMetronomeInterval;
+            //goalTremorTimer.Start();
         }
 
     }
