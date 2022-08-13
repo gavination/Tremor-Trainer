@@ -5,6 +5,7 @@ using Xamarin.Forms;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using Syncfusion.Licensing;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -16,10 +17,12 @@ namespace TremorTrainer
 {
     public partial class App : Application
     {
+        
         private static ViewModelLocator _locator;
         public static ViewModelLocator Locator => _locator = _locator ?? new ViewModelLocator();
         public App()
         {
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
             InitializeComponent();
 
             MainPage = new GetStartedPage();

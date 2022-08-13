@@ -467,29 +467,11 @@ namespace TremorTrainer.ViewModels
                 await DetectTremor(Constants.CompareInterval);
             }
         }
-        /*
-        private async void OnCompareTremorRates()
-        {
-            // todo: will compare rate of tremors to the global tremor rate
-            double t = 1;
-            var currentTremorRate = _tremorCount / t;
-            var tremorPercentage = (currentTremorRate / _tremorRate) * 100;
-            if (tremorPercentage >= 100)
-            {
-                // update the gauge control to its max value
-                PointerPosition = "100";
-            }
-            // will adjust the position of the dial according to the rate
-            PointerPosition = tremorPercentage.ToString(CultureInfo.InvariantCulture);
 
-            // set tremor count to 0 again for the next event invocation
-            _tremorCount = 0;
-        }
-        */
         private async void OnMetronomeInterval(object sender, ElapsedEventArgs e)
         {
             string datetime = DateTime.Now.ToString("hh:mm:ss tt");
-            //Console.WriteLine($"we boopin at {datetime}");
+            
             await _soundService.playSound();
         }
 
@@ -509,10 +491,11 @@ namespace TremorTrainer.ViewModels
             TremorCount = tremorMessage;
 
 
-            double minPointerFrequency = Math.Max(0.5, _accelerometerService.GoalTremorFrequency - 2.0);
-            //Create an equidistant max
+            //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
+            double minPointerFrequency = Math.Max(0.25, _accelerometerService.GoalTremorFrequency - 2.0);
+            //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
             double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
-
+            // Map the tremor frequency in the range we picked to a value between 0 and 1
             var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
 
             PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
