@@ -299,6 +299,8 @@ namespace TremorTrainer.Services
         {
             if (!IsReading)
             {
+                // todo: show an error message and gracefully fail
+
                 Console.WriteLine("HOW DID WE GET HERE?");
                 return;
             }
