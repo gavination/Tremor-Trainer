@@ -57,10 +57,6 @@ namespace TremorTrainer.ViewModels
         private readonly int _sampleRate;
 
         //todo: consider renaming to baselineTremorMagnitude
-        private double _baselineTremorLevel;
-        private (double, double) _currentTremorLevel;
-        private double _tremorRate;
-        private double _goalTremorRate;
         private SessionState _currentSessionState;
 
         public ICommand StartSessionCommand { get; }
@@ -328,11 +324,11 @@ namespace TremorTrainer.ViewModels
                     Console.WriteLine($"Sample Rate: {_sampleRate} samples per second");
 
                     Console.WriteLine("Processing values...");
-                    _baselineTremorLevel = await _accelerometerService.ProcessSamplingStage(
+                    await _accelerometerService.ProcessSamplingStage(
                         _detectionTimeLimit,
                         _downSampleRate);
 
-                    Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
+                    //Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
 
                     // stop the timer and unsubscribe from the event here
                     // todo: implement rest flow for acceleromter 
@@ -357,6 +353,9 @@ namespace TremorTrainer.ViewModels
                     _mainTimerService.Timer.Elapsed += OnDetectingMainTimerEvent;
                     detectingTimer.Start();
                     _currentSessionState = SessionState.Detecting;
+
+                    // setup the metronome to play audio at proper intervals
+                    ConfigureMetronome();
                 }
             }
             catch (Exception ex)
@@ -387,12 +386,12 @@ namespace TremorTrainer.ViewModels
 
                 // determine tremor rate and convert ms to s for the time limit
                 var t = _detectionTimeLimit / 1000;
-                _tremorRate = _tremorCount / (double)t;
+                //_tremorRate = _tremorCount / (double)t;
 
-                // setup the metronome to play audio at proper intervals
-                ConfigureMetronome();
-                
-                
+                await WrapUpSessionAsync();
+                _mainTimerService.Timer.Elapsed -= OnDetectingMainTimerEvent;
+
+                /*
                 // proceed to the session running phase
                 _currentSessionState = SessionState.Running;
 
@@ -410,8 +409,8 @@ namespace TremorTrainer.ViewModels
                 // Start the running stage's timers
                 runningTimer.Start();
                 await _mainTimerService.StartTimerAsync(_currentSessionLength);
-                _mainTimerService.Timer.Elapsed += OnRunningMainTimerEvent;
-                
+                _mainTimerService.Timer.Elapsed += OnRunningMainTimerEvent;*/
+
             }
         }
 
@@ -436,8 +435,7 @@ namespace TremorTrainer.ViewModels
                 _mainTimerService.Timer.Elapsed -= OnRunningMainTimerEvent;
             }
 
-
-            OnCompareTremorRates();
+            //OnCompareTremorRates();
            
         }
         
@@ -469,7 +467,7 @@ namespace TremorTrainer.ViewModels
                 await DetectTremor(Constants.CompareInterval);
             }
         }
-
+        /*
         private async void OnCompareTremorRates()
         {
             // todo: will compare rate of tremors to the global tremor rate
@@ -487,11 +485,11 @@ namespace TremorTrainer.ViewModels
             // set tremor count to 0 again for the next event invocation
             _tremorCount = 0;
         }
-
+        */
         private async void OnMetronomeInterval(object sender, ElapsedEventArgs e)
         {
             string datetime = DateTime.Now.ToString("hh:mm:ss tt");
-            Console.WriteLine($"we boopin at {datetime}");
+            //Console.WriteLine($"we boopin at {datetime}");
             await _soundService.playSound();
         }
 
@@ -502,18 +500,22 @@ namespace TremorTrainer.ViewModels
 
         private async Task DetectTremor(int millisecondsElapsed)
         {
-            _currentTremorLevel = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
+            var tremorFrequency = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
             
-            var message = $"Current Tremor Velocity: {_currentTremorLevel}";
+            //var message = $"Current Tremor Velocity: {_currentTremorLevel}";
             // Compare the magnitude to the baseline tremor level
 
-            if (_currentTremorLevel.Item2 >= _baselineTremorLevel)
-            {
+            var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
+            TremorCount = tremorMessage;
 
-                var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
-                TremorCount = tremorMessage;
-                //TremorText = tremorMessage;
-            }
+
+            double minPointerFrequency = Math.Max(0.5, _accelerometerService.GoalTremorFrequency - 2.0);
+            //Create an equidistant max
+            double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
+
+            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
+
+            PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
 
         private void ConfigureMetronome()
@@ -529,6 +531,13 @@ namespace TremorTrainer.ViewModels
             // start the timer
             //goalTremorTimer.Elapsed += OnMetronomeInterval;
             //goalTremorTimer.Start();
+
+            Console.WriteLine($"Starting Metronome at {_accelerometerService.GoalTremorFrequency}");
+
+            // metronome must be evenly spaced. Divide 1 second by goal tremor rate to determine interval
+            goalTremorTimer.Interval = 1000 / (_accelerometerService.GoalTremorFrequency);
+            goalTremorTimer.Elapsed += OnMetronomeInterval;
+            goalTremorTimer.Start();
         }
 
     }

@@ -31,8 +31,16 @@ namespace TremorTrainer.Services
         private float TotalSamplingTime = 0.0f;
 
         public double TremorCount { get; private set; }
-        private double Baseline;
-        private double BaselineFreq;
+        public double BaselineTremorFrequency { get; private set; }
+        public double TremorThresholdRatio { get; set; }
+
+        public double GoalTremorFrequency
+        {
+            get
+            {
+                return BaselineTremorFrequency * TremorThresholdRatio;
+            }
+        }
 
         public bool IsReadyToDetect { get => Readings.Count >= bufferX.Capacity; }
 
@@ -47,6 +55,8 @@ namespace TremorTrainer.Services
             bufferZ = new CircularBuffer(200);
             _accelerometerRepository = accelerometerRepository;
             _sessionRepository = sessionRepository;
+
+            TremorThresholdRatio = 0.66;
         }
 
         public async Task<bool> StartAccelerometer(int sessionLength)
@@ -202,14 +212,14 @@ namespace TremorTrainer.Services
             ButterworthFilter(ySamples, effectiveSampleRate, 5, 0.3, 1);
             ButterworthFilter(zSamples, effectiveSampleRate, 5, 0.3, 1);
 
-            if (desiredSampleRate > 0)
+            /*if (desiredSampleRate > 0)
             {
                 xSamples = DownSample(xSamples, desiredSampleRate, (int)effectiveSampleRate);
                 ySamples = DownSample(ySamples, desiredSampleRate, (int)effectiveSampleRate);
                 zSamples = DownSample(zSamples, desiredSampleRate, (int)effectiveSampleRate);
 
                 effectiveSampleRate = desiredSampleRate;
-            }
+            }*/
 
             var xFrequencyAndMagnitude =
                 FindHighestFrequencyAndMagnitude(xSamples, effectiveSampleRate);
@@ -261,38 +271,38 @@ namespace TremorTrainer.Services
             bufferY = new CircularBuffer((int)(bufferTime * SampleRate));
             bufferZ = new CircularBuffer((int)(bufferTime * SampleRate));
 
-            var maxFreqAndAmp = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
 
             // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
             Console.WriteLine("");
 
-            var localVelocityMaxima = FindPeakMovementVelocity(maxFreqAndAmp.Item1, maxFreqAndAmp.Item2);
+            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
 
-            BaselineFreq = maxFreqAndAmp.Item1;
-            Baseline = localVelocityMaxima;
+            BaselineTremorFrequency = maxFrequency;
+
+            Console.WriteLine($"BaseLine Tremor Frequency is Set at {BaselineTremorFrequency}");
 
             return localVelocityMaxima;
         }
 
-        public async Task<(double, double)> ProcessDetectionStage(int millisecondsElapsed)
+        public async Task<double> ProcessDetectionStage(int millisecondsElapsed)
         {
             // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
-            var maxFreqAndAmp = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
 
-            var localVelocityMaxima = FindPeakMovementVelocity(maxFreqAndAmp.Item1, maxFreqAndAmp.Item2);
+            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
 
             float dt = millisecondsElapsed / 1000.0f;
 
-            //if(maxFreqAndAmp.Item1 > BaselineFreq)
-            if (localVelocityMaxima > Baseline)
+            if(maxFrequency >= GoalTremorFrequency)
             {
-                TremorCount += dt * maxFreqAndAmp.Item1;
+                TremorCount += dt * maxFrequency;
             }
 
             // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
             Console.WriteLine($" : count {TremorCount}");
 
-            return (localVelocityMaxima, maxFreqAndAmp.Item1);
+            return maxFrequency;
         }
 
         public void AddAccelerometerReading(AccelerometerData data)
@@ -342,11 +352,16 @@ namespace TremorTrainer.Services
         bool IsReadyToDetect { get; }
         double TremorCount { get; }
 
+        double BaselineTremorFrequency { get; }
+        double TremorThresholdRatio { get; set; }
+        double GoalTremorFrequency { get; }
+
+
         // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
         // provided values
         //Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
         Task<double> ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate);
-        Task<(double, double)> ProcessDetectionStage(int millisecondsElapsed);
+        Task<double> ProcessDetectionStage(int millisecondsElapsed);
         Task StopAccelerometer();
         void AddAccelerometerReading(AccelerometerData data);
         void Reset();
