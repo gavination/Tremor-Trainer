@@ -9,6 +9,7 @@ using System.Security;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
 using TremorTrainer.Repositories;
+using TremorTrainer.Utilities;
 using Xamarin.Essentials;
 
 namespace TremorTrainer.Services
@@ -20,15 +21,42 @@ namespace TremorTrainer.Services
         private readonly IAccelerometerRepository _accelerometerRepository;
         private readonly ISessionRepository _sessionRepository;
 
-        public List<Vector3> Readings { get; }
-        public int SampleRate { get; set; }
+        private List<Vector3> Readings { get; }
+        private CircularBuffer bufferX { get; set; }
+        private CircularBuffer bufferY { get; set; }
+        private CircularBuffer bufferZ { get; set; }
+
+        public double SampleRate { get; private set; }
+
+        private float TotalSamplingTime = 0.0f;
+
+        public double TremorCount { get; private set; }
+        public double BaselineTremorFrequency { get; private set; }
+        public double TremorThresholdRatio { get; set; }
+
+        public double GoalTremorFrequency
+        {
+            get
+            {
+                return BaselineTremorFrequency * TremorThresholdRatio;
+            }
+        }
+
+        public bool IsReadyToDetect { get => Readings.Count >= bufferX.Capacity; }
+
+        private bool IsReading = false;
 
         public AccelerometerService(IMessageService messageService, IAccelerometerRepository accelerometerRepository, ISessionRepository sessionRepository)
         {
             _messageService = messageService;
             Readings = new List<Vector3>();
+            bufferX = new CircularBuffer(200);
+            bufferY = new CircularBuffer(200);
+            bufferZ = new CircularBuffer(200);
             _accelerometerRepository = accelerometerRepository;
             _sessionRepository = sessionRepository;
+
+            TremorThresholdRatio = 0.66;
         }
 
         public async Task<bool> StartAccelerometer(int sessionLength)
@@ -44,7 +72,11 @@ namespace TremorTrainer.Services
                 {
                     // Clearing the list before starting a new Session
                     Readings.Clear();
+                    bufferX.Clear();
+                    bufferY.Clear();
+                    bufferZ.Clear();
                     _accelerometerRepository.Start(Constants.SensorSpeed);
+                    IsReading = true;
                     return true;
 
                 }
@@ -72,6 +104,7 @@ namespace TremorTrainer.Services
                 if (_accelerometerRepository.IsMonitoring)
                 {
                     _accelerometerRepository.Stop();
+                    IsReading = false;
                 }
             }
             catch (Exception ex)
@@ -85,13 +118,13 @@ namespace TremorTrainer.Services
 
         // Determines sample rate based on how many samples collected over time elapsed
         // Should be measured in Hz (samples/second)
-        public double DetermineSampleRate(int millisecondsElapsed)
+        private void CalculateSampleRate()
         {
-            var secondsElapsed = millisecondsElapsed / 1000;
-            var sampleRate = Readings.Count / secondsElapsed;
-            SampleRate = sampleRate;
-            return sampleRate;
+            var sampleRate = Readings.Count / TotalSamplingTime;
 
+            Console.WriteLine($"Accelerometer Sample Rate: {sampleRate}");
+            Console.WriteLine($"Buffer Holds: {((float)bufferX.Capacity) / sampleRate}s");
+            SampleRate = sampleRate;
         }
 
         private Complex32[] DownSample(Complex32[] samples, int desiredRate, int sampleRate)
@@ -148,151 +181,190 @@ namespace TremorTrainer.Services
             }
         }
 
-        // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
-        // provided values
-        public async Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate)
-        {
-            try
-            {
-                // Get complex values from the Readings List
-
-                var xSamples = Readings
-                    .Select(x => x.X)
-                    .Select(c => new Complex32(c, 0))
-                    .ToArray();
-
-                var ySamples = Readings
-                    .Select(y => y.Y)
-                    .Select(c => new Complex32(c, 0))
-                    .ToArray();
-
-                var zSamples = Readings
-                    .Select(z => z.Z)
-                    .Select(c => new Complex32(c, 0))
-                    .ToArray();
-
-                // Run the FFT algorithm and create the baseline tremor level
-
-                Fourier.Forward(xSamples);
-                Fourier.Forward(ySamples);
-                Fourier.Forward(zSamples);
-
-                float secondsElapsed = milliSecondsElapsed / 1000.0f;
-
-                if (desiredSampleRate > 0)
-                {
-                    // Filter and Down sample the readings for better processing later
-                    var currentSampleRate = DetermineSampleRate(milliSecondsElapsed);
-
-                    ButterworthFilter(xSamples, currentSampleRate, 5, 0.3, 1);
-                    ButterworthFilter(ySamples, currentSampleRate, 5, 0.3, 1);
-                    ButterworthFilter(zSamples, currentSampleRate, 5, 0.3, 1);
-
-                    // down sample the values before finding the dominant frequency
-                    var downSampledX = DownSample(xSamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledY = DownSample(ySamples, desiredSampleRate, (int)currentSampleRate);
-                    var downSampledZ = DownSample(zSamples, desiredSampleRate, (int)currentSampleRate);
-
-                    Readings.Clear();
-
-                    var xFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledX, secondsElapsed);
-                    var yFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledY, secondsElapsed);
-                    var zFrequencyAndMagnitude =
-                        FindHighestFrequencyAndMagnitude(downSampledZ, secondsElapsed);
-
-
-                    // put these lovely tuples in a list and compare them to find which axis has the highest magnitude
-                    var results = new List<(double, float)>
-                    {
-                        xFrequencyAndMagnitude,
-                        yFrequencyAndMagnitude,
-                        zFrequencyAndMagnitude
-                    };
-
-                    var maxReading =
-                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
-
-                    return localVelocityMaxima;
-                }
-                else
-                {
-                    Readings.Clear();
-
-                    var xFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(xSamples, secondsElapsed);
-                    var yFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(ySamples, secondsElapsed);
-                    var zFrequencyAndMagnitude = 
-                        FindHighestFrequencyAndMagnitude(zSamples, secondsElapsed);
-
-                    var results = new List<(double, float)>
-                    {
-                        xFrequencyAndMagnitude,
-                        yFrequencyAndMagnitude,
-                        zFrequencyAndMagnitude
-                    };
-
-                    var maxReading =
-                        results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
-
-                    var localVelocityMaxima = FindPeakMovementVelocity(maxReading.Item1, maxReading.Item2);
-                    return localVelocityMaxima;
-                }
-            }
-            catch (Exception e)
-            {
-                // todo: determine proper exception handling protocol here. 
-                await _messageService.ShowAsync(Constants.UnknownErrorMessage + e.Message);
-                throw;
-            }
-        }
-
-        private (double, float) FindHighestFrequencyAndMagnitude(Complex32[] values, float secondsElapsed)
+        private (double, float, int) FindHighestFrequencyAndMagnitude(Complex32[] values, double sampleRate)
         {
             int index = -1;
             var max = new Complex32();
-            double radianFreq = 0.0;
-            var samplesPerSecond = values.Length / secondsElapsed;
-            var T = values.Length / samplesPerSecond;
-            var dw = 2 * Math.PI / T;
 
             for (var i = 1; i < values.Length / 2; ++i)
             {
-                if (!(max.Magnitude < values[i].Magnitude)) continue;
+                if (max.Magnitude >= values[i].Magnitude) continue;
                 index = i;
                 max = values[i];
-                //frequency measured in rads/s
-                radianFreq = dw * index;
-
             }
-            // convert freq to hz...
-            double frequency = radianFreq / (2 * Math.PI);
-            (double, float) freqAndMag = (frequency, max.Magnitude);
 
-            return freqAndMag;
-
+            //https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
+            double freqPerBin = sampleRate / values.Length;
+            double frequency = index * freqPerBin;
+            return (frequency, max.Magnitude, index);
         }
+
+        private (double, float, int) GetMaxFrequencyAndAmplitude(Complex32 [] xSamples, Complex32 [] ySamples, Complex32 [] zSamples, int desiredSampleRate = 0)
+        {
+            // represents the sample rate, post downsampling
+            double effectiveSampleRate = SampleRate;
+
+            Fourier.Forward(xSamples);
+            Fourier.Forward(ySamples);
+            Fourier.Forward(zSamples);
+
+            ButterworthFilter(xSamples, effectiveSampleRate, 5, 0.3, 1);
+            ButterworthFilter(ySamples, effectiveSampleRate, 5, 0.3, 1);
+            ButterworthFilter(zSamples, effectiveSampleRate, 5, 0.3, 1);
+
+            /*if (desiredSampleRate > 0)
+            {
+                xSamples = DownSample(xSamples, desiredSampleRate, (int)effectiveSampleRate);
+                ySamples = DownSample(ySamples, desiredSampleRate, (int)effectiveSampleRate);
+                zSamples = DownSample(zSamples, desiredSampleRate, (int)effectiveSampleRate);
+
+                effectiveSampleRate = desiredSampleRate;
+            }*/
+
+            var xFrequencyAndMagnitude =
+                FindHighestFrequencyAndMagnitude(xSamples, effectiveSampleRate);
+            var yFrequencyAndMagnitude =
+                FindHighestFrequencyAndMagnitude(ySamples, effectiveSampleRate);
+            var zFrequencyAndMagnitude =
+                FindHighestFrequencyAndMagnitude(zSamples, effectiveSampleRate);
+
+            var results = new List<(double, float, int)>
+                    {
+                        xFrequencyAndMagnitude,
+                        yFrequencyAndMagnitude,
+                        zFrequencyAndMagnitude
+                    };
+
+            var maxReading = results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
+
+
+            Console.Write($"SR: {effectiveSampleRate} maxFAI{maxReading} : ({ySamples.Length})[");
+            for (int i = 1; i < 1 + 8; i++)
+            {
+                Console.Write($"{ySamples[i].Magnitude}, ");
+            }
+            Console.Write("]");
+
+            return maxReading;
+        }
+
+        public async Task<double> ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate)
+        {
+            TotalSamplingTime += millisecondsElapsed / 1000;
+
+            Complex32 [] xSamples = new Complex32[Readings.Count];
+            Complex32 [] ySamples = new Complex32[Readings.Count];
+            Complex32 [] zSamples = new Complex32[Readings.Count];
+
+            for (int i = 0; i < xSamples.Length; i++)
+            {
+                xSamples[i] = new Complex32(Readings[i].X, 0);
+                ySamples[i] = new Complex32(Readings[i].Y, 0);
+                zSamples[i] = new Complex32(Readings[i].Z, 0);
+            }
+
+            CalculateSampleRate();
+
+            //Initialize circular buffers
+            const double bufferTime = 2.0;
+            bufferX = new CircularBuffer((int)(bufferTime * SampleRate));
+            bufferY = new CircularBuffer((int)(bufferTime * SampleRate));
+            bufferZ = new CircularBuffer((int)(bufferTime * SampleRate));
+
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
+
+            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
+            Console.WriteLine("");
+
+            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
+
+            BaselineTremorFrequency = maxFrequency;
+
+            Console.WriteLine($"BaseLine Tremor Frequency is Set at {BaselineTremorFrequency}");
+
+            return localVelocityMaxima;
+        }
+
+        public async Task<double> ProcessDetectionStage(int millisecondsElapsed)
+        {
+            // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
+
+            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
+
+            float dt = millisecondsElapsed / 1000.0f;
+
+            if(maxFrequency >= GoalTremorFrequency)
+            {
+                TremorCount += dt * maxFrequency;
+            }
+
+            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
+            Console.WriteLine($" : count {TremorCount}");
+
+            return maxFrequency;
+        }
+
+        public void AddAccelerometerReading(AccelerometerData data)
+        {
+            if (!IsReading)
+            {
+                // todo: show an error message and gracefully fail
+
+                Console.WriteLine("HOW DID WE GET HERE?");
+                return;
+            }
+
+            //todo: remove this when buffer component functional
+            Readings.Add(data.Acceleration);
+
+            bufferX.Push(new Complex32(data.Acceleration.X, 0));
+            bufferY.Push(new Complex32(data.Acceleration.Y, 0));
+            bufferZ.Push(new Complex32(data.Acceleration.Z, 0));
+        }
+
+        public void Reset()
+        {
+            Readings.Clear();
+        }
+
+       
 
         private double FindPeakMovementVelocity(double frequency, float magnitude)
         {
             // using this formula allows us to calculate a local maxima for movement velocity at t=0
             // m * ω * cos(ω * t) 
             // cos(0) = 1, so formula realistically evaluates to m* w
+            // courtesy of LordTocs: https://github.com/LordTocs
             return frequency * magnitude;
         }
+
+
+        public string Dump()
+        {
+           return _sessionRepository.ExportReadings(Readings, "allAxes");
+        }
+
     }
     public interface IAccelerometerService
     {
-        List<Vector3> Readings { get; }
         Task<bool> StartAccelerometer(int sessionLength);
+        bool IsReadyToDetect { get; }
+        double TremorCount { get; }
+
+        double BaselineTremorFrequency { get; }
+        double TremorThresholdRatio { get; set; }
+        double GoalTremorFrequency { get; }
+
 
         // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
         // provided values
-        Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
-        double DetermineSampleRate(int secondsElapsed);
+        //Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
+        Task<double> ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate);
+        Task<double> ProcessDetectionStage(int millisecondsElapsed);
         Task StopAccelerometer();
+        void AddAccelerometerReading(AccelerometerData data);
+        void Reset();
+        string Dump();
     }
 }

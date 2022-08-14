@@ -6,6 +6,7 @@ namespace TremorTrainer.Services
 {
     public class TimerService : ITimerService
     {
+        // todo: DESTROY THIS 
         private Timer _timer;
         private bool _sessionRunning;
         private IMessageService _messageService;
