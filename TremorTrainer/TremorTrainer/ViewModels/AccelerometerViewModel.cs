@@ -52,7 +52,6 @@ namespace TremorTrainer.ViewModels
         private string _pointerPosition;
         private string _sessionButtonText;
         private int _currentSessionLength;
-        private double _tremorCount;
         private DateTime _sessionStartTime;
         private readonly int _sampleRate;
 
@@ -63,15 +62,6 @@ namespace TremorTrainer.ViewModels
         public ICommand ViewResultsCommand { get; }
         public ICommand PlaySoundCommand { get; }
 
-        public string TremorCount
-        {
-            get => _tremorCount.ToString();
-            private set
-            {
-                _tremorText = value;
-                OnPropertyChanged("TremorCount");
-            }
-        }
         public string TremorText
         {
             get => _tremorText;
@@ -140,7 +130,6 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements, initialize vars, and register propertyChanged events
             Title = "Start Training";
-            TremorCount = "Placeholder tremor count text.";
             _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
             _samplingTimeLimit = Constants.SamplingTimeLimit;
             _detectionTimeLimit = Constants.DetectionTimeLimit;
@@ -149,7 +138,6 @@ namespace TremorTrainer.ViewModels
             _currentSessionLength = _samplingTimeLimit;
             _sampleRate = 50;
             _currentSessionState = SessionState.Idle;
-            _tremorCount = 0;
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_samplingTimeLimit));
 
@@ -488,7 +476,6 @@ namespace TremorTrainer.ViewModels
             // Compare the magnitude to the baseline tremor level
 
             var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
-            TremorCount = tremorMessage;
 
 
             //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
