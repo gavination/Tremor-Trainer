@@ -148,7 +148,6 @@ namespace TremorTrainer.ViewModels
 
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
-            _mainTimerService.Timer.Elapsed += OnSamplingMainTimerEvent;
 
 
             detectingTimer.Interval = Constants.DetectionInterval;
@@ -164,6 +163,7 @@ namespace TremorTrainer.ViewModels
                 case SessionState.Idle:
 
                     // Start the accelerometer and the timer
+                    _mainTimerService.Timer.Elapsed += OnSamplingMainTimerEvent;
                     _mainTimerService.SessionRunning = true;
                     _sessionStartTime = DateTime.Now;
                     _currentSessionLength = _samplingTimeLimit;
