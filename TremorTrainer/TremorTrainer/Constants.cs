@@ -19,17 +19,17 @@ namespace TremorTrainer
         // CsvFileName: the name of the exported file reflecting DB records
         private const string CsvFileName = "TremorTrainerSessions.csv";
 
-        // FirstPrescribedSessionTimeLimit: the time span for the first, typically longer, Prescribed Session
-        public const int FirstPrescribedSessionTimeLimit = 60000;
+        // FirstPrescribedSessionTimeLimit: the time span (in ms) for the first, typically longer, Prescribed Session
+        public const int FirstPrescribedSessionTimeLimit = 3600000;
 
-        // PrescribedSessionTimeLimit: the time span for a running Prescribed Session run after the first
-        public const int PrescribedSessionTimeLimit = 30000;
+        // PrescribedSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
+        public const int PrescribedSessionTimeLimit = 1800000;
 
         // AsNeededSessionTimeLimit: the time span for a running As Needed Session
-        public const int AsNeededSessionTimeLimit = 15000;
+        public const int AsNeededSessionTimeLimit = 900000;
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
-        public const int SamplingTimeLimit = 10000;
+        public const int SamplingTimeLimit = 30000;
 
         // DetectionTimeLimit: the time span for the Detection state run before the Session can compare tremors
         public const int DetectionTimeLimit = 10000;
@@ -37,8 +37,8 @@ namespace TremorTrainer
         // CountdownInterval: the time interval, in milliseconds, at which the timer counts down. 1000 ms is recommmended
         public const int CountdownInterval = 1000;
 
-        // CompareInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
-        public const int CompareInterval = 50;
+        // DetectionInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
+        public const int DetectionInterval = 50;
 
         // DownSampleRate: measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;
@@ -46,9 +46,6 @@ namespace TremorTrainer
         // BuildNumber: the current version of the Tremor Trainer App
         public const string BuildNumber = "0.0.1";
 
-        // Rolling Average
-        // Aggregate Accelerometer data for the last 500ms (AggregationInterval)
-        // Compare Tremor Rate to defined rate in sampling stage every 50ms (CompareInterval)
 
 
         // Debug, info, and exception messages
