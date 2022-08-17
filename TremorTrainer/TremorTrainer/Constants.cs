@@ -37,8 +37,8 @@ namespace TremorTrainer
         // CountdownInterval: the time interval, in milliseconds, at which the timer counts down. 1000 ms is recommmended
         public const int CountdownInterval = 1000;
 
-        // CompareInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
-        public const int CompareInterval = 50;
+        // DetectionInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
+        public const int DetectionInterval = 50;
 
         // DownSampleRate: measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;
@@ -46,9 +46,6 @@ namespace TremorTrainer
         // BuildNumber: the current version of the Tremor Trainer App
         public const string BuildNumber = "0.0.1";
 
-        // Rolling Average
-        // Aggregate Accelerometer data for the last 500ms (AggregationInterval)
-        // Compare Tremor Rate to defined rate in sampling stage every 50ms (CompareInterval)
 
 
         // Debug, info, and exception messages
