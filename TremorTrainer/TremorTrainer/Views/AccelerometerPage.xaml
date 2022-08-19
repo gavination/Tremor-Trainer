@@ -81,6 +81,15 @@
                             TextColor="White"
                             BackgroundColor="{StaticResource Primary}"
                 />
+                <buttons:SfButton
+                            Margin="0,70,0,0"
+                            Style="{DynamicResource LoginFormBorderlessEntryBorderStyle}"
+                            Command="{Binding PlaySoundCommand}"
+                            HorizontalOptions="Fill"
+                            Text="Play Sound"
+                            TextColor="White"
+                            BackgroundColor="{StaticResource Primary}"
+                />
 
 
             </StackLayout>
