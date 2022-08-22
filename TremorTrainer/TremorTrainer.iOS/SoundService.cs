@@ -22,18 +22,18 @@ namespace TremorTrainer.iOS
             fileName = "metronomeding.mp3";
             string sFilePath = NSBundle.MainBundle.PathForResource
                 (Path.GetFileNameWithoutExtension(fileName), Path.GetExtension(fileName));
-
             url = NSUrl.FromString(sFilePath);
+            _player = AVAudioPlayer.FromUrl(url);
 
         }
         public Task playSound()
         {
-            _player = AVAudioPlayer.FromUrl(url);
             _player.Play();
 
             _player.FinishedPlaying += (object sender, AVStatusEventArgs e) =>
             {
-                _player = null;
+                // debug code to determine sound event plays
+                //Console.WriteLine("Sound playing.");
             };
             return Task.CompletedTask;
         }

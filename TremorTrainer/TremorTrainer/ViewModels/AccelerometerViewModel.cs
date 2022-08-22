@@ -43,7 +43,7 @@ namespace TremorTrainer.ViewModels
         }
 
         // todo: replace these fields once code solidifies
-        private string _readingText = "Accelerometer values will appear here.";
+        private string _readingText = "Press Start Session to begin measuring";
         private string _tremorText = "";
 
         private string _timerText;
@@ -188,6 +188,7 @@ namespace TremorTrainer.ViewModels
                     await WrapUpSessionAsync();
                     _mainTimerService.SessionRunning = false;
                     SessionButtonText = "Start Session";
+                    TremorText = "Session completed. Tap Start Session to begin a new one.";
                     _currentSessionLength = _samplingTimeLimit;
 
                     _currentSessionState = SessionState.Idle;
@@ -219,7 +220,7 @@ namespace TremorTrainer.ViewModels
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
 
-            var result = _accelerometerService.Dump();
+            //var result = _accelerometerService.Dump();
             Analytics.TrackEvent("Session has been wrapped up and sensors stopped");
 
             if (shouldSaveSession)

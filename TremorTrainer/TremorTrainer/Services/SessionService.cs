@@ -1,10 +1,12 @@
 ﻿using MathNet.Numerics;
+using Microsoft.AppCenter.Analytics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TremorTrainer.Models;
 using TremorTrainer.Repositories;
+using Xamarin.Essentials;
 
 namespace TremorTrainer.Services
 {
@@ -81,6 +83,7 @@ namespace TremorTrainer.Services
                 else
                 {
                     string errorMessage = $"Error: {Constants.UnknownErrorMessage} Details: Unable to export sessions to file";
+                    Analytics.TrackEvent(errorMessage);
                     await _messageService.ShowAsync(errorMessage);
                     return false;
                 }
