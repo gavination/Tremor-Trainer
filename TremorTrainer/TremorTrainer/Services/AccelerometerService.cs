@@ -328,18 +328,17 @@ namespace TremorTrainer.Services
             Readings.Clear();
         }
 
-       
 
+        // using this formula allows us to calculate a local maxima for movement velocity at t=0
+        // m * ω * cos(ω * t) 
+        // cos(0) = 1, so formula realistically evaluates to m* w
+        // courtesy of LordTocs: https://github.com/LordTocs
         private double FindPeakMovementVelocity(double frequency, float magnitude)
         {
-            // using this formula allows us to calculate a local maxima for movement velocity at t=0
-            // m * ω * cos(ω * t) 
-            // cos(0) = 1, so formula realistically evaluates to m* w
-            // courtesy of LordTocs: https://github.com/LordTocs
             return frequency * magnitude;
         }
 
-
+        // debug method for emitting sensor data. 
         public string Dump()
         {
            return _sessionRepository.ExportReadings(Readings, "allAxes");

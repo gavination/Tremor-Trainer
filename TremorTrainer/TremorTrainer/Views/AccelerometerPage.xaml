@@ -28,10 +28,9 @@
             </StackLayout>
         </StackLayout>
         <ScrollView Grid.Row="1">
-            <StackLayout Orientation="Vertical" Padding="30,0,30,24" Spacing="0">
+            <StackLayout Orientation="Vertical" Padding="30,10,30,24" Spacing="0">
                 
-                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large"></Label>
-                <Label Text="{Binding TremorText, Mode=OneWay}" FontSize="Large"></Label>
+                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large" ></Label>
 
 
                 <Label FontSize="Large"></Label>
@@ -61,7 +60,7 @@
                     </gauge:SfCircularGauge.Scales>
                 </gauge:SfCircularGauge>
 
-                <Label  Margin="0,-60,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Large"></Label>
+                <Label  Margin="0,-60,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Default" HorizontalOptions="CenterAndExpand"></Label>
                 <buttons:SfButton
                             Margin="0,20,0,0"
                             Command="{Binding StartSessionCommand}"

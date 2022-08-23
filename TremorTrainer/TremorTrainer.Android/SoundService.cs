@@ -25,7 +25,6 @@ namespace TremorTrainer.Droid
         public Task playSound()
         {
             var streamId = _soundPool.Play(_soundId, 1, 1, 1, 0, 1.0f);
-            //Console.WriteLine($"Playing sound with stream id: {streamId}");
 
             return Task.CompletedTask;
         }

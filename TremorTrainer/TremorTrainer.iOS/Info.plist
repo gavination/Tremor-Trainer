@@ -5,7 +5,6 @@
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
-		<integer>2</integer>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -32,5 +31,14 @@
 	<string>TremorTrainer</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/AppIcon.appiconset</string>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>UIFileSharingEnabled</key>
+	<string>true</string>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<string>true</string>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
+
 </dict>
 </plist>
