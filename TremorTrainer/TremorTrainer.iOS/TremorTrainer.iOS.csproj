@@ -140,6 +140,10 @@
     <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%403x.png" />
     <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%401x.png" />
     <ImageAsset Include="Assets.xcassets\setting.png.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%403x.png" />
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%402x.png" />
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%401x.png" />
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\Contents.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
