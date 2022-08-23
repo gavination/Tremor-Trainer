@@ -124,26 +124,66 @@
     <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\iTunesArtwork-1024.png">
       <Visible>false</Visible>
     </ImageAsset>
-    <ImageAsset Include="Assets.xcassets\hero_img.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%401x.png" />
-    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%403x.png" />
-    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%402x.png" />
-    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%403x.png" />
-    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%402x.png" />
-    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%401x.png" />
-    <ImageAsset Include="Assets.xcassets\star.png.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%401x.png" />
-    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%402x.png" />
-    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%403x.png" />
-    <ImageAsset Include="Assets.xcassets\file.png.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%402x.png" />
-    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%403x.png" />
-    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%401x.png" />
-    <ImageAsset Include="Assets.xcassets\setting.png.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%403x.png" />
-    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%402x.png" />
-    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%401x.png" />
-    <ImageAsset Include="Assets.xcassets\splash.png.imageset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\hero_img.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\hero_img.imageset\hero_img%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\star.png.imageset\star%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\star.png.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\file.png.imageset\file%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\file.png.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\setting.png.imageset\setting%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\setting.png.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%403x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%402x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\splash%401x.png">
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\splash.png.imageset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
