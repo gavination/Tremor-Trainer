@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     x:Class="TremorTrainer.Views.GetStartedPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
@@ -7,9 +7,8 @@
     xmlns:converter="clr-namespace:TremorTrainer.Converters"
     xmlns:core="clr-namespace:Syncfusion.XForms.Core;assembly=Syncfusion.Core.XForms"
     xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms"
-    BackgroundImageSource="{core:OnPlatformOrientationStringValue Default=hero_img.jpg,
-                                                                  iOSPhoneLandscape=hero_img.jpg,
-                                                                  iOSTabletLandscape=hero_img.jpg}"
+    BackgroundImageSource="{core:OnPlatformOrientationStringValue Default=hero_img,
+                                                                  iOSPhonePortrait=hero_img}"
     NavigationPage.HasNavigationBar="False">
 
     <ContentPage.Resources>
