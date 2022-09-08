@@ -11,7 +11,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>TremorTrainer.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>TremorTrainer.iOS</AssemblyName>
+    <AssemblyName>TremorRetrainer.iOS</AssemblyName>
     <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
     <MtouchHttpClientHandler>NSUrlSessionHandler</MtouchHttpClientHandler>
     <ProvisioningType>automatic</ProvisioningType>

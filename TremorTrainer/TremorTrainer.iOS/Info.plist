@@ -20,9 +20,9 @@
 	<key>MinimumOSVersion</key>
 	<string>8.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>TremorTrainer</string>
+	<string>TremorRetrainer</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.uva.tremortrainer</string>
+	<string>com.uva.tremorretrainer</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>
@@ -39,6 +39,5 @@
 	<string>true</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-
 </dict>
 </plist>
