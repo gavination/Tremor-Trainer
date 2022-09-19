@@ -18,7 +18,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>8.0</string>
+	<string>9.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>TremorTrainer</string>
 	<key>CFBundleIdentifier</key>
@@ -39,6 +39,5 @@
 	<string>true</string>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
-
 </dict>
 </plist>

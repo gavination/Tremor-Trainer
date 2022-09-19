@@ -13,9 +13,13 @@ namespace TremorTrainer.iOS
     public class SoundService : ISoundService
     {
 
-        private AVAudioPlayer _player;
-        private string fileName;
+        private AVAudioFile audioFile;
+        private AVAudioEngine audioEngine;
+        private AVAudioPlayerNode playerNode;
+
         private NSUrl url;
+        private string fileName;
+
 
         public SoundService()
         {
@@ -23,19 +27,37 @@ namespace TremorTrainer.iOS
             string sFilePath = NSBundle.MainBundle.PathForResource
                 (Path.GetFileNameWithoutExtension(fileName), Path.GetExtension(fileName));
             url = NSUrl.FromString(sFilePath);
-            _player = AVAudioPlayer.FromUrl(url);
+            var error = new NSError();
+
+            audioFile = new AVAudioFile(url, AVAudioCommonFormat.PCMFloat32, false, out error);
+            audioEngine = new AVAudioEngine();
+            playerNode = new AVAudioPlayerNode();
+
+            // attach the player node to the engine
+            audioEngine.AttachNode(playerNode);
+            audioEngine.Connect(playerNode, audioEngine.OutputNode, audioFile.ProcessingFormat);
 
         }
+
+
         public Task playSound()
         {
-            _player.Play();
 
-            _player.FinishedPlaying += (object sender, AVStatusEventArgs e) =>
+            playerNode.ScheduleFile(audioFile, null, null);
+
+            try
             {
-                // debug code to determine sound event plays
-                //Console.WriteLine("Sound playing.");
-            };
+                var error = new NSError();
+                audioEngine.StartAndReturnError(out error);
+                playerNode.Play();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Playback Error: {ex.Message}");
+                throw;
+            }
             return Task.CompletedTask;
         }
+
     }
 }

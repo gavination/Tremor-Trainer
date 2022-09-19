@@ -29,7 +29,7 @@ namespace TremorTrainer
         public const int AsNeededSessionTimeLimit = 900000;
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
-        public const int SamplingTimeLimit = 30000;
+        public const int SamplingTimeLimit = 10000;
 
         // DetectionTimeLimit: the time span for the Detection state run before the Session can compare tremors
         public const int DetectionTimeLimit = 10000;
