@@ -36,6 +36,17 @@ namespace TremorTrainer.iOS
             // attach the player node to the engine
             audioEngine.AttachNode(playerNode);
             audioEngine.Connect(playerNode, audioEngine.OutputNode, audioFile.ProcessingFormat);
+            audioEngine.Prepare();
+            try
+            {
+                audioEngine.StartAndReturnError(out error);
+                playerNode.ScheduleFile(audioFile, null, null);
+
+            }
+            catch (Exception ex){
+                Console.WriteLine($"Playback Error: {ex.Message}");
+                throw;
+            }
 
         }
 
@@ -43,20 +54,25 @@ namespace TremorTrainer.iOS
         public Task playSound()
         {
 
-            playerNode.ScheduleFile(audioFile, null, null);
+            playerNode.Play();
+            return Task.CompletedTask;
 
+        }
+
+        public Task stopPlayback()
+        {
             try
             {
-                var error = new NSError();
-                audioEngine.StartAndReturnError(out error);
-                playerNode.Play();
+                audioEngine.Stop();
+                playerNode.Stop();
+
+                return Task.CompletedTask;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                Console.WriteLine($"Playback Error: {ex.Message}");
+                Console.WriteLine($"Unable to stop playback: {ex.Message}");
                 throw;
             }
-            return Task.CompletedTask;
         }
 
     }
