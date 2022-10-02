@@ -289,8 +289,6 @@ namespace TremorTrainer.ViewModels
                         _detectionTimeLimit,
                         _downSampleRate);
 
-                    //Console.WriteLine($"Baseline Tremor Level: {_baselineTremorLevel}");
-
                     // stop the timer and unsubscribe from the event here
                     // todo: implement rest flow for acceleromter 
                     await _mainTimerService.StopTimerAsync();
