@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using AVFoundation;
+using CoreVideo;
 using Foundation;
 using TremorTrainer.iOS;
 using TremorTrainer.Services;
@@ -15,65 +16,66 @@ namespace TremorTrainer.iOS
 
         private AVAudioFile audioFile;
         private AVAudioEngine audioEngine;
-        private AVAudioPlayerNode playerNode;
 
         private NSUrl url;
         private string fileName;
-
+        private int playerIndex;
+        private int playCount;
+        private NSError error;
+        private AVAudioPlayerNode playerNode;
+        private AVAudioPcmBuffer buffer;
 
         public SoundService()
         {
+
             fileName = "metronomeding.mp3";
+            playerIndex = 0;
+            playCount = 0;
+            error = new NSError();
+
+
             string sFilePath = NSBundle.MainBundle.PathForResource
                 (Path.GetFileNameWithoutExtension(fileName), Path.GetExtension(fileName));
             url = NSUrl.FromString(sFilePath);
-            var error = new NSError();
 
             audioFile = new AVAudioFile(url, AVAudioCommonFormat.PCMFloat32, false, out error);
+            var audioFormat = new AVAudioFormat();
+
+
+            buffer = new AVAudioPcmBuffer(audioFile.ProcessingFormat, (uint)audioFile.Length);
+            audioFile.ReadIntoBuffer(buffer, out error);
             audioEngine = new AVAudioEngine();
+
             playerNode = new AVAudioPlayerNode();
 
-            // attach the player node to the engine
             audioEngine.AttachNode(playerNode);
-            audioEngine.Connect(playerNode, audioEngine.OutputNode, audioFile.ProcessingFormat);
+            audioEngine.Connect(playerNode, audioEngine.MainMixerNode, audioFile.ProcessingFormat);
             audioEngine.Prepare();
-            try
-            {
-                audioEngine.StartAndReturnError(out error);
-                playerNode.ScheduleFile(audioFile, null, null);
+            //audioEngine.EnableManualRenderingMode(AVAudioEngineManualRenderingMode.Realtime, buffer.Format, buffer.FrameLength, out error);
+            audioEngine.StartAndReturnError(out error);
 
-            }
-            catch (Exception ex){
-                Console.WriteLine($"Playback Error: {ex.Message}");
-                throw;
-            }
+            AVAudioSession.SharedInstance().Init();
+            AVAudioSession.SharedInstance().SetCategory(AVAudioSessionCategory.Playback);
+            AVAudioSession.SharedInstance().SetMode(AVAudioSession.ModeDefault, out error);
+            AVAudioSession.SharedInstance().SetActive(true);
 
         }
 
 
         public Task playSound()
         {
-
-            playerNode.Play();
-            return Task.CompletedTask;
-
-        }
-
-        public Task stopPlayback()
-        {
             try
             {
-                audioEngine.Stop();
-                playerNode.Stop();
+                playerNode.ScheduleBuffer(buffer, null);
+                playerNode.Play();
 
                 return Task.CompletedTask;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Unable to stop playback: {ex.Message}");
+                Console.WriteLine($"Playback Error: {ex.Message}");
                 throw;
             }
         }
-
     }
 }
