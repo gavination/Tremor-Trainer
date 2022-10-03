@@ -68,7 +68,7 @@
                             Command="{Binding PrescribedCommand}"
                             HorizontalOptions="Fill"
                             Style="{StaticResource GradientButtonStyle}"
-                            Text="PRESCRIBED SESSION" 
+                            Text="DAY 1 (60 MINUTE SESSION)" 
                         />
 
                         <!--  Maintenance Session Button  -->
@@ -78,7 +78,7 @@
                             Style="{DynamicResource GradientButtonStyle}"
                             Command="{Binding MaintenanceCommand}"
                             HorizontalOptions="Fill"
-                            Text="AS NEEDED SESSION"
+                            Text="DAYS 2-7 (30 MINUTE SESSION)"
                         />
                     </Grid>
                 </StackLayout>

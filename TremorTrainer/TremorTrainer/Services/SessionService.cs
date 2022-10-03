@@ -118,23 +118,26 @@ namespace TremorTrainer.Services
             return isFirstSession ? SessionType.Induction : SessionType.Maintenance;
         }
 
-        public int GetSessionLength(bool isPrescribed)
+        public int GetSessionLength(bool isInduction)
         {
-            if (!isPrescribed)
+            if (!isInduction)
             {
-                return Constants.AsNeededSessionTimeLimit;
+                return Constants.MaintenanceSessionTimeLimit;
             }
+            return Constants.InductionSessionTimeLimit;
 
+            // NOTE: removed this logic as we do not need to dynamically change
+            // the session type for now. 
             //determine if this is the first session for the User
-            var isFirstSession = DetermineFirstSession();
-            if (isFirstSession)
-            {
-                return Constants.FirstPrescribedSessionTimeLimit;
-            }
-            else
-            {
-                return Constants.PrescribedSessionTimeLimit;
-            }
+            //var isFirstSession = DetermineFirstSession();
+            //if (isFirstSession)
+            //{
+            //    return Constants.FirstPrescribedSessionTimeLimit;
+            //}
+            //else
+            //{
+            //    return Constants.InductionSessionTimeLimit;
+            //}
         }
     }
 
