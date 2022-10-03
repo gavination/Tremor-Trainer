@@ -78,6 +78,8 @@ namespace TremorTrainer
 
         protected override void OnResume()
         {
+            MainPage = new GetStartedPage();
+
         }
     }
 }

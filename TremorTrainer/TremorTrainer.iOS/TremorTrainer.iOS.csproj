@@ -194,6 +194,7 @@
     <ImageAsset Include="Assets.xcassets\splash.png.imageset\Contents.json">
       <Visible>false</Visible>
     </ImageAsset>
+    <BundleResource Include="Resources\instructionFigure.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

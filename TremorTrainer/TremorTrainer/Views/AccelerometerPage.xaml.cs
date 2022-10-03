@@ -1,4 +1,6 @@
-﻿using TremorTrainer.ViewModels;
+﻿using Syncfusion.XForms.PopupLayout;
+using System;
+using TremorTrainer.ViewModels;
 using Xamarin.Forms;
 
 namespace TremorTrainer.Views
@@ -10,6 +12,12 @@ namespace TremorTrainer.Views
         {
             InitializeComponent();
             BindingContext = _viewModel = App.Locator.AccelerometerViewModel;
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            popupLayout.Show(false);
         }
     }
 }

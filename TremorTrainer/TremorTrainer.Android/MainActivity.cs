@@ -5,7 +5,7 @@ using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
 using Android;
-
+using Syncfusion.XForms.Android.PopupLayout;
 
 namespace TremorTrainer.Droid
 {
@@ -18,6 +18,7 @@ namespace TremorTrainer.Droid
 
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            SfPopupLayoutRenderer.Init();
             LoadApplication(new App());
             CheckAppPermissions();
         }
