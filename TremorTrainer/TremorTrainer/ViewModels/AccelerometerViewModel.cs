@@ -220,12 +220,11 @@ namespace TremorTrainer.ViewModels
             if (shouldSaveSession)
             {
                 var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
-
-                // todo: fulfill this with proper baseline information
+                var sessionDurationText = new DateTime(sessionDuration.Ticks).ToString("HH:mm:ss");
                 Session newSession = new Session
                 {
                     Id = Guid.NewGuid(),
-                    Details = $"Session Type: {sessionType}. Saved to the local DB",
+                    Details = $"Session Type: {sessionType}. Duration: {sessionDurationText}",
                     Duration = sessionDuration,
                     StartTime = DateTime.Now,
                     Type = sessionType
@@ -341,7 +340,8 @@ namespace TremorTrainer.ViewModels
                 await WrapUpSessionAsync();
                 _mainTimerService.Timer.Elapsed -= OnDetectingMainTimerEvent;
                 _mainTimerService.SessionRunning = false;
-                SessionButtonText = "Start Session";
+                SessionButtonText = "Start New Session";
+                ReadingText = "Treatment session complete. Good job!";
                 _currentSessionLength = _samplingTimeLimit;
 
                 _currentSessionState = SessionState.Idle;

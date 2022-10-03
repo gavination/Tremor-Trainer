@@ -53,7 +53,7 @@ namespace TremorTrainer
         public static string UnknownErrorMessage =
             $"An Unknown error has occurred. Please contact the Developer at {ContactEmail}";
         public const string AboutMessage =
-            "The Tremor Trainer app was developed in collaboration with neurologists at the University of Virginia and University of Cincinnati for treatment of functional tremor, which is a subset of Functional Neurologic Disorder. It is currently being evaluated in research studies with goal to determine whether it is effective in treating functional tremor";
+            "The Tremor Trainer app was developed in collaboration with neurologists at the University of Virginia and University of Cincinnati for treatment of functional tremor, which is a subset of Functional Neurologic Disorder. It is currently an experimental treatment only to be used in the setting of a clinical trial.";
 
         public const SQLite.SQLiteOpenFlags Flags =
             // open the database in read/write mode
