@@ -23,16 +23,13 @@ namespace TremorTrainer
         public const int FirstPrescribedSessionTimeLimit = 3600000;
 
         // PrescribedSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
-        public const int PrescribedSessionTimeLimit = 1800000;
+        public const int PrescribedSessionTimeLimit = 3600000;
 
         // AsNeededSessionTimeLimit: the time span for a running As Needed Session
         public const int AsNeededSessionTimeLimit = 900000;
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
         public const int SamplingTimeLimit = 10000;
-
-        // DetectionTimeLimit: the time span for the Detection state run before the Session can compare tremors
-        public const int DetectionTimeLimit = 10000;
 
         // CountdownInterval: the time interval, in milliseconds, at which the timer counts down. 1000 ms is recommmended
         public const int CountdownInterval = 1000;
