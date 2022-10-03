@@ -238,12 +238,12 @@ namespace TremorTrainer.Services
             var maxReading = results.Aggregate((i1, i2) => i1.Item2 >= i2.Item2 ? i1 : i2);
 
 
-            Console.Write($"SR: {effectiveSampleRate} maxFAI{maxReading} : ({ySamples.Length})[");
-            for (int i = 1; i < 1 + 8; i++)
-            {
-                Console.Write($"{ySamples[i].Magnitude}, ");
-            }
-            Console.Write("]");
+            //Console.Write($"SR: {effectiveSampleRate} maxFAI{maxReading} : ({ySamples.Length})[");
+            //for (int i = 1; i < 1 + 8; i++)
+            //{
+            //    Console.Write($"{ySamples[i].Magnitude}, ");
+            //}
+            //Console.Write("]");
 
             return maxReading;
         }
@@ -285,9 +285,9 @@ namespace TremorTrainer.Services
             return localVelocityMaxima;
         }
 
+        // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
         public async Task<double> ProcessDetectionStage(int millisecondsElapsed)
         {
-            // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
             var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
 
             var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
