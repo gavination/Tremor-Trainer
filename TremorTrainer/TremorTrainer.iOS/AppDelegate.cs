@@ -13,6 +13,7 @@ using System.Linq;
 using Foundation;
 using UIKit;
 using Syncfusion.SfGauge.XForms.iOS;
+using Syncfusion.XForms.iOS.PopupLayout;
 
 namespace TremorTrainer.iOS
 {
@@ -32,6 +33,7 @@ namespace TremorTrainer.iOS
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
             global::Xamarin.Forms.Forms.Init();
+            SfPopupLayoutRenderer.Init();
             SfRatingRenderer.Init();
             SfListViewRenderer.Init();
             SfComboBoxRenderer.Init();

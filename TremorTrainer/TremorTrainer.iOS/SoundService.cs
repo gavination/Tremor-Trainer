@@ -81,7 +81,7 @@ namespace TremorTrainer.iOS
 
         public void PlayAsync() {
             var playerNode = getFirstAvailableNode();
-            playerNode.Node.ScheduleBuffer(buffer, delegate() { playerNode.Status = PlayerStatus.Idle; });
+            playerNode.Node.ScheduleBuffer(buffer, delegate() {playerNode.Status = PlayerStatus.Idle;});
             playerNode.Node.Play();
         }
 
