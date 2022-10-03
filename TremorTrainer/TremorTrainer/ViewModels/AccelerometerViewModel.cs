@@ -44,7 +44,6 @@ namespace TremorTrainer.ViewModels
         // todo: replace these fields once code solidifies
         private string _readingText = "Press Start Session to begin measuring";
         private string _tremorText = "";
-
         private string _timerText;
         private string _pointerPosition;
         private string _sessionButtonText;
@@ -95,7 +94,6 @@ namespace TremorTrainer.ViewModels
                 OnPropertyChanged("SessionButtonText");
             }
         }
-
         public string PointerPosition
         {
             get => _pointerPosition;
@@ -137,7 +135,6 @@ namespace TremorTrainer.ViewModels
 
             TimerText = FormatTimeSpan(TimeSpan.FromMilliseconds(_samplingTimeLimit));
 
-
             SessionButtonText = "Start Session";
 
             // Register Button Press Commands 
@@ -148,10 +145,8 @@ namespace TremorTrainer.ViewModels
             // Subscribe to necessary events
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
 
-
             detectingTimer.Interval = Constants.DetectionInterval;
             detectingTimer.Elapsed += OnDetectingTimedEvent;
-
         }
 
         private async Task ToggleSessionAsync()
@@ -284,7 +279,7 @@ namespace TremorTrainer.ViewModels
 
                     Console.WriteLine("Processing values...");
                     await _accelerometerService.ProcessSamplingStage(
-                        _detectionTimeLimit,
+                        _samplingTimeLimit,
                         _downSampleRate);
 
                     // stop the timer and unsubscribe from the event here

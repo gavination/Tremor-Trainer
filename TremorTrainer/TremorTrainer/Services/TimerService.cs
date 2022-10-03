@@ -44,6 +44,7 @@ namespace TremorTrainer.Services
             else
             {
                 //reset the session length to start a new one
+                //todo: remove this once we validate we no longer need it
                 timerLength = (int)Xamarin.Forms.Application.Current.Properties["SessionLength"];
                 _timer = new Timer(_interval);
                 _sessionRunning = true;
