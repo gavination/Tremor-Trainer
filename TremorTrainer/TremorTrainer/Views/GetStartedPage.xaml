@@ -50,7 +50,7 @@
                         <Label
                             FontSize="20"
                             Style="{StaticResource TitleLabelStyle}"
-                            Text="Welcome to Tremor Trainer"
+                            Text="Welcome to Tremor Retrainer"
                             TextColor="{DynamicResource Gray-White}" />
 
                         <!--  Label to display the description of this page  -->
