@@ -179,6 +179,7 @@ namespace TremorTrainer.ViewModels
 
                 case SessionState.Detecting:
 
+                    _mainTimerService.Timer.Elapsed -= OnDetectingMainTimerEvent;
                     await WrapUpSessionAsync();
                     _mainTimerService.SessionRunning = false;
                     SessionButtonText = "Start Session";
@@ -193,6 +194,7 @@ namespace TremorTrainer.ViewModels
                 case SessionState.Sampling:
 
                     // don't bother saving session results as we never made it to the session
+                    _mainTimerService.Timer.Elapsed -= OnSamplingMainTimerEvent;
                     await WrapUpSessionAsync(false);
                     _mainTimerService.SessionRunning = false;
                     SessionButtonText = "Start Session";
