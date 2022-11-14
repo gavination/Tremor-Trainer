@@ -375,50 +375,26 @@ namespace TremorTrainer.ViewModels
             return $"Time Remaining: {span}";
         }
 
-        //private async Task DetectTremor(int millisecondsElapsed)
-        //{
-        //    var tremorFrequency = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
-            
-        //    //var message = $"Current Tremor Velocity: {_currentTremorLevel}";
-        //    // Compare the magnitude to the baseline tremor level
-
-        //    var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
-
-
-        //    //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
-        //    double minPointerFrequency = Math.Max(0.25, _accelerometerService.GoalTremorFrequency - 2.0);
-        //    //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
-        //    double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
-        //    // Map the tremor frequency in the range we picked to a value between 0 and 1
-        //    var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
-
-        //    PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
-        //}
-
         private async Task DetectTremor(int millisecondsElapsed)
         {
             var tremorFrequency = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
 
+            //var message = $"Current Tremor Velocity: {_currentTremorLevel}";
+            // Compare the magnitude to the baseline tremor level
 
-            Console.WriteLine($"Baseline Frequency: {_accelerometerService.BaselineTremorFrequency}");
-            Console.WriteLine($"Current Frequency: {tremorFrequency}");
+            var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
 
-            var position = (tremorFrequency / _accelerometerService.BaselineTremorFrequency) * 100;
-            Console.WriteLine($"Pointer Position: {position}");
 
-            if (position > 100)
-            {
-                PointerPosition = "100";
-            }
-            else if (position < 0)
-            {
-                PointerPosition = "0";
-            }
-            else
-            {
-                PointerPosition= position.ToString();
-            }
+            //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
+            double minPointerFrequency = Math.Max(0.25, _accelerometerService.GoalTremorFrequency - 2.0);
+            //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
+            double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
+            // Map the tremor frequency in the range we picked to a value between 0 and 1
+            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
+
+            PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
+
 
         private void ConfigureMetronome()
         {

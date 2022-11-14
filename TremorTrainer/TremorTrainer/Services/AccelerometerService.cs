@@ -299,6 +299,14 @@ namespace TremorTrainer.Services
                 TremorCount += dt * maxFrequency;
             }
 
+            // accelerometer noise outside of the range of human movement
+            // that typically occurs when phone is resting still
+            // set this value to 0 to accurately reflect the lack of movement
+            if (maxFrequency >= 9.0)
+            {
+                maxFrequency = 0;
+            }
+
             // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
             Console.WriteLine($" : count {TremorCount}");
 
