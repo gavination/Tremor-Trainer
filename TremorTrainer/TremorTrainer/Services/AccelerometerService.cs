@@ -296,11 +296,11 @@ namespace TremorTrainer.Services
 
             Console.WriteLine($"Current Max Frequency: {maxFrequency}, Current Max Magnitude: {maxAmplitude}");
 
-            // if the amplitude is less than 0.05 or the frequency is greater than 9hz
+            // if the amplitude is less than 0.4 or the frequency is greater than 9hz
             // then we must conclude that this is due to the device being left unattended
             // so we set the maxFrequency to 0 in this case
 
-            if (maxAmplitude <= 0.05 || maxFrequency >= 9 )
+            if (maxAmplitude <= 0.4 || maxFrequency >= 9 )
             {
                 maxFrequency = 0;
             }
@@ -344,10 +344,10 @@ namespace TremorTrainer.Services
         // m * ω * cos(ω * t) 
         // cos(0) = 1, so formula realistically evaluates to m* w
         // courtesy of LordTocs: https://github.com/LordTocs
-        private double FindPeakMovementVelocity(double frequency, float magnitude)
-        {
-            return frequency * magnitude;
-        }
+        //private double FindPeakMovementVelocity(double frequency, float magnitude)
+        //{
+        //    return frequency * magnitude;
+        //}
 
         // debug method for emitting sensor data. 
         public string Dump()
