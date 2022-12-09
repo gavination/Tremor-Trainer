@@ -203,6 +203,8 @@ namespace TremorTrainer.Services
         {
             // represents the sample rate, post downsampling
             double effectiveSampleRate = SampleRate;
+            var xFrequencyAndMagnitude =
+                FindHighestFrequencyAndMagnitude(xSamples, effectiveSampleRate);
 
             Fourier.Forward(xSamples);
             Fourier.Forward(ySamples);
@@ -221,8 +223,6 @@ namespace TremorTrainer.Services
                 effectiveSampleRate = desiredSampleRate;
             }*/
 
-            var xFrequencyAndMagnitude =
-                FindHighestFrequencyAndMagnitude(xSamples, effectiveSampleRate);
             var yFrequencyAndMagnitude =
                 FindHighestFrequencyAndMagnitude(ySamples, effectiveSampleRate);
             var zFrequencyAndMagnitude =
@@ -248,7 +248,7 @@ namespace TremorTrainer.Services
             return maxReading;
         }
 
-        public async Task<double> ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate)
+        public async Task ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate)
         {
             TotalSamplingTime += millisecondsElapsed / 1000;
 
@@ -271,18 +271,21 @@ namespace TremorTrainer.Services
             bufferY = new CircularBuffer((int)(bufferTime * SampleRate));
             bufferZ = new CircularBuffer((int)(bufferTime * SampleRate));
 
-            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);            
 
-            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
-            Console.WriteLine("");
-
-            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
-
-            BaselineTremorFrequency = maxFrequency;
+            // accelerometer noise outside of the range of human movement
+            // that typically occurs when phone is resting still
+            // set this value to 3 to provide a decent default value
+            if (maxFrequency >= 9.0)
+            {
+                BaselineTremorFrequency = 3.0;
+            }
+            else
+            {
+                BaselineTremorFrequency = maxFrequency;
+            }
 
             Console.WriteLine($"BaseLine Tremor Frequency is Set at {BaselineTremorFrequency}");
-
-            return localVelocityMaxima;
         }
 
         // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
@@ -290,7 +293,17 @@ namespace TremorTrainer.Services
         {
             var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
 
-            var localVelocityMaxima = FindPeakMovementVelocity(maxFrequency, maxAmplitude);
+
+            Console.WriteLine($"Current Max Frequency: {maxFrequency}, Current Max Magnitude: {maxAmplitude}");
+
+            // if the amplitude is less than 0.05 or the frequency is greater than 9hz
+            // then we must conclude that this is due to the device being left unattended
+            // so we set the maxFrequency to 0 in this case
+
+            if (maxAmplitude <= 0.05 || maxFrequency >= 9 )
+            {
+                maxFrequency = 0;
+            }
 
             float dt = millisecondsElapsed / 1000.0f;
 
@@ -299,16 +312,6 @@ namespace TremorTrainer.Services
                 TremorCount += dt * maxFrequency;
             }
 
-            // accelerometer noise outside of the range of human movement
-            // that typically occurs when phone is resting still
-            // set this value to 0 to accurately reflect the lack of movement
-            if (maxFrequency >= 9.0)
-            {
-                maxFrequency = 0;
-            }
-
-            // Finish the log that's written inside GetMaxFrequencyAndAmplitude()
-            Console.WriteLine($" : count {TremorCount}");
 
             return maxFrequency;
         }
@@ -367,7 +370,7 @@ namespace TremorTrainer.Services
         // passing 0 as an argument assumes the down sampling process will not occur and the FFT process will run on all
         // provided values
         //Task<double> ProcessFftAsync(int milliSecondsElapsed, int desiredSampleRate = 0);
-        Task<double> ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate);
+        Task ProcessSamplingStage(int millisecondsElapsed, int desiredSampleRate);
         Task<double> ProcessDetectionStage(int millisecondsElapsed);
         Task StopAccelerometer();
         void AddAccelerometerReading(AccelerometerData data);
