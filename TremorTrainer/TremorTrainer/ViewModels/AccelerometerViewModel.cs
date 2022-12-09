@@ -356,7 +356,6 @@ namespace TremorTrainer.ViewModels
         private async void OnDetectingTimedEvent(object sender, ElapsedEventArgs e)
         {
             // This event only fires during the detection stage.
-
             // Run an FFT over the newly collected values
             // Ensure there are readings from the accelerometer first
 
@@ -379,7 +378,7 @@ namespace TremorTrainer.ViewModels
         private async Task DetectTremor(int millisecondsElapsed)
         {
             var tremorFrequency = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
-            
+
             //var message = $"Current Tremor Velocity: {_currentTremorLevel}";
             // Compare the magnitude to the baseline tremor level
 
@@ -395,6 +394,7 @@ namespace TremorTrainer.ViewModels
 
             PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
+
 
         private void ConfigureMetronome()
         {
