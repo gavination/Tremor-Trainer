@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text;
 
 namespace TremorTrainer.Utilities
 {
@@ -17,7 +15,7 @@ namespace TremorTrainer.Utilities
         private JObject _secrets;
 
         // constants needed to locate and access the App Settings file
-        private const string Namespace = "TremorTrainer";   
+        private const string Namespace = "TremorTrainer";
         private const string Filename = "appsettings.json";
 
         // Creates the instance of the singleton

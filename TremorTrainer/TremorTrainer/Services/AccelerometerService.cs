@@ -193,6 +193,7 @@ namespace TremorTrainer.Services
                 max = values[i];
             }
 
+            //source
             //https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
             double freqPerBin = sampleRate / values.Length;
             double frequency = index * freqPerBin;
@@ -214,14 +215,6 @@ namespace TremorTrainer.Services
             ButterworthFilter(ySamples, effectiveSampleRate, 5, 0.3, 1);
             ButterworthFilter(zSamples, effectiveSampleRate, 5, 0.3, 1);
 
-            /*if (desiredSampleRate > 0)
-            {
-                xSamples = DownSample(xSamples, desiredSampleRate, (int)effectiveSampleRate);
-                ySamples = DownSample(ySamples, desiredSampleRate, (int)effectiveSampleRate);
-                zSamples = DownSample(zSamples, desiredSampleRate, (int)effectiveSampleRate);
-
-                effectiveSampleRate = desiredSampleRate;
-            }*/
 
             var yFrequencyAndMagnitude =
                 FindHighestFrequencyAndMagnitude(ySamples, effectiveSampleRate);
@@ -294,8 +287,6 @@ namespace TremorTrainer.Services
             var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(bufferX.ToArray(), bufferY.ToArray(), bufferZ.ToArray());
 
 
-            Console.WriteLine($"Current Max Frequency: {maxFrequency}, Current Max Magnitude: {maxAmplitude}");
-
             // if the amplitude is less than 0.4 or the frequency is greater than 9hz
             // then we must conclude that this is due to the device being left unattended
             // so we set the maxFrequency to 0 in this case
@@ -304,6 +295,9 @@ namespace TremorTrainer.Services
             {
                 maxFrequency = 0;
             }
+
+            // Console.WriteLine($"Current Max Frequency: {maxFrequency}, Current Max Magnitude: {maxAmplitude}");
+
 
             float dt = millisecondsElapsed / 1000.0f;
 
@@ -323,6 +317,7 @@ namespace TremorTrainer.Services
                 // todo: show an error message and gracefully fail
 
                 Console.WriteLine("HOW DID WE GET HERE?");
+                Console.WriteLine("NOBODY'S SUPPOSED TO BE HERE");
                 return;
             }
 
