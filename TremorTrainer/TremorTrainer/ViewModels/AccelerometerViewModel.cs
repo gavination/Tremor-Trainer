@@ -161,6 +161,7 @@ namespace TremorTrainer.ViewModels
                     _mainTimerService.SessionRunning = true;
                     _sessionStartTime = DateTime.Now;
                     _currentSessionLength = _samplingTimeLimit;
+                    ToggleScreenLock();
 
                     await _accelerometerService.StartAccelerometer(_currentSessionLength);
                     await _mainTimerService.StartTimerAsync(_currentSessionLength);
@@ -186,6 +187,7 @@ namespace TremorTrainer.ViewModels
                     _currentSessionLength = _samplingTimeLimit;
 
                     _currentSessionState = SessionState.Idle;
+                    ToggleScreenLock();
                     Analytics.TrackEvent($"Stopping a Running session at {DateTime.Now}...");
 
                     break;
@@ -198,6 +200,7 @@ namespace TremorTrainer.ViewModels
                     SessionButtonText = "Start Session";
 
                     _currentSessionState = SessionState.Idle;
+                    ToggleScreenLock();
                     Analytics.TrackEvent($"Stopping a session during Sampling stage at {DateTime.Now}...");
 
                     break;
@@ -345,6 +348,7 @@ namespace TremorTrainer.ViewModels
                 _currentSessionLength = _samplingTimeLimit;
 
                 _currentSessionState = SessionState.Idle;
+                ToggleScreenLock();
                 Analytics.TrackEvent($"Ended a Running session at {DateTime.Now}...");
 
             }
@@ -403,6 +407,12 @@ namespace TremorTrainer.ViewModels
             goalTremorTimer.Interval = 1000 / (_accelerometerService.GoalTremorFrequency);
             goalTremorTimer.Elapsed += OnMetronomeInterval;
             goalTremorTimer.Start();
+        }
+
+        private void ToggleScreenLock()
+        {
+            DeviceDisplay.KeepScreenOn = !DeviceDisplay.KeepScreenOn;
+            Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn.ToString()}");
         }
 
     }
