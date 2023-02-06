@@ -211,11 +211,14 @@ namespace TremorTrainer.ViewModels
 
         private async Task WrapUpSessionAsync(bool shouldSaveSession = true)
         {
-            //Accelerometer and timer wrap up
+            //Accelerometer, threshold ratio, and timer wrap up
+            ToggleScreenLock();
             await _mainTimerService.StopTimerAsync();
             detectingTimer.Stop();
             goalTremorTimer.Stop();
             await _accelerometerService.StopAccelerometer();
+            _accelerometerService.TremorThresholdRatio = .66;
+
             var sessionDuration = DateTime.Now - _sessionStartTime;
             _mainTimerService.SessionRunning = false;
 
@@ -332,6 +335,13 @@ namespace TremorTrainer.ViewModels
             TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
             TimerText = FormatTimeSpan(span);
 
+            // change the goal tremor range halfway through the session only once
+            if (_currentSessionLength <= _detectionTimeLimit / 2)
+            {
+                _accelerometerService.TremorThresholdRatio = .33;
+                
+            }
+
             if (_currentSessionLength <= 0)
             {
                 Debug.Assert(_currentSessionState == SessionState.Detecting);
@@ -350,7 +360,6 @@ namespace TremorTrainer.ViewModels
                 _currentSessionLength = _samplingTimeLimit;
 
                 _currentSessionState = SessionState.Idle;
-                ToggleScreenLock();
                 Analytics.TrackEvent($"Ended a Running session at {DateTime.Now}...");
 
             }
@@ -383,12 +392,6 @@ namespace TremorTrainer.ViewModels
         {
             var tremorFrequency = await _accelerometerService.ProcessDetectionStage(millisecondsElapsed);
 
-            //var message = $"Current Tremor Velocity: {_currentTremorLevel}";
-            // Compare the magnitude to the baseline tremor level
-
-            var tremorMessage = $"Tremors Detected: {_accelerometerService.TremorCount}";
-
-
             //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
             double minPointerFrequency = Math.Max(0.25, _accelerometerService.GoalTremorFrequency - 2.0);
             //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
@@ -413,8 +416,12 @@ namespace TremorTrainer.ViewModels
 
         private void ToggleScreenLock()
         {
-            DeviceDisplay.KeepScreenOn = !DeviceDisplay.KeepScreenOn;
-            Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn.ToString()}");
+            Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+            {
+                DeviceDisplay.KeepScreenOn = !DeviceDisplay.KeepScreenOn;
+                Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn.ToString()}");
+            });
+
         }
 
     }
