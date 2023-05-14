@@ -41,7 +41,7 @@ namespace TremorTrainer.ViewModels
             Detecting
         }
 
-        // todo: replace these fields once code solidifies
+        // todo: replace these fiel     ds once code solidifies
         private string _readingText = "Press Start Session to begin measuring";
         private string _tremorText = "";
         private string _timerText;
@@ -336,9 +336,11 @@ namespace TremorTrainer.ViewModels
             TimerText = FormatTimeSpan(span);
 
             // change the goal tremor range halfway through the session only once
-            if (_currentSessionLength <= _detectionTimeLimit / 2)
+            if (_currentSessionLength == _detectionTimeLimit / 2)
             {
                 _accelerometerService.TremorThresholdRatio = .33;
+                // todo: recompute the gaol tremor rate with the new modifier
+                // todo: ensure this only happens once on the session run
                 
             }
 
@@ -413,8 +415,9 @@ namespace TremorTrainer.ViewModels
             goalTremorTimer.Elapsed += OnMetronomeInterval;
             goalTremorTimer.Start();
         }
+        
 
-        private void ToggleScreenLock()
+        private static void ToggleScreenLock()
         {
             Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
