@@ -339,9 +339,8 @@ namespace TremorTrainer.ViewModels
             if (_currentSessionLength == _detectionTimeLimit / 2)
             {
                 _accelerometerService.TremorThresholdRatio = .33;
-                // todo: recompute the gaol tremor rate with the new modifier
-                // todo: ensure this only happens once on the session run
-                
+                Console.WriteLine("new freq: " + _accelerometerService.GoalTremorFrequency);
+                ConfigureMetronome();
             }
 
             if (_currentSessionLength <= 0)
@@ -411,6 +410,7 @@ namespace TremorTrainer.ViewModels
             Console.WriteLine($"Starting Metronome at {_accelerometerService.GoalTremorFrequency}");
 
             // metronome must be evenly spaced. Divide 1 second by goal tremor rate to determine interval
+            goalTremorTimer.Stop();
             goalTremorTimer.Interval = 1000 / (_accelerometerService.GoalTremorFrequency);
             goalTremorTimer.Elapsed += OnMetronomeInterval;
             goalTremorTimer.Start();

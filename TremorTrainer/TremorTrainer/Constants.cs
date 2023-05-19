@@ -23,7 +23,7 @@ namespace TremorTrainer
         public const int FirstPrescribedSessionTimeLimit = 3600000;
 
         // PrescribedSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
-        public const int InductionSessionTimeLimit = 10000;
+        public const int InductionSessionTimeLimit = 3600000;
 
         // AsNeededSessionTimeLimit: the time span for a running As Needed Session
         public const int MaintenanceSessionTimeLimit = 1800000;
