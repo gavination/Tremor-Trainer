@@ -54,9 +54,6 @@
         <ScrollView Grid.Row="1">
             <StackLayout Orientation="Vertical" Padding="30,10,30,24" Spacing="0">
                 
-                <Label Text="{Binding TimerText, Mode=OneWay}" FontSize="Large" ></Label>
-
-
                 <Label FontSize="Large"></Label>
                 <gauge:SfCircularGauge HeightRequest="300">
                     <gauge:SfCircularGauge.Headers>
@@ -84,7 +81,9 @@
                     </gauge:SfCircularGauge.Scales>
                 </gauge:SfCircularGauge>
 
-                <Label  Margin="0,-60,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Default" HorizontalOptions="CenterAndExpand"></Label>
+                <Label  Margin="0,-90,0,0" Text="{Binding TimerText, Mode=OneWay}" FontSize="Large" HorizontalOptions="CenterAndExpand" ></Label>
+                <Label  Margin="0,20,0,0" Text="{Binding ReadingText, Mode=OneWay}" FontSize="Default" HorizontalOptions="CenterAndExpand"></Label>
+
                 <buttons:SfButton
                             Margin="0,20,0,0"
                             Command="{Binding StartSessionCommand}"
@@ -94,7 +93,6 @@
                             TextColor="White"
                             BackgroundColor="{StaticResource Primary}"
                  />
-
                 <buttons:SfButton
                             Margin="0,50,0,0"
                             Style="{DynamicResource LoginFormBorderlessEntryBorderStyle}"
