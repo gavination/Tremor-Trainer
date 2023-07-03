@@ -74,10 +74,12 @@ namespace TremorTrainer
 
         protected override void OnSleep()
         {
+            // todo: teardown the accelerometer and timing fixtures on sleep
         }
 
         protected override void OnResume()
         {
+            // todo: this fails with a null reference when killed and relaunched
             MainPage = new GetStartedPage();
 
         }
