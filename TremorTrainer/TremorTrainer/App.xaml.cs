@@ -5,7 +5,6 @@ using Xamarin.Forms;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
-using Syncfusion.Licensing;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -22,10 +21,16 @@ namespace TremorTrainer
         public static ViewModelLocator Locator => _locator = _locator ?? new ViewModelLocator();
         public App()
         {
-            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
-            InitializeComponent();
+            Initialize();
+        }
 
-            MainPage = new GetStartedPage();
+        private void Initialize()
+        {
+            Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
+
+            InitializeComponent();
+            MainPage = new AppShell();
+            //(App.Current).MainPage = new AppShell();
         }
 
         protected override void OnStart()
@@ -75,12 +80,13 @@ namespace TremorTrainer
         protected override void OnSleep()
         {
             // todo: teardown the accelerometer and timing fixtures on sleep
+            MainPage = new GetStartedPage();
         }
 
         protected override void OnResume()
         {
             // todo: this fails with a null reference when killed and relaunched
-            MainPage = new GetStartedPage();
+            Initialize();
 
         }
     }
