@@ -21,13 +21,24 @@ namespace TremorTrainer.Utilities
         // Creates the instance of the singleton
         private AppSettingsManager()
         {
-            var assembly = IntrospectionExtensions.GetTypeInfo(typeof(AppSettingsManager)).Assembly;
-            var stream = assembly.GetManifestResourceStream($"{Namespace}.{Filename}");
-            using (var reader = new StreamReader(stream))
+            try
             {
-                var json = reader.ReadToEnd();
-                _secrets = JObject.Parse(json);
+                //From the assembly where this code lives!
+                var resources = this.GetType().GetTypeInfo().Assembly.GetManifestResourceNames();
+
+                var assembly = IntrospectionExtensions.GetTypeInfo(typeof(AppSettingsManager)).Assembly;
+                var stream = assembly.GetManifestResourceStream($"{Namespace}.{Filename}");
+                using (var reader = new StreamReader(stream))
+                {
+                    var json = reader.ReadToEnd();
+                    _secrets = JObject.Parse(json);
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Unable to read appsettings. Details: {e.Message}");
+            }
+
         }
 
         // Accesses the instance or creates a new instance

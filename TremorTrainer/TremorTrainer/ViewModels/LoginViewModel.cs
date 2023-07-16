@@ -15,24 +15,21 @@ namespace TremorTrainer.ViewModels
 
         public LoginViewModel()
         {
-            PrescribedCommand = new Command(OnSubsequenDaysButtonClicked);
-            MaintenanceCommand = new Command(OnDay1SessionClicked);
+            PrescribedCommand = new Command(OnDay1SessionClicked);
+            MaintenanceCommand = new Command(OnSubsequentDaysButtonClicked);
         }
 
         private static async void OnDay1SessionClicked(object obj)
         {
-            //Todo: Check for a token to determine what content to present to the user
-            //Application.Current.MainPage = new AppShell(Constants.MaintenanceSessionTimeLimit, false);
+            App.Current.Properties["IsInductionSession"] = true;
             await Shell.Current.GoToAsync("//AccelerometerPage");
 
         }
 
-        private static async void OnSubsequenDaysButtonClicked(object obj)
+        private static async void OnSubsequentDaysButtonClicked(object obj)
         {
-            //Todo: Check for a token to determine what content to present to the user
-            //Application.Current.MainPage = new AppShell(Constants.InductionSessionTimeLimit, true);
+            App.Current.Properties["IsInductionSession"] = false;
             await Shell.Current.GoToAsync("//AccelerometerPage");
-
         }
     }
 }

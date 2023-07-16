@@ -20,10 +20,9 @@ namespace TremorTrainer
                 Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
                 Routing.RegisterRoute(nameof(GetStartedPage), typeof(GetStartedPage));
 
-                //todo: remove these hardcoded values
-                App.Current.Properties["SessionLength"] = 1000;
-                App.Current.Properties["IsPrescribedSession"] = true;
-
+                // disables the hamburger menu
+                // needed to ensure we don't show it on the GetStartedPage
+                this.FlyoutBehavior = FlyoutBehavior.Disabled;
             }
             catch (Exception e)
             {

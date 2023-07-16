@@ -18,6 +18,8 @@ namespace TremorTrainer.Views
         {
             base.OnAppearing();
             popupLayout.Show(false);
+            Shell.Current.FlyoutBehavior = FlyoutBehavior.Flyout;
         }
+            
     }
 }

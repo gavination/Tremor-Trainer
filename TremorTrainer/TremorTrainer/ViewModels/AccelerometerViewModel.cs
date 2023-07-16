@@ -31,7 +31,7 @@ namespace TremorTrainer.ViewModels
         // setup private timer and ui vars
         private readonly int _samplingTimeLimit;
         private readonly int _detectionTimeLimit;
-        private readonly bool _isPrescribedSession;
+        private readonly bool _isInductionSession;
         private readonly int _downSampleRate;
 
         private enum SessionState
@@ -125,9 +125,9 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements, initialize vars, and register propertyChanged events
             Title = "Start Training";
-            _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
+            _isInductionSession = (bool)App.Current.Properties["IsInductionSession"];
             _samplingTimeLimit = Constants.SamplingTimeLimit;
-            _detectionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
+            _detectionTimeLimit = _sessionService.GetSessionLength(_isInductionSession);
             _downSampleRate = Constants.DownSampleRate;
             _currentSessionLength = _samplingTimeLimit;
             _sampleRate = 50;
@@ -227,7 +227,7 @@ namespace TremorTrainer.ViewModels
 
             if (shouldSaveSession)
             {
-                var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
+                var sessionType = _sessionService.GetSessionType(_isInductionSession);
                 var sessionDurationText = new DateTime(sessionDuration.Ticks).ToString("HH:mm:ss");
                 Session newSession = new Session
                 {
