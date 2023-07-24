@@ -398,7 +398,7 @@ namespace TremorTrainer.ViewModels
             //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
             double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
             // Map the tremor frequency in the range we picked to a value between 0 and 1
-            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
+            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency) / (maxPointerFrequency - minPointerFrequency)));
 
             PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
@@ -422,7 +422,7 @@ namespace TremorTrainer.ViewModels
             Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
                 DeviceDisplay.KeepScreenOn = !DeviceDisplay.KeepScreenOn;
-                Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn.ToString()}");
+                Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn}");
             });
 
         }
