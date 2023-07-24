@@ -1,6 +1,4 @@
-﻿using Xamarin.Forms.Internals;
-using Xamarin.Forms.Xaml;
-using TremorTrainer.ViewModels;
+﻿using TremorTrainer.ViewModels;
 using Xamarin.Forms;
 
 namespace TremorTrainer.Views
@@ -22,7 +20,10 @@ namespace TremorTrainer.Views
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
+            if (Shell.Current != null)
+            {
+                Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
+            }
         }
     }
 }

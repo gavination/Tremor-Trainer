@@ -23,10 +23,14 @@ namespace TremorTrainer
         public const int FirstPrescribedSessionTimeLimit = 3600000;
 
         // PrescribedSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
-        public const int InductionSessionTimeLimit = 3600000;
+        //public const int InductionSessionTimeLimit = 3600000;
+        public const int InductionSessionTimeLimit = 60000;
+
 
         // AsNeededSessionTimeLimit: the time span for a running As Needed Session
+        //public const int MaintenanceSessionTimeLimit = 1800000;
         public const int MaintenanceSessionTimeLimit = 1800000;
+
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
         public const int SamplingTimeLimit = 10000;
@@ -35,7 +39,7 @@ namespace TremorTrainer
         public const int CountdownInterval = 1000;
 
         // DetectionInterval: the time interval, in milliseconds, at which values will be compared to check for a Tremor. 
-        public const int DetectionInterval = 50;
+        public const int DetectionInterval = 25;
 
         // DownSampleRate: measured in Hz, the desired rate for the accelerometer values to be downsampled to
         public const int DownSampleRate = 50;
