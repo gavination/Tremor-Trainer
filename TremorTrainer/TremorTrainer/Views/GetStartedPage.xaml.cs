@@ -1,23 +1,29 @@
-﻿using Xamarin.Forms.Internals;
-using Xamarin.Forms.Xaml;
-using TremorTrainer.ViewModels;
+﻿using TremorTrainer.ViewModels;
+using Xamarin.Forms;
 
 namespace TremorTrainer.Views
 {
     /// <summary>
     /// Page to login with user name and password
     /// </summary>
-    [Preserve(AllMembers = true)]
-    [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class GetStartedPage
+    public partial class GetStartedPage : ContentPage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="GetStartedPage" /> class.
         /// </summary>
         public GetStartedPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             BindingContext = new LoginViewModel();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            if (Shell.Current != null)
+            {
+                Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
+            }
         }
     }
 }

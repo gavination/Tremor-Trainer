@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using TremorTrainer.Views;
 using Xamarin.Forms;
 
@@ -14,22 +15,21 @@ namespace TremorTrainer.ViewModels
 
         public LoginViewModel()
         {
-            PrescribedCommand = new Command(OnPrescribedButtonClicked);
-            MaintenanceCommand = new Command(OnMaintenanceButtonClicked);
+            PrescribedCommand = new Command(OnDay1SessionClicked);
+            MaintenanceCommand = new Command(OnSubsequentDaysButtonClicked);
         }
 
-        private static void OnMaintenanceButtonClicked(object obj)
+        private static async void OnDay1SessionClicked(object obj)
         {
-            //Todo: Check for a token to determine what content to present to the user
-            Application.Current.MainPage = new AppShell(Constants.MaintenanceSessionTimeLimit, false);
+            App.Current.Properties["IsInductionSession"] = true;
+            await Shell.Current.GoToAsync("//AccelerometerPage");
 
         }
 
-        private static void OnPrescribedButtonClicked(object obj)
+        private static async void OnSubsequentDaysButtonClicked(object obj)
         {
-            //Todo: Check for a token to determine what content to present to the user
-            Application.Current.MainPage = new AppShell(Constants.InductionSessionTimeLimit, true);
-
+            App.Current.Properties["IsInductionSession"] = false;
+            await Shell.Current.GoToAsync("//AccelerometerPage");
         }
     }
 }

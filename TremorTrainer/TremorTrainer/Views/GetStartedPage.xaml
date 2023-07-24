@@ -1,14 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
-    x:Class="TremorTrainer.Views.GetStartedPage"
     xmlns="http://xamarin.com/schemas/2014/forms"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
     xmlns:converter="clr-namespace:TremorTrainer.Converters"
     xmlns:core="clr-namespace:Syncfusion.XForms.Core;assembly=Syncfusion.Core.XForms"
     xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms"
-    BackgroundImageSource="{core:OnPlatformOrientationStringValue Default=hero_img,
-                                                                  iOSPhonePortrait=hero_img}"
+    x:Class="TremorTrainer.Views.GetStartedPage"
     NavigationPage.HasNavigationBar="False">
 
     <ContentPage.Resources>
@@ -18,7 +16,6 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
-    <ContentPage.Content>
         <Grid>
             <gradient:SfGradientView Style="{StaticResource BlueGradientStyle}" />
 
@@ -85,6 +82,4 @@
             </ScrollView>
 
         </Grid>
-    </ContentPage.Content>
-
-</ContentPage>
+    </ContentPage>

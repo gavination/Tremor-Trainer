@@ -31,7 +31,7 @@ namespace TremorTrainer.ViewModels
         // setup private timer and ui vars
         private readonly int _samplingTimeLimit;
         private readonly int _detectionTimeLimit;
-        private readonly bool _isPrescribedSession;
+        private readonly bool _isInductionSession;
         private readonly int _downSampleRate;
 
         private enum SessionState
@@ -125,9 +125,9 @@ namespace TremorTrainer.ViewModels
             // ViewModel Page Setup
             // Setup UI elements, initialize vars, and register propertyChanged events
             Title = "Start Training";
-            _isPrescribedSession = (bool)App.Current.Properties["IsPrescribedSession"];
+            _isInductionSession = (bool)App.Current.Properties["IsInductionSession"];
             _samplingTimeLimit = Constants.SamplingTimeLimit;
-            _detectionTimeLimit = _sessionService.GetSessionLength(_isPrescribedSession);
+            _detectionTimeLimit = _sessionService.GetSessionLength(_isInductionSession);
             _downSampleRate = Constants.DownSampleRate;
             _currentSessionLength = _samplingTimeLimit;
             _sampleRate = 50;
@@ -227,7 +227,7 @@ namespace TremorTrainer.ViewModels
 
             if (shouldSaveSession)
             {
-                var sessionType = _sessionService.GetSessionType(_isPrescribedSession);
+                var sessionType = _sessionService.GetSessionType(_isInductionSession);
                 var sessionDurationText = new DateTime(sessionDuration.Ticks).ToString("HH:mm:ss");
                 Session newSession = new Session
                 {
@@ -398,7 +398,7 @@ namespace TremorTrainer.ViewModels
             //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
             double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
             // Map the tremor frequency in the range we picked to a value between 0 and 1
-            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
+            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency) / (maxPointerFrequency - minPointerFrequency)));
 
             PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
@@ -422,7 +422,7 @@ namespace TremorTrainer.ViewModels
             Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
             {
                 DeviceDisplay.KeepScreenOn = !DeviceDisplay.KeepScreenOn;
-                Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn.ToString()}");
+                Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn}");
             });
 
         }

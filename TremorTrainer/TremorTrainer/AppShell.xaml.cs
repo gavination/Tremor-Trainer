@@ -9,7 +9,7 @@ namespace TremorTrainer
     public partial class AppShell : Xamarin.Forms.Shell
     {
 
-        public AppShell(int sessionLength, bool isPrescribedSession)
+        public AppShell()
         {
             InitializeComponent();
             try
@@ -18,10 +18,11 @@ namespace TremorTrainer
                 Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
                 Routing.RegisterRoute(nameof(SessionsPage), typeof(SessionsPage));
                 Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
+                Routing.RegisterRoute(nameof(GetStartedPage), typeof(GetStartedPage));
 
-                App.Current.Properties["SessionLength"] = sessionLength;
-                App.Current.Properties["IsPrescribedSession"] = isPrescribedSession;
-
+                // disables the hamburger menu
+                // needed to ensure we don't show it on the GetStartedPage
+                this.FlyoutBehavior = FlyoutBehavior.Disabled;
             }
             catch (Exception e)
             {
