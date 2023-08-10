@@ -171,7 +171,7 @@ namespace TremorTrainer.ViewModels
                     TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
                     TimerText = FormatTimeSpan(span);
 
-                    SessionButtonText = "Stop Session";
+                    SessionButtonText = "End Session";
                     TremorText = "Measuring your tremor levels...";
 
 
@@ -228,11 +228,21 @@ namespace TremorTrainer.ViewModels
             if (shouldSaveSession)
             {
                 var sessionType = _sessionService.GetSessionType(_isInductionSession);
+
+                string sessionTypeText;
+                if (_sessionService.GetSessionType(_isInductionSession) == SessionType.Induction){
+                    sessionTypeText = "Day 1";
+                }
+                else
+                {
+                    sessionTypeText = "Days 2-7";
+                }
+
                 var sessionDurationText = new DateTime(sessionDuration.Ticks).ToString("HH:mm:ss");
                 Session newSession = new Session
                 {
                     Id = Guid.NewGuid(),
-                    Details = $"Session Type: {sessionType}. Duration: {sessionDurationText}",
+                    Details = $"Session Type: {sessionTypeText}. Duration: {sessionDurationText}",
                     Duration = sessionDuration,
                     StartTime = DateTime.Now,
                     Type = sessionType
