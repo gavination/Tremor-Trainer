@@ -1,5 +1,8 @@
 {
   "AppDisplayName": "Tremor Retrainer",
   "AndroidAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR ANDROID>",
-  "IOSAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR IOS>"
+  "IOSAppCenterId": "<VISUAL STUDIO APP CENTER TOKEN GOES HERE FOR IOS>",
+  "SyncfusionCommunityLicenseKey": "<SYNCFUSION COMMUNITY TOOLKIT LICENSE>",
+  "Day1SessionTimeLimit": "3600000",
+  "Days2-7SessionTimeLimit": "1800000"
 }

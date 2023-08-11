@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using TremorTrainer.Utilities;
 using Xamarin.Essentials;
 
 namespace TremorTrainer
@@ -19,18 +20,25 @@ namespace TremorTrainer
         // CsvFileName: the name of the exported file reflecting DB records
         private const string CsvFileName = "TremorTrainerSessions.csv";
 
-        // FirstPrescribedSessionTimeLimit: the time span (in ms) for the first, typically longer, Prescribed Session
-        public const int FirstPrescribedSessionTimeLimit = 3600000;
+        // InductionSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
+        public static int InductionSessionTimeLimit
+        {
+            get
+            {
+                return int.Parse(AppSettingsManager.Settings["Day1SessionTimeLimit"]);
+            }
+        }
 
-        // PrescribedSessionTimeLimit: the time span (in ms) for a running Prescribed Session run after the first
-        public const int InductionSessionTimeLimit = 3600000;
 
 
-        // AsNeededSessionTimeLimit: the time span for a running As Needed Session
-        //public const int MaintenanceSessionTimeLimit = 1800000;
-
-        public const int MaintenanceSessionTimeLimit = 1800000;
-
+        // MaintenanceSessionTimeLimit: the time span for a running As Needed Session
+        public static int MaintenanceSessionTimeLimit
+        {
+            get
+            {
+                return int.Parse(AppSettingsManager.Settings["Days2-7SessionTimeLimit"]);
+            }
+        }
 
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
