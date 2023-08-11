@@ -27,7 +27,10 @@ namespace TremorTrainer
 
 
         // AsNeededSessionTimeLimit: the time span for a running As Needed Session
+        //public const int MaintenanceSessionTimeLimit = 1800000;
+
         public const int MaintenanceSessionTimeLimit = 1800000;
+
 
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts

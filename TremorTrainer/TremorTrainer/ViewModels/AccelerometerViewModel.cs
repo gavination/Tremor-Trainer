@@ -171,7 +171,7 @@ namespace TremorTrainer.ViewModels
                     TimeSpan span = TimeSpan.FromMilliseconds(_currentSessionLength);
                     TimerText = FormatTimeSpan(span);
 
-                    SessionButtonText = "Stop Session";
+                    SessionButtonText = "End Session";
                     TremorText = "Measuring your tremor levels...";
 
 
@@ -228,11 +228,21 @@ namespace TremorTrainer.ViewModels
             if (shouldSaveSession)
             {
                 var sessionType = _sessionService.GetSessionType(_isInductionSession);
+
+                string sessionTypeText;
+                if (_sessionService.GetSessionType(_isInductionSession) == SessionType.Induction){
+                    sessionTypeText = "Day 1";
+                }
+                else
+                {
+                    sessionTypeText = "Days 2-7";
+                }
+
                 var sessionDurationText = new DateTime(sessionDuration.Ticks).ToString("HH:mm:ss");
                 Session newSession = new Session
                 {
                     Id = Guid.NewGuid(),
-                    Details = $"Session Type: {sessionType}. Duration: {sessionDurationText}",
+                    Details = $"Session Type: {sessionTypeText}. Duration: {sessionDurationText}",
                     Duration = sessionDuration,
                     StartTime = DateTime.Now,
                     Type = sessionType
@@ -396,9 +406,9 @@ namespace TremorTrainer.ViewModels
             //Try to create +/- 2 HZ range to display on the meter. We take the Max with 0.5 to avoid anything slower than once every 2 seconds.
             double minPointerFrequency = Math.Max(0.25, _accelerometerService.GoalTremorFrequency - 2.0);
             //To calculate the max side of the +/- 2 HZ range we make sure to use the size min side of the range to avoid an unbalanced range size.
-            double maxPointerFrequency = _accelerometerService.BaselineTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
+            double maxPointerFrequency = _accelerometerService.GoalTremorFrequency + (_accelerometerService.GoalTremorFrequency - minPointerFrequency);
             // Map the tremor frequency in the range we picked to a value between 0 and 1
-            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency) / (maxPointerFrequency - minPointerFrequency)));
+            var pointerPosition = Math.Min(1.0, Math.Max(0.0, (tremorFrequency - minPointerFrequency) / (maxPointerFrequency - minPointerFrequency)));
 
             PointerPosition = (pointerPosition * 100).ToString(CultureInfo.InvariantCulture);
         }
