@@ -6,5 +6,4 @@
   "Day1SessionTimeLimit": "3600000",
   "Days2-7SessionTimeLimit": "1800000",
   "DefaultFrequencyHz": "3"
-
 }
