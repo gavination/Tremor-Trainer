@@ -40,6 +40,14 @@ namespace TremorTrainer
             }
         }
 
+        // DefaultFrequency: the value used when the accelerometer cannot detect user movement/input
+        public static int DefaultFrequency
+        {
+            get
+            {
+                return int.Parse(AppSettingsManager.Settings["DefaultFrequencyHz"]);
+            }
+        }
 
         // SamplingTimeLimit: the time span for the Sampling state run before the Session starts
         public const int SamplingTimeLimit = 10000;

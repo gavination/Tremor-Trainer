@@ -264,14 +264,16 @@ namespace TremorTrainer.Services
             bufferY = new CircularBuffer((int)(bufferTime * SampleRate));
             bufferZ = new CircularBuffer((int)(bufferTime * SampleRate));
 
-            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);            
+            var (maxFrequency, maxAmplitude, maxBin) = GetMaxFrequencyAndAmplitude(xSamples, ySamples, zSamples, desiredSampleRate);
 
             // accelerometer noise outside of the range of human movement
             // that typically occurs when phone is resting still
             // set this value to 3 to provide a decent default value
-            if (maxFrequency >= 9.0)
+
+
+            if (maxFrequency >= 9.0 || maxFrequency <= 1.0)
             {
-                BaselineTremorFrequency = 3.0;
+                BaselineTremorFrequency = Constants.DefaultFrequency;
             }
             else
             {
