@@ -1,4 +1,4 @@
-# Welcome to Tremor Trainer!
+# Welcome to Tremor Retrainer!
 
 Tremor Trainer is a cross-platform mobile app lovingly built using Xamarin.Forms 5 by a team of cybernetic pandas. The application seeks to provide access to frontline therapy for those suffering from [Functional Tremors](https://pubmed.ncbi.nlm.nih.gov/27719841/). At the time of implementation, there are no known methodologies for providing a means to temper the effects of functional tremors other than Tremor Trainer. Thanks for the combined research and efforts of Drs. Jordan Garris, Alberto Espay, and Amanda Lin, we were able to implement those learnings into a simple to use mobile application that requires not much more than a smartphone (Android, iOS) with an Accelerometer. 
 
