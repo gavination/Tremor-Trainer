@@ -62,7 +62,7 @@ namespace TremorTrainer
         public const int DownSampleRate = 50;
 
         // BuildNumber: the current version of the Tremor Trainer App
-        public const string BuildNumber = "0.0.4";
+        public const string BuildNumber = "0.0.3";
 
 
 
