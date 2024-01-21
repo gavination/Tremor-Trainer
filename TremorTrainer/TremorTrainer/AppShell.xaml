@@ -103,7 +103,6 @@
         await Shell.Current.GoToAsync("//LoginPage");
     -->
     <TabBar>
-        <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
         <ShellContent Route="SessionsPage" ContentTemplate="{DataTemplate local:SessionsPage}"/>
     </TabBar>
 
