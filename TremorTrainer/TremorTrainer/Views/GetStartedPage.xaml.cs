@@ -14,7 +14,7 @@ namespace TremorTrainer.Views
         public GetStartedPage()
         {
             InitializeComponent();
-            BindingContext = new LoginViewModel();
+            BindingContext = new GetStartedViewModel();
         }
 
         protected override void OnAppearing()

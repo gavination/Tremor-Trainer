@@ -14,15 +14,17 @@ namespace TremorTrainer
             InitializeComponent();
             try
             {
+                Routing.RegisterRoute(nameof(LoginPage), typeof(LoginPage));
                 Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
                 Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
                 Routing.RegisterRoute(nameof(SessionsPage), typeof(SessionsPage));
                 Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
                 Routing.RegisterRoute(nameof(GetStartedPage), typeof(GetStartedPage));
+                Routing.RegisterRoute(nameof(AccelerometerPage), typeof(AccelerometerPage));
 
                 // disables the hamburger menu
                 // needed to ensure we don't show it on the GetStartedPage
-                this.FlyoutBehavior = FlyoutBehavior.Disabled;
+                //this.FlyoutBehavior = FlyoutBehavior.Disabled;
             }
             catch (Exception e)
             {
@@ -36,7 +38,7 @@ namespace TremorTrainer
 
         private async void OnMenuItemClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//GetStartedPage");
+            await Shell.Current.GoToAsync("//LoginPage");
         }
     }
 }

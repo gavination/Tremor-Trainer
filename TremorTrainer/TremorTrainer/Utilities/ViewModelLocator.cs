@@ -38,5 +38,7 @@ namespace TremorTrainer.Utilities
         public NewItemViewModel NewItemViewModel => _unityContainer.Resolve<NewItemViewModel>();
         public AccelerometerViewModel AccelerometerViewModel => _unityContainer.Resolve<AccelerometerViewModel>();
         public SettingsViewModel SettingsViewModel => _unityContainer.Resolve<SettingsViewModel>();
+        public GetStartedViewModel GetStartedViewModel => _unityContainer.Resolve<GetStartedViewModel>();
+        public LoginViewModel LoginViewModel => _unityContainer.Resolve<LoginViewModel>();
     }
 }

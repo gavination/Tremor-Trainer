@@ -79,10 +79,10 @@
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
     <FlyoutItem Title="Login" Icon="star.png">
-        <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
+        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
     </FlyoutItem>
     <FlyoutItem Title="Get Started" Icon="star.png">
-        <ShellContent Route="AccelerometerPage" ContentTemplate="{DataTemplate local:AccelerometerPage}" />
+        <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
     </FlyoutItem>
     <FlyoutItem Title="Sessions" Icon="file.png">
         <ShellContent Route="SessionsPage" ContentTemplate="{DataTemplate local:SessionsPage}" />
@@ -104,6 +104,7 @@
     -->
     <TabBar>
         <ShellContent Route="SessionsPage" ContentTemplate="{DataTemplate local:SessionsPage}"/>
+        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}"/>
     </TabBar>
 
     <!-- Optional Templates 

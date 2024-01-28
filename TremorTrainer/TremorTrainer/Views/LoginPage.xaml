@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:TremorTrainer.Views.Forms"
+             xmlns:gradient="clr-namespace:Syncfusion.XForms.Graphics;assembly=Syncfusion.Core.XForms"
+             xmlns:inputLayout="clr-namespace:Syncfusion.XForms.TextInputLayout;assembly=Syncfusion.Core.XForms"
+             xmlns:converter="clr-namespace:TremorTrainer.Converters"
+             xmlns:syncTheme="clr-namespace:Syncfusion.XForms.Themes;assembly=Syncfusion.Core.XForms"
+             xmlns:buttons="clr-namespace:Syncfusion.XForms.Buttons;assembly=Syncfusion.Buttons.XForms"
+             mc:Ignorable="d"
+             x:Class="TremorTrainer.Views.LoginPage"
+             Shell.NavBarIsVisible="False">
+    <ContentPage.Resources>
+        <syncTheme:SyncfusionThemeDictionary>
+            <syncTheme:SyncfusionThemeDictionary.MergedDictionaries>
+                <ResourceDictionary>
+                    <x:String x:Key="SfTextInputLayoutTheme">CustomTheme</x:String>
+                    <Color x:Key="SfTextInputLayoutFloatedHintUnfocusedColor">WhiteSmoke</Color>
+                    <Color x:Key="SfTextInputLayoutLineColor">WhiteSmoke</Color>
+                    <Color x:Key="SfTextInputLayoutHelperTextColor">WhiteSmoke</Color>
+                    <Color x:Key="SfTextInputLayoutCounterLabelColor">WhiteSmoke</Color>
+                    <Color x:Key="SyncPrimaryLightColor">WhiteSmoke</Color>
+                </ResourceDictionary>
+            </syncTheme:SyncfusionThemeDictionary.MergedDictionaries>
+        </syncTheme:SyncfusionThemeDictionary>
+
+    </ContentPage.Resources>
+    <ContentPage.Content>
+        <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand" BackgroundColor="White">
+            <!--<Image  Source="hero_img.jpg" Aspect="AspectFill" HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand"/>-->
+            <gradient:SfGradientView Style="{StaticResource BlueGradientStyle}" />
+
+            <StackLayout Padding="10,20,10,0" HorizontalOptions="FillAndExpand" VerticalOptions="Start">
+                <Label Text="Welcome to Tremor Trainer"
+                   FontSize="30"
+                   TextColor="WhiteSmoke"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="0,50,0,0"
+                />
+                <Label Text="Let's Get Started"
+                   FontSize="25"
+                   TextColor="WhiteSmoke"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="50,150,50,0"
+                />
+
+                <inputLayout:SfTextInputLayout
+                   Hint="Username"
+                   HelperText="Enter your user id"
+                   FocusedColor="WhiteSmoke">
+                   <Entry TextColor="WhiteSmoke" />
+                </inputLayout:SfTextInputLayout>
+                <inputLayout:SfTextInputLayout
+                    Hint="Password"
+                    EnablePasswordVisibilityToggle="true"
+                    HelperText="Enter your password"
+                    >
+                    <Entry IsPassword="True"/>
+                </inputLayout:SfTextInputLayout>
+                <buttons:SfButton
+                    Grid.Row="6"
+                    Margin="0,16,0,16"
+                    Style="{StaticResource GradientButtonStyle}"
+                    Command="{Binding LoginCommand}"
+                    HorizontalOptions="Fill"
+                    Text="Login"
+                />
+            </StackLayout>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>
