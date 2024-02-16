@@ -34,10 +34,7 @@
                                     <Image Source="instructionFigure.png" WidthRequest="350" HeightRequest="350"/>
                                 </StackLayout>
                                 </ViewCell.View>
-
-                                
                                </ViewCell>
-
                             </DataTemplate>
                         </sfPopup:PopupView.ContentTemplate>
                     </sfPopup:PopupView>

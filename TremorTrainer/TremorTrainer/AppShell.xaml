@@ -79,6 +79,9 @@
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
     <FlyoutItem Title="Login" Icon="star.png">
+        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Get Started 1" Icon="star.png">
         <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
     </FlyoutItem>
     <FlyoutItem Title="Get Started" Icon="star.png">

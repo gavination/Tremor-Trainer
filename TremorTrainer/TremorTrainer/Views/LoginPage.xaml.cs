@@ -4,17 +4,17 @@ using Xamarin.Forms;
 namespace TremorTrainer.Views
 {
     /// <summary>
-    /// Page to select the type of session to start
+    /// Page to login with user name and password
     /// </summary>
-    public partial class GetStartedPage : ContentPage
+    public partial class LoginPage : ContentPage
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="GetStartedPage" /> class.
+        /// Initializes a new instance of the <see cref="LoginPage" /> class.
         /// </summary>
-        public GetStartedPage()
+        public LoginPage()
         {
             InitializeComponent();
-            BindingContext = new GetStartedViewModel();
+            BindingContext = new LoginViewModel();
         }
 
         protected override void OnAppearing()

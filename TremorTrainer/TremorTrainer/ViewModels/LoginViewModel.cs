@@ -9,27 +9,21 @@ namespace TremorTrainer.ViewModels
 {
     public class LoginViewModel : BaseViewModel
     {
-        public Command PrescribedCommand { get; }
-        public Command MaintenanceCommand { get; }
+        public Command LoginCommand { get; }
 
 
         public LoginViewModel()
         {
-            PrescribedCommand = new Command(OnDay1SessionClicked);
-            MaintenanceCommand = new Command(OnSubsequentDaysButtonClicked);
+            LoginCommand = new Command(OnLoginButtonClicked);
         }
 
-        private static async void OnDay1SessionClicked(object obj)
+        // todo: update this with supabase login logic
+        private static async void OnLoginButtonClicked(object obj)
         {
+            Console.WriteLine("Login button clicked");
             App.Current.Properties["IsInductionSession"] = true;
             await Shell.Current.GoToAsync("//AccelerometerPage");
 
-        }
-
-        private static async void OnSubsequentDaysButtonClicked(object obj)
-        {
-            App.Current.Properties["IsInductionSession"] = false;
-            await Shell.Current.GoToAsync("//AccelerometerPage");
         }
     }
 }
