@@ -34,9 +34,9 @@ namespace TremorTrainer
             }
         }
 
-        private async void OnMenuItemClicked(object sender, EventArgs e)
+        private async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//GetStartedPage");
+            await Shell.Current.GoToAsync("//LoginPage");
         }
     }
 }
