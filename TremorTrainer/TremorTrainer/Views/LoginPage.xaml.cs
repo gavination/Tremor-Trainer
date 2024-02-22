@@ -8,13 +8,13 @@ namespace TremorTrainer.Views
     /// </summary>
     public partial class LoginPage : ContentPage
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LoginPage" /> class.
-        /// </summary>
+        private readonly LoginViewModel _viewModel;
+
         public LoginPage()
         {
             InitializeComponent();
-            BindingContext = new LoginViewModel();
+            BindingContext = _viewModel = App.Locator.LoginViewModel;
+
         }
 
         protected override void OnAppearing()

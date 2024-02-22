@@ -23,6 +23,7 @@ namespace TremorTrainer.Utilities
             _unityContainer.RegisterType<ISessionService, SessionService>();
             _unityContainer.RegisterType<IMessageService, MessageService>();
             _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>();
+            _unityContainer.RegisterType<IAuthService, AuthService>();
 
             // -----------------REPOSITORIES------------------------
             _unityContainer.RegisterType<ISessionRepository, SessionRepository>();
@@ -38,5 +39,6 @@ namespace TremorTrainer.Utilities
         public NewItemViewModel NewItemViewModel => _unityContainer.Resolve<NewItemViewModel>();
         public AccelerometerViewModel AccelerometerViewModel => _unityContainer.Resolve<AccelerometerViewModel>();
         public SettingsViewModel SettingsViewModel => _unityContainer.Resolve<SettingsViewModel>();
+        public LoginViewModel LoginViewModel => _unityContainer.Resolve<LoginViewModel>();
     }
 }

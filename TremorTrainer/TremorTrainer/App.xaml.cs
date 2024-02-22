@@ -33,7 +33,7 @@ namespace TremorTrainer
             //(App.Current).MainPage = new AppShell();
         }
 
-        protected override void OnStart()
+        protected override async void OnStart()
         {
             try
             {
@@ -60,6 +60,24 @@ namespace TremorTrainer
                     // assume the value actually gets populated and this works. 
                     Analytics.TrackEvent
                         ($"android app center secret is present on this build. character length: ${androidAppCenterSecret.Length}");
+
+                }
+
+                // initialize supabase client
+                var url = Environment.GetEnvironmentVariable("SupabaseUrl");
+                var key = Environment.GetEnvironmentVariable("SupabaseKey");
+                var options = new Supabase.SupabaseOptions
+                {
+                    AutoRefreshToken = true
+                };
+                var supabaseClient = new Supabase.Client(url, key, options);
+
+                // check for existing session
+                if (supabaseClient.Auth.CurrentSession == null)
+                {
+                    await supabaseClient.Auth.SignIn(
+                        Environment.GetEnvironmentVariable("UserEmail"),
+                        Environment.GetEnvironmentVariable("UserPassword"));
 
                 }
             }
