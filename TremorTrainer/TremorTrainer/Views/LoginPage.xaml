@@ -58,8 +58,11 @@
                         HintLabelStyle="{DynamicResource Gray-White}">
 
                         <Entry
+                            x:Name="UsernameEntry"
                             Text="{Binding Username}"
                             TextColor="{DynamicResource Gray-White}"
+                            ReturnType="Send"
+                            Completed="FocusPassWordEntry"
                             />
                     </inputLayout:SfTextInputLayout>
                     <inputLayout:SfTextInputLayout
@@ -68,8 +71,12 @@
                         Hint="Password"
                         HintLabelStyle="{DynamicResource Gray-White}">
                         <Entry
+                         x:Name="PasswordEntry"
                          Text="{Binding Password}"
-                         IsPassword="True"/>
+                         IsPassword="True"
+                         ClearButtonVisibility="WhileEditing"
+                         ReturnType="Done"
+                         Completed="SubmitLogin"/>
                     </inputLayout:SfTextInputLayout>
 
                         <!--  Prescribed Session Button  -->

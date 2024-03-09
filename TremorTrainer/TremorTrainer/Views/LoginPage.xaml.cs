@@ -25,5 +25,17 @@ namespace TremorTrainer.Views
                 Shell.Current.FlyoutBehavior = FlyoutBehavior.Disabled;
             }
         }
+
+        private void SubmitLogin(object sender, System.EventArgs e)
+        {
+            _viewModel.LoginCommand.Execute(sender);
+        }
+
+        private void FocusPassWordEntry(object sender, System.EventArgs e)
+        {
+            PasswordEntry.Focus();
+        }
+
+
     }
 }

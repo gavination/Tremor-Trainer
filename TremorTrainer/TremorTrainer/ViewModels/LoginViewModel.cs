@@ -14,7 +14,6 @@ namespace TremorTrainer.ViewModels
 {
     public class LoginViewModel : BaseViewModel
     {
-        private readonly IAuthService _authService;
         private readonly IMessageService _messageService;
         private string _username;
         private string _password;
@@ -40,14 +39,14 @@ namespace TremorTrainer.ViewModels
 
 
         public Command LoginCommand { get; }
+        public Command SubmitCommand { get; }
 
 
-        public LoginViewModel(IAuthService authService, IMessageService messageService)
+        public LoginViewModel(IMessageService messageService)
         {
             Username = "";
             Password = "";
             LoginCommand = new Command(OnLoginButtonClicked);
-            _authService = authService;
             _messageService = messageService;
 
         }
@@ -57,11 +56,11 @@ namespace TremorTrainer.ViewModels
         {
             try
             {
-                var authResult = await _authService.Login(Username, Password);
+                var authResult = await App.AuthService.Login(Username, Password);
                 if (authResult)
                 {
                     App.Current.Properties["IsInductionSession"] = true;
-                    await Shell.Current.GoToAsync("//AccelerometerPage");
+                    await Shell.Current.GoToAsync("//GetStartedPage");
                 }
                 else
                 {
@@ -83,15 +82,7 @@ namespace TremorTrainer.ViewModels
 
         }
 
-        public async void OnPageLoad(object obj)
-        {
-            // try to load the session if one exists
-            var didLoadSession = await _authService.TryLoadSession();
-            if (didLoadSession)
-            {
-                App.Current.Properties["IsInductionSession"] = true;
-                await Shell.Current.GoToAsync("//AccelerometerPage");
-            }
-        }
+         
+
     }
 }

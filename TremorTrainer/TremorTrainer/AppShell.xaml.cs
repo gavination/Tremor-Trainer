@@ -9,11 +9,9 @@ namespace TremorTrainer
 {
     public partial class AppShell : Xamarin.Forms.Shell
     {
-        private readonly IAuthService _authService;
 
-        public AppShell(IAuthService authService)
+        public AppShell()
         {
-            _authService = authService;
             InitializeComponent();
             try
             {
@@ -39,7 +37,7 @@ namespace TremorTrainer
 
         private async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
-            await _authService.Logout();
+            await App.AuthService.Logout();
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }

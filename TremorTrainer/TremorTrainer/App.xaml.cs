@@ -22,24 +22,26 @@ namespace TremorTrainer
         public static ViewModelLocator Locator => _locator = _locator ?? new ViewModelLocator();
 
         private static IAuthService _authService;
+        public static IAuthService AuthService => _authService ?? (_authService = new AuthService());
 
         public App()
         {
             Initialize();
-
-            // Instantiate auth service outside of the IoC container to use in the AppShell.
-            // After instantiation, we supply that instance to the container to be used as a Singleton across the app
-            _authService = new AuthService();
-            Locator.RegisterAuthService(_authService);
         }
 
-        private void Initialize()
+        private async void Initialize()
         {
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
 
             InitializeComponent();
-            MainPage = new AppShell(_authService);
-            //(App.Current).MainPage = new AppShell();
+            MainPage = new AppShell();
+
+            // try to load the session if one exists
+            var didLoadSession = await AuthService.TryLoadSession();
+            if (didLoadSession)
+            {
+                await Shell.Current.GoToAsync("//GetStartedPage");
+            }
         }
 
         protected override async void OnStart()
