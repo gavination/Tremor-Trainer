@@ -58,15 +58,18 @@
                         HintLabelStyle="{DynamicResource Gray-White}">
 
                         <Entry
+                            Text="{Binding Username}"
                             TextColor="{DynamicResource Gray-White}"
                             />
                     </inputLayout:SfTextInputLayout>
                     <inputLayout:SfTextInputLayout
                         Grid.Row="5"
                         EnablePasswordVisibilityToggle="true"
-                        Hint="Password">
+                        Hint="Password"
+                        HintLabelStyle="{DynamicResource Gray-White}">
                         <Entry
-                            IsPassword="True"/>
+                         Text="{Binding Password}"
+                         IsPassword="True"/>
                     </inputLayout:SfTextInputLayout>
 
                         <!--  Prescribed Session Button  -->

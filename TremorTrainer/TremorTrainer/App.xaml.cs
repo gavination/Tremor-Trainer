@@ -5,6 +5,7 @@ using Xamarin.Forms;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using TremorTrainer.Services;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -19,9 +20,17 @@ namespace TremorTrainer
         
         private static ViewModelLocator _locator;
         public static ViewModelLocator Locator => _locator = _locator ?? new ViewModelLocator();
+
+        private static IAuthService _authService;
+
         public App()
         {
             Initialize();
+
+            // Instantiate auth service outside of the IoC container to use in the AppShell.
+            // After instantiation, we supply that instance to the container to be used as a Singleton across the app
+            _authService = new AuthService();
+            Locator.RegisterAuthService(_authService);
         }
 
         private void Initialize()
@@ -29,7 +38,7 @@ namespace TremorTrainer
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
 
             InitializeComponent();
-            MainPage = new AppShell();
+            MainPage = new AppShell(_authService);
             //(App.Current).MainPage = new AppShell();
         }
 
@@ -63,23 +72,8 @@ namespace TremorTrainer
 
                 }
 
-                // initialize supabase client
-                var url = Environment.GetEnvironmentVariable("SupabaseUrl");
-                var key = Environment.GetEnvironmentVariable("SupabaseKey");
-                var options = new Supabase.SupabaseOptions
-                {
-                    AutoRefreshToken = true
-                };
-                var supabaseClient = new Supabase.Client(url, key, options);
 
-                // check for existing session
-                if (supabaseClient.Auth.CurrentSession == null)
-                {
-                    await supabaseClient.Auth.SignIn(
-                        Environment.GetEnvironmentVariable("UserEmail"),
-                        Environment.GetEnvironmentVariable("UserPassword"));
-
-                }
+                
             }
             catch (NullReferenceException ex)
             {

@@ -7,35 +7,91 @@ using Xamarin.Essentials;
 using Supabase.Core;
 using Xamarin.Forms;
 using TremorTrainer.Services;
+using TremorTrainer.Utilities;
+using Microsoft.AppCenter;
 
 namespace TremorTrainer.ViewModels
 {
     public class LoginViewModel : BaseViewModel
     {
         private readonly IAuthService _authService;
-        
+        private readonly IMessageService _messageService;
+        private string _username;
+        private string _password;
+        public string Username
+        {
+            get => _username;
+            set
+            {
+                _username = value;
+                OnPropertyChanged("Username");
+            }
+        }
+
+        public string Password
+        {
+            get => _password;
+            set
+            {
+                _password = value;
+                OnPropertyChanged("Password");
+            }
+        }
+
+
         public Command LoginCommand { get; }
 
 
-        public LoginViewModel(IAuthService authService)
+        public LoginViewModel(IAuthService authService, IMessageService messageService)
         {
+            Username = "";
+            Password = "";
             LoginCommand = new Command(OnLoginButtonClicked);
             _authService = authService;
+            _messageService = messageService;
 
         }
 
         // todo: update this with supabase login logic
         private async void OnLoginButtonClicked(object obj)
         {
-            Console.WriteLine("Login button clicked");
+            try
+            {
+                var authResult = await _authService.Login(Username, Password);
+                if (authResult)
+                {
+                    App.Current.Properties["IsInductionSession"] = true;
+                    await Shell.Current.GoToAsync("//AccelerometerPage");
+                }
+                else
+                {
+                    throw new InternalLoginFailedException();
+                }
+            }
+            catch (InternalLoginFailedException ex)
+            {
+                await _messageService.ShowAsync("Something went wrong when trying to log in. Try again in a few minutes");
+                Console.Error.WriteLine(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // todo: send a toast notification here
+                await _messageService.ShowAsync("Login Failed: Try again using the correct username and password");
+                Console.Error.WriteLine(ex.Message);
+            }
 
-            var authResult = await _authService.Login("test", "test");
-            if (authResult)
+
+        }
+
+        public async void OnPageLoad(object obj)
+        {
+            // try to load the session if one exists
+            var didLoadSession = await _authService.TryLoadSession();
+            if (didLoadSession)
             {
                 App.Current.Properties["IsInductionSession"] = true;
                 await Shell.Current.GoToAsync("//AccelerometerPage");
             }
-
         }
     }
 }

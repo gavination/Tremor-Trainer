@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TremorTrainer.Services;
 using TremorTrainer.ViewModels;
 using TremorTrainer.Views;
 using Xamarin.Forms;
@@ -8,9 +9,11 @@ namespace TremorTrainer
 {
     public partial class AppShell : Xamarin.Forms.Shell
     {
+        private readonly IAuthService _authService;
 
-        public AppShell()
+        public AppShell(IAuthService authService)
         {
+            _authService = authService;
             InitializeComponent();
             try
             {
@@ -36,6 +39,7 @@ namespace TremorTrainer
 
         private async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
+            await _authService.Logout();
             await Shell.Current.GoToAsync("//LoginPage");
         }
     }
