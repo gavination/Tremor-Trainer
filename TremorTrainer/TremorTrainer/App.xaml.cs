@@ -5,6 +5,7 @@ using Xamarin.Forms;
 using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
+using TremorTrainer.Services;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -19,21 +20,31 @@ namespace TremorTrainer
         
         private static ViewModelLocator _locator;
         public static ViewModelLocator Locator => _locator = _locator ?? new ViewModelLocator();
+
+        private static IAuthService _authService;
+        public static IAuthService AuthService => _authService ?? (_authService = new AuthService());
+
         public App()
         {
             Initialize();
         }
 
-        private void Initialize()
+        private async void Initialize()
         {
             Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
 
             InitializeComponent();
             MainPage = new AppShell();
-            //(App.Current).MainPage = new AppShell();
+
+            // try to load the session if one exists
+            var didLoadSession = await AuthService.TryLoadSession();
+            if (didLoadSession)
+            {
+                await Shell.Current.GoToAsync("//GetStartedPage");
+            }
         }
 
-        protected override void OnStart()
+        protected override async void OnStart()
         {
             try
             {
@@ -62,6 +73,9 @@ namespace TremorTrainer
                         ($"android app center secret is present on this build. character length: ${androidAppCenterSecret.Length}");
 
                 }
+
+
+                
             }
             catch (NullReferenceException ex)
             {

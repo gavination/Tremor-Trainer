@@ -172,10 +172,22 @@
       <Visible>false</Visible>
     </ImageAsset>
     <BundleResource Include="Resources\instructionFigure.png" />
-    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure 2.png" />
-    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure 1.png" />
-    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\Contents.json" />
-    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure.png" />
+    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure 2.png">
+      <Visible>false</Visible>
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure 1.png">
+      <Visible>false</Visible>
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\Contents.json">
+      <Visible>false</Visible>
+      <Visible>false</Visible>
+    </ImageAsset>
+    <ImageAsset Include="Assets.xcassets\instructionFigure.png.imageset\instructionFigure.png">
+      <Visible>false</Visible>
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

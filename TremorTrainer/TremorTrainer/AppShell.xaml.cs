@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TremorTrainer.Services;
 using TremorTrainer.ViewModels;
 using TremorTrainer.Views;
 using Xamarin.Forms;
@@ -34,9 +35,10 @@ namespace TremorTrainer
             }
         }
 
-        private async void OnMenuItemClicked(object sender, EventArgs e)
+        private async void OnLogoutButtonClicked(object sender, EventArgs e)
         {
-            await Shell.Current.GoToAsync("//GetStartedPage");
+            await App.AuthService.Logout();
+            await Shell.Current.GoToAsync("//LoginPage");
         }
     }
 }

@@ -13,9 +13,12 @@ namespace TremorTrainer.Utilities
         {
 
             _unityContainer = new UnityContainer();
+            
 
             // Register DB Instance 
             _unityContainer.RegisterInstance<IConnection>(new DbConnection(Constants.DatabasePath, Constants.Flags));
+
+
 
             // Register types in the constructor
             // -----------------SERVICES------------------------
@@ -38,5 +41,14 @@ namespace TremorTrainer.Utilities
         public NewItemViewModel NewItemViewModel => _unityContainer.Resolve<NewItemViewModel>();
         public AccelerometerViewModel AccelerometerViewModel => _unityContainer.Resolve<AccelerometerViewModel>();
         public SettingsViewModel SettingsViewModel => _unityContainer.Resolve<SettingsViewModel>();
+        public LoginViewModel LoginViewModel => _unityContainer.Resolve<LoginViewModel>();
+
+        
+        // Register authentication service instance as a singleton in the container
+        public void RegisterAuthService(IAuthService authService)
+        {
+            _unityContainer.RegisterInstance<IAuthService>(authService, InstanceLifetime.Singleton);
+        }
+        
     }
 }
