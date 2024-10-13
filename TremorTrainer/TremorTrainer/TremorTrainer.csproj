@@ -34,25 +34,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CsvHelper" Version="27.1.1" />
-    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
-    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.5.1" />
-    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.5.1" />
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.5" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.25" />
-    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="morelinq" Version="4.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
-    <PackageReference Include="Syncfusion.Xamarin.Buttons" Version="20.3.0.47" />
-    <PackageReference Include="Syncfusion.Xamarin.Core" Version="20.3.0.47" />
-    <PackageReference Include="Syncfusion.Xamarin.SfComboBox" Version="20.3.0.47" />
-    <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="20.3.0.47" />
-    <PackageReference Include="Syncfusion.Xamarin.SfRating" Version="20.3.0.47" />
-    <PackageReference Include="Syncfusion.Xamarin.SfGauge" Version="20.3.0.47" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageReference Include="Syncfusion.Xamarin.Buttons" Version="27.1.52" />
+    <PackageReference Include="Syncfusion.Xamarin.Core" Version="27.1.52" />
+    <PackageReference Include="Syncfusion.Xamarin.SfComboBox" Version="27.1.52" />
+    <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="27.1.52" />
+    <PackageReference Include="Syncfusion.Xamarin.SfRating" Version="27.1.52" />
+    <PackageReference Include="Syncfusion.Xamarin.SfGauge" Version="27.1.52" />
     <PackageReference Include="Unity" Version="5.11.10" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2401" />  
-    <PackageReference Include="Xamarin.Essentials" Version="1.6.1" />
-    <PackageReference Include="Syncfusion.Xamarin.SfPopupLayout" Version="20.3.0.47" />
-    <PackageReference Include="supabase-csharp" Version="0.15.0" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2662" />  
+    <PackageReference Include="Xamarin.Essentials" Version="1.8.1" />
+    <PackageReference Include="Syncfusion.Xamarin.SfPopupLayout" Version="27.1.52" />
+    <PackageReference Include="supabase-csharp" Version="0.16.2" />
   </ItemGroup>
 
   <ItemGroup>
