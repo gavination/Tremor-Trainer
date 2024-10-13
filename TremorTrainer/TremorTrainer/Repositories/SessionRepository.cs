@@ -48,7 +48,7 @@ namespace TremorTrainer.Repositories
             {
                 return _database.Connection.Insert(session);
             }
-        }
+        } 
 
         public int DeleteSession(Session session)
         {
