@@ -281,6 +281,9 @@ namespace TremorTrainer.Services
             }
 
             Console.WriteLine($"BaseLine Tremor Frequency is Set at {BaselineTremorFrequency}");
+
+            // reset the Sampling Time
+            TotalSamplingTime = 0;
         }
 
         // returns the local velocity maxima along with the max frequency of tremors detected in the elapsed timeframe
@@ -334,6 +337,9 @@ namespace TremorTrainer.Services
         public void Reset()
         {
             Readings.Clear();
+            bufferX.Clear();
+            bufferY.Clear();
+            bufferZ.Clear();
         }
 
 

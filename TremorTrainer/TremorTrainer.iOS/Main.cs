@@ -16,7 +16,7 @@ namespace TremorTrainer.iOS
             // if you want to use a different Application Delegate class from "AppDelegate"
             // you can specify it here.
             SfPopupLayoutRenderer.Init();
-            UIApplication.Main(args, null, "AppDelegate");
+            UIApplication.Main(args, null, typeof(AppDelegate));
         }
 
     }
