@@ -157,6 +157,7 @@ namespace TremorTrainer.ViewModels
                 case SessionState.Idle:
 
                     // Start the accelerometer and the timer
+                    _accelerometerService.Reset();
                     _mainTimerService.Timer.Elapsed += OnSamplingMainTimerEvent;
                     _mainTimerService.SessionRunning = true;
                     _sessionStartTime = DateTime.Now;
@@ -189,6 +190,7 @@ namespace TremorTrainer.ViewModels
 
                     _currentSessionState = SessionState.Idle;
                     ToggleScreenLock();
+                    _accelerometerService.Reset();
                     Analytics.TrackEvent($"Stopping a Running session at {DateTime.Now}...");
 
                     break;
@@ -203,6 +205,8 @@ namespace TremorTrainer.ViewModels
 
                     _currentSessionState = SessionState.Idle;
                     ToggleScreenLock();
+                    _accelerometerService.Reset();
+
                     Analytics.TrackEvent($"Stopping a session during Sampling stage at {DateTime.Now}...");
 
                     break;

@@ -9,7 +9,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2401" />
+    <PackageReference Include="Syncfusion.Xamarin.Buttons" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.Core" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.SfComboBox" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.SfGauge" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.SfListView" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.SfPopupLayout" Version="27.1.58" />
+    <PackageReference Include="Syncfusion.Xamarin.SfRating" Version="27.1.58" />
+    <PackageReference Include="Xamarin.Forms" Version="5.0.0.2662" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
