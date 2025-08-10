@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using TremorTrainer.Services;
-using TremorTrainer.ViewModels;
 using TremorTrainer.Views;
 using Xamarin.Forms;
 

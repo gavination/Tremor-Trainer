@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
-    <CodesignProvision>VS: edu.virginia.tremorretainer Development</CodesignProvision>
+    <CodesignProvision>tremor-retrainer-dev-profile</CodesignProvision>
     <CodesignKey>Apple Development: Gavin Bauman (3HB3SLQB2J)</CodesignKey>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
@@ -64,9 +64,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <MtouchArch>ARM64</MtouchArch>
-    <CodesignKey>iPhone Distribution: UVA Apps, LLC (L8C6JE7MP8)</CodesignKey>
+    <CodesignKey>Apple Development: Gavin Bauman (3HB3SLQB2J)</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <CodesignProvision>Tremor Retainer Distribution Profile</CodesignProvision>
+    <CodesignProvision>tremor-retrainer-dev-profile</CodesignProvision>
     <MtouchLink>SdkOnly</MtouchLink>
     <BuildIpa>true</BuildIpa>
     <IpaPackageName>tremor-retrainer</IpaPackageName>
