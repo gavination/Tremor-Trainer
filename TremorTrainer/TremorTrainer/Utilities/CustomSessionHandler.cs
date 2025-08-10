@@ -39,7 +39,7 @@ namespace TremorTrainer.Utilities
         {
             // Destroy Session on Filesystem or in browser storage
             var cacheFileName = ".gotrue.cache";
-            var cacheDir = FileSystem.CacheDirectory;
+            var cacheDir = FileSystem.AppDataDirectory;
             var path = Path.Combine(cacheDir, cacheFileName);
             if (File.Exists(path))
             {
