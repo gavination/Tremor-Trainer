@@ -6,6 +6,7 @@ using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using TremorTrainer.Services;
+using Unity;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -93,7 +94,10 @@ namespace TremorTrainer
 
         protected override void OnSleep()
         {
-            // todo: teardown the accelerometer and timing fixtures on sleep
+            //teardown the accelerometer and timing fixtures on sleep
+            var accelerometerService = Locator.Container.Resolve<IAccelerometerService>();
+            accelerometerService?.StopAccelerometer();
+
             MainPage = new GetStartedPage();
         }
 
