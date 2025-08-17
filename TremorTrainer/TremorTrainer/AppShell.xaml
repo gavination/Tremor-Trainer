@@ -79,11 +79,13 @@
         https://docs.microsoft.com/dotnet/api/xamarin.forms.shellgroupitem.flyoutdisplayoptions?view=xamarin-forms
     -->
     <FlyoutItem Title="Login" Icon="star.png">
-        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
     </FlyoutItem>
     <FlyoutItem Title="Get Started" Icon="star.png">
-        <ShellContent Route="AccelerometerPage" ContentTemplate="{DataTemplate local:AccelerometerPage}" />
+        <ShellContent Route="GetStartedPage" ContentTemplate="{DataTemplate local:GetStartedPage}" />
     </FlyoutItem>
+    <!--<FlyoutItem Title="Get Started" Icon="star.png">
+        <ShellContent Route="AccelerometerPage" ContentTemplate="{DataTemplate local:AccelerometerPage}" />
+    </FlyoutItem>-->
     <FlyoutItem Title="Sessions" Icon="file.png">
         <ShellContent Route="SessionsPage" ContentTemplate="{DataTemplate local:SessionsPage}" />
     </FlyoutItem>
@@ -103,7 +105,8 @@
         await Shell.Current.GoToAsync("//LoginPage");
     -->
     <TabBar>
-        <ShellContent Route="SessionsPage" ContentTemplate="{DataTemplate local:SessionsPage}"/>
+        <ShellContent Route="AccelerometerPage" ContentTemplate="{DataTemplate local:AccelerometerPage}" />
+        <ShellContent Route="LoginPAge" ContentTemplate="{DataTemplate local:LoginPage}" />
     </TabBar>
 
     <!-- Optional Templates 
