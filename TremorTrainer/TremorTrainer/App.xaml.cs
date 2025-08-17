@@ -98,7 +98,7 @@ namespace TremorTrainer
             var accelerometerService = Locator.Container.Resolve<IAccelerometerService>();
             accelerometerService?.StopAccelerometer();
 
-            MainPage = new GetStartedPage();
+            //MainPage = new GetStartedPage();
         }
 
         protected override void OnResume()
