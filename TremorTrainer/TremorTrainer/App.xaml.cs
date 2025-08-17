@@ -105,10 +105,13 @@ namespace TremorTrainer
         protected override void OnResume()
         {
             // Don't reinitialize on resume - this would navigate away from current page
-            // Only restart accelerometer service if needed
             try
             {
                 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
+                
+                // Note: Accelerometer service restart logic would need to be handled 
+                // by the AccelerometerViewModel or page that was using it, since we 
+                // don't want to assume it should always restart on resume
             }
             catch (Exception ex)
             {
