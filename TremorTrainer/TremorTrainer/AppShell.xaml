@@ -106,7 +106,7 @@
     -->
     <TabBar>
         <ShellContent Route="AccelerometerPage" ContentTemplate="{DataTemplate local:AccelerometerPage}" />
-        <ShellContent Route="LoginPAge" ContentTemplate="{DataTemplate local:LoginPage}" />
+        <ShellContent Route="LoginPage" ContentTemplate="{DataTemplate local:LoginPage}" />
     </TabBar>
 
     <!-- Optional Templates 
