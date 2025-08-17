@@ -8,6 +8,8 @@ namespace TremorTrainer.Utilities
     public class ViewModelLocator
     {
         private readonly IUnityContainer _unityContainer;
+        public IUnityContainer Container => _unityContainer;
+
 
         public ViewModelLocator()
         {
@@ -25,7 +27,10 @@ namespace TremorTrainer.Utilities
             _unityContainer.RegisterType<ITimerService, TimerService>();
             _unityContainer.RegisterType<ISessionService, SessionService>();
             _unityContainer.RegisterType<IMessageService, MessageService>();
-            _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>();
+
+
+            //Make this a Singleton! Only one instance should ever exist.
+            _unityContainer.RegisterType<IAccelerometerService, AccelerometerService>(TypeLifetime.Singleton);
 
             // -----------------REPOSITORIES------------------------
             _unityContainer.RegisterType<ISessionRepository, SessionRepository>();

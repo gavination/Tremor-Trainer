@@ -6,6 +6,7 @@ using Microsoft.AppCenter;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using TremorTrainer.Services;
+using Unity;
 
 [assembly: ExportFont("Montserrat-Bold.ttf", Alias = "Montserrat-Bold")]
 [assembly: ExportFont("Montserrat-Medium.ttf", Alias = "Montserrat-Medium")]
@@ -38,6 +39,7 @@ namespace TremorTrainer
 
             // try to load the session if one exists
             var didLoadSession = await AuthService.TryLoadSession();
+            Console.WriteLine($"Session found status: {didLoadSession}");
             if (didLoadSession)
             {
                 await Shell.Current.GoToAsync("//GetStartedPage");
@@ -93,8 +95,11 @@ namespace TremorTrainer
 
         protected override void OnSleep()
         {
-            // todo: teardown the accelerometer and timing fixtures on sleep
-            MainPage = new GetStartedPage();
+            //teardown the accelerometer and timing fixtures on sleep
+            var accelerometerService = Locator.Container.Resolve<IAccelerometerService>();
+            accelerometerService?.StopAccelerometer();
+
+            //MainPage = new GetStartedPage();
         }
 
         protected override void OnResume()

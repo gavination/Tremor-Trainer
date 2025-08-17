@@ -17,7 +17,7 @@ using MathNet.Numerics;
 namespace TremorTrainer.ViewModels
 {
     
-    public class AccelerometerViewModel : BaseViewModel
+    public class AccelerometerViewModel : BaseViewModel, IDisposable
     {
         private readonly IMessageService _messageService;
         private readonly ISessionService _sessionService;
@@ -139,7 +139,7 @@ namespace TremorTrainer.ViewModels
 
             // Register Button Press Commands 
             StartSessionCommand = new Command(async () => await ToggleSessionAsync());
-            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("/SessionsPage"));
+            ViewResultsCommand = new Command(async () => await Shell.Current.GoToAsync("//SessionsPage"));
             PlaySoundCommand = new Command(async () => await _soundService.playSound());
 
             // Subscribe to necessary events
@@ -439,6 +439,32 @@ namespace TremorTrainer.ViewModels
                 Console.WriteLine($"Screen on configuration: {DeviceDisplay.KeepScreenOn}");
             });
 
+        }
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
+            {
+                // Unsubscribe from events
+                Accelerometer.ReadingChanged -= Accelerometer_ReadingChanged;
+
+                // Clean up timers
+                detectingTimer?.Dispose();
+                goalTremorTimer?.Dispose();
+
+                // Make sure accelerometer is stopped
+                _accelerometerService?.StopAccelerometer();
+
+                _disposed = true;
+            }
         }
 
     }

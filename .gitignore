@@ -411,3 +411,4 @@ appsettings.*.json
 
 #Ignore Python virtual environment
 .venv
+.aider*

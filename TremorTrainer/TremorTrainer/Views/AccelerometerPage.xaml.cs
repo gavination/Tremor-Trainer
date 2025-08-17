@@ -20,6 +20,12 @@ namespace TremorTrainer.Views
             popupLayout.Show(false);
             Shell.Current.FlyoutBehavior = FlyoutBehavior.Flyout;
         }
-            
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            _viewModel?.Dispose();
+        }
+
     }
 }
