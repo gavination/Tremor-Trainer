@@ -51,7 +51,6 @@ namespace TremorTrainer.ViewModels
 
         }
 
-        // todo: update this with supabase login logic
         private async void OnLoginButtonClicked(object obj)
         {
             try
@@ -74,7 +73,6 @@ namespace TremorTrainer.ViewModels
             }
             catch (Exception ex)
             {
-                // todo: send a toast notification here
                 await _messageService.ShowAsync("Login Failed: Try again using the correct username and password");
                 Console.Error.WriteLine(ex.Message);
             }

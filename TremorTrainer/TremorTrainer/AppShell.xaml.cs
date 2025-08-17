@@ -14,9 +14,6 @@ namespace TremorTrainer
             {
                 Routing.RegisterRoute(nameof(ItemDetailPage), typeof(ItemDetailPage));
                 Routing.RegisterRoute(nameof(NewItemPage), typeof(NewItemPage));
-                Routing.RegisterRoute(nameof(SessionsPage), typeof(SessionsPage));
-                Routing.RegisterRoute(nameof(SettingsPage), typeof(SettingsPage));
-                Routing.RegisterRoute(nameof(GetStartedPage), typeof(GetStartedPage));
 
                 // disables the hamburger menu
                 // needed to ensure we don't show it on the GetStartedPage

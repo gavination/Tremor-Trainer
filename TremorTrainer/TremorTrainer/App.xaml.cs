@@ -38,8 +38,8 @@ namespace TremorTrainer
             MainPage = new AppShell();
 
             // try to load the session if one exists
-            // Only navigate to GetStarted page on initial app startup, not on resume
             var didLoadSession = await AuthService.TryLoadSession();
+            Console.WriteLine($"Session found status: {didLoadSession}");
             if (didLoadSession)
             {
                 await Shell.Current.GoToAsync("//GetStartedPage");
@@ -104,20 +104,9 @@ namespace TremorTrainer
 
         protected override void OnResume()
         {
-            // Don't reinitialize on resume - this would navigate away from current page
-            try
-            {
-                Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(AppSettingsManager.Settings["SyncfusionCommunityLicenseKey"]);
-                
-                // Note: Accelerometer service restart logic would need to be handled 
-                // by the AccelerometerViewModel or page that was using it, since we 
-                // don't want to assume it should always restart on resume
-            }
-            catch (Exception ex)
-            {
-                // Handle licensing errors gracefully
-                System.Diagnostics.Debug.WriteLine($"Syncfusion licensing error on resume: {ex.Message}");
-            }
+            // todo: this fails with a null reference when killed and relaunched
+            Initialize();
+
         }
     }
 }
